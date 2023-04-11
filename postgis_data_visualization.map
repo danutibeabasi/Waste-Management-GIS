@@ -1,0 +1,55 @@
+MAP
+  NAME "Saint_Etienne_Waste_PostGIS_Visualization"
+  STATUS ON
+  SIZE 800 600
+  EXTENT 780153.5 6442093.3 841063.4 6518545.6
+  UNITS METERS
+  CONFIG "MS_ERRORFILE" "/home/dan/wastemanagement-project/error_log.txt"
+  DEBUG 5
+  PROJECTION
+    "init=epsg:2154"
+  END
+
+  WEB
+    METADATA
+      "wms_title" "Saint_Etienne_Waste_PostGIS_Visualization"
+      "wms_onlineresource" "http://localhost/cgi-bin/mapserv?map=/home/dan/wastemanagement-project/postgis_data_visualization.map"
+      "wms_srs" "EPSG:2154 EPSG:4326 EPSG:3857"
+      "ows_enable_request" "*"
+    END
+  END
+
+  LAYER
+    NAME "Communes_collecte"
+    STATUS DEFAULT
+    TYPE POLYGON
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "host=localhost dbname=wastemanagementdb user=postgres password=emse2023"
+    DATA "geom FROM \"Communes_collecte\" USING UNIQUE pk USING srid=2154"
+    CLASS
+      STYLE
+        COLOR 255 20 0
+        OUTLINECOLOR 0 0 0
+      END
+    END
+  END
+
+  LAYER
+    NAME "Points de collecte"
+    STATUS DEFAULT
+    TYPE LINE
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "host=localhost dbname=wastemanagementdb user=postgres password=emse2023"
+    DATA "geom FROM \"Points de collecte_CSV\" USING UNIQUE pk USING srid=2154"
+    CLASS
+      STYLE
+        COLOR 0 0 255
+        WIDTH 2
+      END
+    END
+  END
+
+
+  
+END
+

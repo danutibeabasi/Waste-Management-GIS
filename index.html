@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>PostGIS Data Visualization</title>
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/build/ol.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/css/ol.css" type="text/css">
+    <script src="https://cdn.jsdelivr.net/gh/walkermatt/ol-layerswitcher@master/dist/ol-layerswitcher.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/walkermatt/ol-layerswitcher@master/dist/ol-layerswitcher.css" type="text/css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+      html, body, #map {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+
+      // Point de collecte Layer
+      const pointDeCollecteSource = new ol.source.TileWMS({
+        title: 'Point de collecte',
+        url: 'http://localhost/cgi-bin/mapserv',
+        params: {
+          'LAYERS': 'Points de collecte',
+          'MAP': '/home/dan/wastemanagement-project/postgis_data_visualization.map'
+        },
+        serverType: 'mapserver'
+      });
+
+      const pointDeCollecteLayer = new ol.layer.Tile({
+        source: pointDeCollecteSource
+      });
+
+      // Communes de collecte Layer
+      const wmsSource = new ol.source.TileWMS({
+        title: 'Communes de collecte',
+        url: 'http://localhost/cgi-bin/mapserv',
+        params: {
+          'LAYERS': 'Communes_collecte',
+          'MAP': '/home/dan/wastemanagement-project/postgis_data_visualization.map'
+        },
+        serverType: 'mapserver'
+      });
+  
+      const communesLayer = new ol.layer.Tile({
+        source: wmsSource
+      });
+  
+      const osmLayer = new ol.layer.Tile({
+        title: 'OpenStreetMap',
+        type: 'base',
+        source: new ol.source.OSM()
+      });
+
+      // const view = new ol.View({
+      //   center: ol.proj.fromLonLat([2.3522, 48.8566]),
+      //   zoom: 12
+      // });
+
+      const view = new ol.View({
+        center: [810608.45, 6480319.45],
+        zoom: 5,
+        projection: 'EPSG:3857'
+      });
+
+      const map = new ol.Map({
+        target: 'map',
+        layers: [osmLayer, communesLayer, pointDeCollecteLayer],
+        view: view,
+        // controls: ol.control.defaults().extend([
+        //   new ol.control.LayerSwitcher()
+        // ])
+      });
+    </script>
+  </body>
+</html>
