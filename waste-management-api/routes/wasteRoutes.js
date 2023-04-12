@@ -53,6 +53,36 @@ router.get('/collectionpoint', collectionPointsController.getAllWasteCollectionP
  */
 router.get('/collectionpoint/:id', collectionPointsController.getWasteCollectionPointById);
 
+/**
+ * @swagger
+ * /collectionpoint/postalcode/{code_postal}:
+ *   get:
+ *     summary: Retrieve waste collection points by postal code
+ *     tags: [Waste Collection Points]
+ *     parameters:
+ *       - in: path
+ *         name: code_postal
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Postal code of the waste collection points
+ *     responses:
+ *       200:
+ *         description: Waste collection points retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/WasteCollectionPoint'
+ *       404:
+ *         description: Waste collection points not found
+ *       500:
+ *         description: Some server error
+ */
+router.get('/collectionpoint/postalcode/:code_postal', collectionPointsController.getWasteCollectionPointByPostalCode);
+
+
 
 // /**
 //  * @swagger

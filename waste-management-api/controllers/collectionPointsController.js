@@ -19,33 +19,55 @@ const db = require('/home/dan/wastemanagement-project/waste-management-api/db.js
 //     }
 // };
 
+
 exports.getAllWasteCollectionPoint = async (req, res) => {
-    // Your implementation for getting all waste collection points
     try {
-        const result = await db.query('SELECT pk, "Nom", "Adresse 1", "Adresse 2", "Code postal", "Ville", "Tel 1", "Mail", "Latitude", "Longitude", ST_AsGeoJSON(geom) as geom FROM "Points de collecte_CSV"');
-        console.log(result);
-        res.status(200).json(result.rows);
+      const result = await db.manyOrNone(
+        'SELECT pk, "Nom", "Adresse 1", "Adresse 2", "Code postal", "Ville", "Tel 1", "Mail", "Latitude", "Longitude", ST_AsGeoJSON(geom) as geom FROM "Points de collecte_CSV"'
+      );
+      console.log(result);
+      res.status(200).json(result);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+      res.status(500).json({ error: err.message });
     }
-};
+  };  
 
 
 exports.getWasteCollectionPointById = async (req, res) => {
-    // Your implementation for getting a waste collection point by ID
     try {
-        const { id } = req.params;
-        const result = await db.query('SELECT pk, "Nom", "Adresse 1", "Adresse 2", "Code postal", "Ville", "Tel 1", "Mail", "Latitude", "Longitude", ST_AsGeoJSON(geom) as geom FROM "Points de collecte_CSV" WHERE pk = $1', [id]);
-        
-        if (result.rows.length > 0) {
-            res.status(200).json(result.rows[0]);
-        } else {
-            res.status(404).json({ error: "Waste collection point not found" });
-        }
+      const { id } = req.params;
+      const result = await db.oneOrNone(
+        'SELECT pk, "Nom", "Adresse 1", "Adresse 2", "Code postal", "Ville", "Tel 1", "Mail", "Latitude", "Longitude", ST_AsGeoJSON(geom) as geom FROM "Points de collecte_CSV" WHERE pk = $1',
+        [id]
+      );
+  
+      if (result) {
+        res.status(200).json(result);
+      } else {
+        res.status(404).json({ error: "Waste collection point not found." });
+      }
     } catch (err) {
-        res.status(500).json({ error: err.message });
+      res.status(500).json({ error: err.message });
     }
-};
+  };
+  
+  //get all waste collection point by postal code
+  exports.getWasteCollectionPointByPostalCode = async (req, res) => {
+    try {
+      const { code_postal } = req.params;
+      const result = await db.manyOrNone(
+        'SELECT pk, "Nom", "Adresse 1", "Adresse 2", "Code postal", "Ville", "Tel 1", "Mail", "Latitude", "Longitude", ST_AsGeoJSON(geom) as geom FROM "Points de collecte_CSV" WHERE "Code postal" = $1',
+        [code_postal]
+      );
+      if (result) {
+        res.status(200).json(result);
+      } else {
+        res.status(404).json({ error: "Waste collection point not found." });
+      }
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  };
 
 
 // exports.updateWasteCollectionPoint = async (req, res) => {
@@ -63,6 +85,7 @@ exports.getWasteCollectionPointById = async (req, res) => {
 //        res.status(500).json({ error: err.message });
 //    }
 // };
+
 
 // exports.deleteWasteCollectionPoint = async (req, res) => {
 //    // Your implementation for deleting a waste collection point
