@@ -2,42 +2,77 @@
 
 // Import the database connection
 const db = require('/home/dan/wastemanagement-project/waste-management-api/db.js');
+// Create a new waste collection point in the database
+exports.createWasteCollectionPoint = async (req, res) => {
+  try {
+      const { name, address_1, address_2, postal_code, city, phone, email, latitude, longitude, code } = req.body;
+      const result = await db.oneOrNone(
+          `INSERT INTO "collection_points" ("name", "address_1", "address_2", "postal_code", "city", "phone", "email", "latitude", "longitude", "code", geom)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, ST_SetSRID(ST_MakePoint($9, $8), 4326)) RETURNING *`,
+          [name, address_1, address_2, postal_code, city, phone, email, latitude, longitude, code]
+      );
 
-// // Waste Collection Points CRUD operations
-// exports.createWasteCollectionPoint = async (req, res) => {
-//     // Your implementation for creating a new waste collection point
-//     try {
-//         const { nom, address1, address2, code_postal, ville, tel1, mail, latitude, longitude, poids_total, poids_moyen, min, max, nombre_de_bacs_totals, nombre_de_bacs_moyens, nombre_de_passage } = req.body;
-//         const result = await db.query(
-//             `INSERT INTO "Points de collecte_CSV" ("nom", "address 1", "address 2", "code postal", "ville", "tel 1", "Mail", "latitude", "longitude", "Poids total", "Poids moyen", min, max, "Nombre de bacs totals", "Nombre de bacs moyens", "Nombre de passage", geom)
-//              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, ST_SetSRID(ST_MakePoint($9, $8), 4326)) RETURNING *`,
-//             [nom, address1, address2, code_postal, ville, tel1, mail, latitude, longitude, poids_total, poids_moyen, min, max, nombre_de_bacs_totals, nombre_de_bacs_moyens, nombre_de_passage]
-//         );
-//         res.status(201).json(result.rows[0]);
-//     } catch (err) {
-//         res.status(500).json({ error: err.message });
-//     }
-// };
+      if (result) {
+        console.log(result);
+        res.status(201).json(result);
+      } else {
+        res.status(500).json({ error: "Error inserting new waste collection point." });
+      }
+  } catch (err) {
+      res.status(500).json({ error: err.message });
+  }
+};
+
+
 
 
 exports.getAllWasteCollectionPoint = async (req, res) => {
-    try {
-      const result = await db.manyOrNone(
-        'SELECT pk, "Nom", "Adresse 1", "Adresse 2", "Code postal", "Ville", "Tel 1", "Mail", "Latitude", "Longitude", ST_AsGeoJSON(geom) as geom FROM "Points de collecte_CSV"'
-      );
-      console.log(result);
-      res.status(200).json(result);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  };  
+  try {
+    const result = await db.manyOrNone(
+      'SELECT id, "name", "address_1", "address_2", "postal_code", "city", "phone", "email", "latitude", "longitude", "code", total_weight, average_weight, min_weight, max_weight, total_bins, average_bins, number_of_passages, ST_AsGeoJSON(geom) as geom FROM "collection_points"'
+    );
+    // Convert the result to GeoJSON format
+    const geojson = {
+      type: "FeatureCollection",
+      features: result.map((row) => ({
+        type: "Feature",
+        properties: {
+          id: row.id,
+          name: row.name,
+          address_1: row.address_1,
+          address_2: row.address_2,
+          postal_code: row.postal_code,
+          city: row.city,
+          phone: row.phone,
+          email: row.email,
+          latitude: row.latitude,
+          longitude: row.longitude,
+          code: row.code,
+          total_weight: row.total_weight,
+          average_weight: row.average_weight,
+          min_weight: row.min_weight,
+          max_weight: row.max_weight,
+          total_bins: row.total_bins,
+          average_bins: row.average_bins,
+          number_of_passages: row.number_of_passages,
+        },
+        geometry: JSON.parse(row.geom),
+      })),
+    };
+    res.status(200).json(geojson);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 
+
+//get waste collection point by id
 exports.getWasteCollectionPointById = async (req, res) => {
     try {
       const { id } = req.params;
       const result = await db.oneOrNone(
-        'SELECT pk, "Nom", "Adresse 1", "Adresse 2", "Code postal", "Ville", "Tel 1", "Mail", "Latitude", "Longitude", ST_AsGeoJSON(geom) as geom FROM "Points de collecte_CSV" WHERE pk = $1',
+        'SELECT id, "name", "address_1", "address_2", "postal_code", "city", "phone", "email", "latitude", "longitude", "code", ST_AsGeoJSON(geom) as geom FROM "collection_points" WHERE id = $1',
         [id]
       );
   
@@ -54,10 +89,10 @@ exports.getWasteCollectionPointById = async (req, res) => {
   //get all waste collection point by postal code
   exports.getWasteCollectionPointByPostalCode = async (req, res) => {
     try {
-      const { code_postal } = req.params;
+      const { postal_code } = req.params;
       const result = await db.manyOrNone(
-        'SELECT pk, "Nom", "Adresse 1", "Adresse 2", "Code postal", "Ville", "Tel 1", "Mail", "Latitude", "Longitude", ST_AsGeoJSON(geom) as geom FROM "Points de collecte_CSV" WHERE "Code postal" = $1',
-        [code_postal]
+        'SELECT id, "name", "address_1", "address_2", "postal_code", "city", "phone", "email", "latitude", "longitude", "code", ST_AsGeoJSON(geom) as geom FROM "collection_points" WHERE "postal_code" = $1',
+        [postal_code]
       );
       if (result) {
         res.status(200).json(result);
@@ -69,31 +104,87 @@ exports.getWasteCollectionPointById = async (req, res) => {
     }
   };
 
+// get all waste collection point by city
+exports.getWasteCollectionPointByCity = async (req, res) => {
+  try {
+    const { city } = req.params;
+    const lowercaseCity = city.toLowerCase();
+    const result = await db.manyOrNone(
+      'SELECT id, "name", "address_1", "address_2", "postal_code", "city", "phone", "email", "latitude", "longitude", "code", ST_AsGeoJSON(geom) as geom FROM "collection_points" WHERE LOWER("city") = $1',
+      [lowercaseCity]
+    );
+    if (result) {
+      res.status(200).json(result);
+    } else {
+      res.status(404).json({ error: "Waste collection point not found." });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  } 
+};
 
-// exports.updateWasteCollectionPoint = async (req, res) => {
-//     // Your implementation for updating a waste collection point
-//     try {
-//         const { id } = req.params;
-//         const { nom, address1, address2, code_postal, ville, tel1, mail, latitude, longitude, poids_total, poids_moyen, min, max, nombre_de_bacs_totals, nombre_de_bacs_moyens, nombre_de_passage } = req.body;
-//         const result = await db.query(
-//             `UPDATE "Points de collecte_CSV" SET "nom" = $1, "address 1" = $2, "address 2" = $3, "code postal" = $4, ville = $5, "tel 1" = $6, "Mail" = $7, latitude = $8, longitude = $9, "Poids total" = $10, "Poids moyen" = $11, min = $12, max = $13, "Nombre de bacs totals" = $14, "Nombre de bacs moyens" = $15, "Nombre de passage" = $16, geom = ST_SetSRID(ST_MakePoint($9, $8), 4326)
-//             WHERE id = $17 RETURNING *`,
-//            ["nom", address1, address2, code_postal, ville, tel1, mail, latitude, longitude, poids_total, poids_moyen, min, max, nombre_de_bacs_totals, nombre_de_bacs_moyens, nombre_de_passage, id]
-//        );
-//        res.status(200).json(result.rows[0]);
-//    } catch (err) {
-//        res.status(500).json({ error: err.message });
-//    }
-// };
+
+// get all waste collection point by code
+
+exports.getWasteCollectionPointByCode = async (req, res) => {
+  try {
+    const { code } = req.params;
+    const lowercaseCode = code.toLowerCase();
+    const result = await db.manyOrNone(
+      'SELECT id, "name", "address_1", "address_2", "postal_code", "city", "phone", "email", "latitude", "longitude", "code", ST_AsGeoJSON(geom) as geom FROM "collection_points" WHERE LOWER("code") = $1',
+      [lowercaseCode]
+    );
+    if (result) {
+      res.status(200).json(result);
+    } else {
+      res.status(404).json({ error: "Waste collection point not found." });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 
-// exports.deleteWasteCollectionPoint = async (req, res) => {
-//    // Your implementation for deleting a waste collection point
-//    try {
-//        const { id } = req.params;
-//        const result = await db.query('DELETE FROM "Points de collecte_CSV" WHERE id = $1 RETURNING *', [id]);
-//        res.status(200).json(result.rows[0]);
-//    } catch (err) {
-//        res.status(500).json({ error: err.message });
-//    }
-// };
+// Update an existing waste collection point in the database
+exports.updateWasteCollectionPoint = async (req, res) => {
+  try {
+    const { id, name, address_1, address_2, postal_code, city, phone, email, latitude, longitude, code } = req.body;
+
+    const result = await db.result(
+      `UPDATE "collection_points"
+       SET "name" = $2, "address_1" = $3, "address_2" = $4, "postal_code" = $5, "city" = $6, "phone" = $7, "email" = $8, "latitude" = $9, "longitude" = $10, "code" = $11, geom = ST_SetSRID(ST_MakePoint($10, $9), 4326)
+       WHERE "id" = $1`,
+      [id, name, address_1, address_2, postal_code, city, phone, email, latitude, longitude, code]
+    );
+
+    if (result.rowCount === 1) {
+      res.status(200).json({ message: "Waste collection point updated successfully." });
+    } else {
+      res.status(404).json({ error: "Waste collection point not found." });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+// Delete a waste collection point from the database
+exports.deleteWasteCollectionPoint = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await db.result(
+      `DELETE FROM "collection_points" WHERE "id" = $1`,
+      [id]
+    );
+
+    if (result.rowCount === 1) {
+      res.status(200).json({ message: "Waste collection point deleted successfully." });
+    } else {
+      res.status(404).json({ error: "Waste collection point not found." });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+

@@ -1,140 +1,77 @@
 const express = require('express');
-const router = express.Router();
+const wasteRoutes = express.Router();
 
-// Import controllers
-const collectionPointsController = require('../controllers/collectionPointsController');
-const transportationController = require('../controllers/transportationController');
-const treatmentSitesController = require('../controllers/treatmentSitesController');
+// Import the routes from the other files
+const collectionPointsRoutes = require('./collectionPointsRoutes');
+const communesRoutes = require('./communesRoutes');
+const wasteTypeRoutes = require('./wasteTypesRoutes');
 
+// Use the imported routes as middleware
+wasteRoutes.use('/', collectionPointsRoutes);
+wasteRoutes.use('/', communesRoutes);
+wasteRoutes.use('/', wasteTypeRoutes);
 
-// Routes for waste collection points
-/**
- * @swagger
- * /collectionpoint:
- *   get:
- *     summary: Retrieve a list of waste collection points
- *     tags: [Waste Collection Points]
- *     responses:
- *       200:
- *         description: A list of waste collection points
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/WasteCollectionPoint'
- */
-router.get('/collectionpoint', collectionPointsController.getAllWasteCollectionPoint);
-
-/**
- * @swagger
- * /collectionpoint/{id}:
- *   get:
- *     summary: Retrieve a waste collection point by ID
- *     tags: [Waste Collection Points]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: integer
- *         required: true
- *         description: ID of the waste collection point
- *     responses:
- *       200:
- *         description: Waste collection point retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/WasteCollectionPoint'
- *       404:
- *         description: Waste collection point not found
- *       500:
- *         description: Some server error
- */
-router.get('/collectionpoint/:id', collectionPointsController.getWasteCollectionPointById);
-
-/**
- * @swagger
- * /collectionpoint/postalcode/{code_postal}:
- *   get:
- *     summary: Retrieve waste collection points by postal code
- *     tags: [Waste Collection Points]
- *     parameters:
- *       - in: path
- *         name: code_postal
- *         schema:
- *           type: integer
- *         required: true
- *         description: Postal code of the waste collection points
- *     responses:
- *       200:
- *         description: Waste collection points retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/WasteCollectionPoint'
- *       404:
- *         description: Waste collection points not found
- *       500:
- *         description: Some server error
- */
-router.get('/collectionpoint/postalcode/:code_postal', collectionPointsController.getWasteCollectionPointByPostalCode);
+// You can add other routes and middlewares here as needed
+module.exports = wasteRoutes;
 
 
 
-// /**
-//  * @swagger
-//  * /collectionpoint/{id}:
-//  *   put:
-//  *     summary: Update a waste collection point by ID
-//  *     tags: [Waste Collection Points]
-//  *     parameters:
-//  *       - in: path
-//  *         name: id
-//  *         schema:
-//  *           type: integer
-//  *         required: true
-//  *         description: The waste collection point ID
-//  *     requestBody:
-//  *       required: true
-//  *       content:
-//  *         application/json:
-//  *           schema:
-//  *             $ref: '#/components/schemas/WasteCollectionPoint'
-//  *     responses:
-//  *       200:
-//  *         description: The updated waste collection point
-//  *         content:
-//  *           application/json:
-//  *             schema:
-//  *               $ref: '#/components/schemas/WasteCollectionPoint'
-//  *       404:
-//  *         description: Waste collection point not found
-//  */
-// router.put('/collectionpoint/:id', collectionPointsController.updateWasteCollectionPoint);
 
-// /**
-//  * @swagger
-//  * /collectionpoint/{id}:
-//  *   delete:
-//  *     summary: Delete a waste collection point by ID
-//  *     tags: [Waste Collection Points]
-//  *     parameters:
-//  *       - in: path
-//  *         name: id
-//  *         schema:
-//  *           type: integer
-//  *         required: true
-//  *         description: The waste collection point ID
-//  *     responses:
-//  *       200:
-//  *         description: Waste collection point deleted
-//  *       404:
-//  *         description: Waste collection point not found
-//  */
-// router.delete('/collectionpoint/:id', collectionPointsController.deleteWasteCollectionPoint);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -148,20 +85,463 @@ router.get('/collectionpoint/postalcode/:code_postal', collectionPointsControlle
 // router.delete('/transportation/:id', transportationController.deleteWasteTransportation);
 
 
-// // Define routes for treatment sites
-// router.post('/treatmentsite', treatmentSitesController.createTreatmentSite);
-// router.get('/treatmentsite', treatmentSitesController.getAllTreatmentSites);
-// router.get('/treatmentsite/:id', treatmentSitesController.getTreatmentSiteById);
-// router.put('/treatmentsite/:id', treatmentSitesController.updateTreatmentSite);
-// router.delete('/treatmentsite/:id', treatmentSitesController.deleteTreatmentSite);
+
+//Indicator routes
+
+// /**
+//  * @swagger
+//  * /indicators/averagebinsperiris:
+//  *   get:
+//  *     summary: Retrieve average bins per IRIS
+//  *     tags: [Indicators]
+//  *     responses:
+//  *       200:
+//  *         description: A list of average bins per IRIS
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 $ref: '#/components/schemas/AverageBinsPerIRIS'
+//  */
+// router.get('/indicators/averagebinsperiris', indicatorsController.getAverageBinsPerIRIS);
+
+// /**
+//  * @swagger
+//  * /indicators/collectionpointspercommune:
+//  *   get:
+//  *     summary: Retrieve collection points per commune
+//  *     tags: [Indicators]
+//  *     responses:
+//  *       200:
+//  *         description: A list of collection points per commune
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 $ref: '#/components/schemas/CollectionPointsPerCommune'
+//  */
+// router.get('/indicators/collectionpointspercommune', indicatorsController.getCollectionPointsPerCommune);
 
 
-// // Define routes for treatment sites technologies
-// router.post('/treatmentsite/technology', treatmentSitesController.createTreatmentSiteTechnology);
-// router.get('/treatmentsite/technology', treatmentSitesController.getAllTreatmentSiteTechnologies);
-// router.get('/treatmentsite/technology/:id', treatmentSitesController.getTreatmentSiteTechnologyById);
-// router.put('/treatmentsite/technology/:id', treatmentSitesController.updateTreatmentSiteTechnology);
-// router.delete('/treatmentsite/technology/:id', treatmentSitesController.deleteTreatmentSiteTechnology);
+
+// /**
+//  * @swagger
+//  * /indicators/collectionpointsperplatform:
+//  *   get:
+//  *     summary: Retrieve collection points per platform
+//  *     tags: [Indicators]
+//  *     responses:
+//  *       200:
+//  *         description: A list of collection points per platform
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 $ref: '#/components/schemas/CollectionPointsPerPlatform'
+//  */
+// router.get('/indicators/collectionpointsperplatform', indicatorsController.getCollectionPointsPerPlatform);
 
 
-module.exports = router;
+// /**
+//  * @swagger
+//  * /indicators/collectionpointsperiris:
+//  *   get:
+//  *     summary: Retrieve the number of collection points per IRIS
+//  *     tags: [Indicators]
+//  *     responses:
+//  *       200:
+//  *         description: A list of collection points per IRIS
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 $ref: '#/components/schemas/CollectionPointsPerIRIS'
+//  */
+// router.get('/indicators/collectionpointsperiris', indicatorsController.getCollectionPointsPerIRIS);
+
+// /**
+//  * @swagger
+//  * /indicators/distancesbetweencollectionpointsperplatform:
+//  *   get:
+//  *     summary: Retrieve the distances between collection points and platform
+//  *     tags: [Indicators]
+//  *     responses:
+//  *       200:
+//  *         description: A list of the distances between collection points and platform
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 $ref: '#/components/schemas/DistanceBetweenCollectionPointsPerPlatform'
+//  */
+// router.get('/indicators/distancesbetweencollectionpointsperplatform', indicatorsController.getDistancesBetweenCollectionPointsPerPlatform);
+
+
+// /**
+//  * @swagger
+//  * /indicators/proportionofwastecollectedperplatform:
+//  *   get:
+//  *     summary: Retrieve the proportion of waste collected per platform
+//  *     tags: [Indicators]
+//  *     responses:
+//  *       200:
+//  *         description: A list of the proportion of waste collected per platform
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 $ref: '#/components/schemas/ProportionOfWasteCollectedPerPlatform'
+//  */
+// router.get('/indicators/proportionofwastecollectedperplatform', indicatorsController.getProportionOfWasteCollectedPerPlatform);
+
+// /**
+//  * @swagger
+//  * /indicators/totalwastegeneratedpercommune:
+//  *   get:
+//  *     summary: Retrieve the total waste generated per commune
+//  *     tags: [Indicators]
+//  *     responses:
+//  *       200:
+//  *         description: A list of the total waste generated per commune
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 $ref: '#/components/schemas/TotalWasteGeneratedPerCommune'
+//  */
+// router.get('/indicators/totalwastegeneratedpercommune', indicatorsController.getTotalWasteGeneratedPerCommune);
+
+// /**
+//  * @swagger
+//  * /indicators/totalwastegeneratedperiris:
+//  *   get:
+//  *     summary: Retrieve the total waste generated per IRIS
+//  *     tags: [Indicators]
+//  *     responses:
+//  *       200:
+//  *         description: A list of the total waste generated per IRIS
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 $ref: '#/components/schemas/TotalWasteGeneratedPerIris'
+//  */
+// router.get('/indicators/totalwastegeneratedperiris', indicatorsController.getTotalWasteGeneratedPerIris);
+
+// /**
+//  * @swagger
+//  * /indicators/totalwastegeneratedperplatform:
+//  *   get:
+//  *     summary: Retrieve the total waste generated per platform
+//  *     tags: [Indicators]
+//  *     responses:
+//  *       200:
+//  *         description: A list of the total waste generated per platform
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 $ref: '#/components/schemas/TotalWasteGeneratedPerPlatform'
+//  */
+// router.get('/indicators/totalwastegeneratedperplatform', indicatorsController.getTotalWasteGeneratedPerPlatform);
+
+// /**
+//  * @swagger
+//  * /indicators/wastegenerationpercapitabyiris:
+//  *   get:
+//  *     summary: Retrieve the waste generation per capita by IRIS
+//  *     tags: [Indicators]
+//  *     responses:
+//  *       200:
+//  *         description: A list of waste generation per capita by IRIS
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 $ref: '#/components/schemas/WasteGenerationPerCapitaByIris'
+//  */
+// router.get('/indicators/wastegenerationpercapitabyiris', indicatorsController.getWasteGenerationPerCapitaByIris);
+
+// /**
+//  * @swagger
+//  * /indicators/wastegenerationpercapitabycommune:
+//  *   get:
+//  *     summary: Retrieve the waste generation per capita by commune
+//  *     tags: [Indicators]
+//  *     responses:
+//  *       200:
+//  *         description: A list of waste generation per capita by commune
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 $ref: '#/components/schemas/WasteGenerationPerCapitaByCommune'
+//  */
+// router.get('/indicators/wastegenerationpercapitabycommune', indicatorsController.getWasteGenerationPerCapitaByCommune);
+
+// /**
+//  * @swagger
+//  * /indicators/wastegeneratedpercollectionpoint:
+//  *   get:
+//  *     summary: Retrieve the waste generated per collection point
+//  *     tags: [Indicators]
+//  *     responses:
+//  *       200:
+//  *         description: A list of waste generated per collection point
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 $ref: '#/components/schemas/WasteGeneratedPerCollectionPoint'
+//  */
+// router.get('/indicators/wastegeneratedpercollectionpoint', indicatorsController.getWasteGeneratedPerCollectionPoint);
+
+// /**
+//  * @swagger
+//  * /indicators/wastecollectionefficiencybyplatform:
+//  *   get:
+//  *     summary: Retrieve the waste collection efficiency by platform
+//  *     tags: [Indicators]
+//  *     responses:
+//  *       200:
+//  *         description: A list of waste collection efficiency by platform
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 $ref: '#/components/schemas/WasteCollectionEfficiencyByPlatform'
+//  */
+// router.get('/indicators/wastecollectionefficiencybyplatform', indicatorsController.getWasteCollectionEfficiencyByPlatform);
+
+// /**
+//  * @swagger
+//  * /indicators/wastecollectionefficiencybycommune:
+//  *   get:
+//  *     summary: Retrieve the waste collection efficiency by commune
+//  *     tags: [Indicators]
+//  *     responses:
+//  *       200:
+//  *         description: A list of waste collection efficiency by commune
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 $ref: '#/components/schemas/WasteCollectionEfficiencyByCommune'
+//  */
+// router.get('/indicators/wastecollectionefficiencybycommune', indicatorsController.getWasteCollectionEfficiencyByCommune);
+
+// /**
+//  * @swagger
+//  * /indicators/averageweightwastepercollectionpoint:
+//  *   get:
+//  *     summary: Retrieve the average weight of waste per collection point
+//  *     tags: [Indicators]
+//  *     responses:
+//  *       200:
+//  *         description: A list of average weight of waste per collection point
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 $ref: '#/components/schemas/AverageWeightWastePerCollectionPoint'
+//  */
+// router.get('/indicators/averageweightwastepercollectionpoint', indicatorsController.getAverageWeightWastePerCollectionPoint);
+
+// /**
+//  * @swagger
+//  * /indicators/averageweightwastepercollectionpointbycommune:
+//  *   get:
+//  *     summary: Retrieve the average weight of waste per collection point by commune
+//  *     tags: [Indicators]
+//  *     responses:
+//  *       200:
+//  *         description: A list of average weight of waste per collection point by commune
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 $ref: '#/components/schemas/AverageWeightWastePerCollectionPointByCommune'
+//  */
+// router.get('/indicators/averageweightwastepercollectionpointbycommune', indicatorsController.getAverageWeightWastePerCollectionPointByCommune);
+
+// /**
+//  * @swagger
+//  * /indicators/averageweightwastepercollectionpointbyiris:
+//  *   get:
+//  *     summary: Retrieve the average weight of waste per collection point by IRIS
+//  *     tags: [Indicators]
+//  *     responses:
+//  *       200:
+//  *         description: A list of average weight of waste per collection point by IRIS
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 $ref: '#/components/schemas/AverageWeightWastePerCollectionPointByIRIS'
+//  */
+// router.get('/indicators/averageweightwastepercollectionpointbyiris', indicatorsController.getAverageWeightWastePerCollectionPointByIRIS);
+
+
+// /**
+//  * @swagger
+//  * /indicators/averageweightwasteperbac:
+//  *   get:
+//  *     summary: Retrieve the average weight of waste per bac
+//  *     tags: [Indicators]
+//  *     responses:
+//  *       200:
+//  *         description: A list of average weight of waste per bac
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 $ref: '#/components/schemas/AverageWeightWastePerBac'
+//  */
+// router.get('/indicators/averageweightwasteperbac', indicatorsController.getAverageWeightWastePerBac);
+
+// /**
+//  * @swagger
+//  * /indicators/populationcoveragebyplatform:
+//  *   get:
+//  *     summary: Retrieve the population coverage by platform
+//  *     tags: [Indicators]
+//  *     responses:
+//  *       200:
+//  *         description: A list of population coverage by platform
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 $ref: '#/components/schemas/PopulationCoverageByPlatform'
+//  */
+// router.get('/indicators/populationcoveragebyplatform', indicatorsController.getPopulationCoverageByPlatform);
+
+// /**
+//  * @swagger
+//  * /indicators/wastecollectionfrequencybyplatform:
+//  *   get:
+//  *     summary: Retrieve the waste collection frequency by platform
+//  *     tags: [Indicators]
+//  *     responses:
+//  *       200:
+//  *         description: A list of waste collection frequency by platform
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 $ref: '#/components/schemas/WasteCollectionFrequencyByPlatform'
+//  */
+// router.get('/indicators/wastecollectionfrequencybyplatform', indicatorsController.getWasteCollectionFrequencyByPlatform);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
