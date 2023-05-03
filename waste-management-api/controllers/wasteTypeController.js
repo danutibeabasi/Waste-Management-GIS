@@ -12,6 +12,7 @@ exports.createWasteType = async (req, res) => {
     );
 
     if (result) {
+      console.log(result);
       res.status(201).json(result);
     } else {
       res.status(500).json({ error: "Error inserting new waste type." });
@@ -20,6 +21,7 @@ exports.createWasteType = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // Get all waste types from the database
 exports.getAllWasteTypes = async (req, res) => {

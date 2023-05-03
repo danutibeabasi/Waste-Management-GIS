@@ -54,6 +54,74 @@ specs.components = {
         sum_average_bins: { type: 'number' },
       },
     },
+    WasteType:{
+      type: 'object',
+      properties: {
+        id: { type: 'integer' },
+        name: { type: 'string' },
+        description: { type: 'string' },
+      },
+    },
+    WasteContainer: {
+      type: 'object',
+      properties: {
+        id: { type: 'integer' },
+        capacity: { type: 'integer' },
+        description: { type: 'string' },
+
+      },  
+    },
+    AssignedWasteContainer: {
+      type: 'object',
+      properties: {
+        id: { type: 'integer' },
+        collection_point_id: { type: 'integer' },
+        waste_container_id: { type: 'integer' },
+        waste_type_id: { type: 'integer' },
+      }
+    },
+    CollectionSchedule: {
+      type: 'object',
+      properties: {
+        id: { type: 'integer' },
+        collection_point_id: { type: 'integer' },
+        waste_type_id: { type: 'integer' },
+        collection_day_of_week: { type: 'integer' },
+        collection_frequency: { type: 'integer' },
+      }
+    },
+    WasteRecord: {
+      type: 'object',
+      properties: {
+        id: { type: 'integer' },
+        collection_point_id: { type: 'integer' },
+        waste_type_id: { type: 'integer' },
+        weight: { type: 'number' },
+        collection_date: { type: 'string' },
+        building_id: { type: 'integer' },
+      }
+    },
+    Population: {
+      type: 'object',
+      properties: {
+        id: { type: 'integer' },
+        commune_id: { type: 'integer' },
+        iris_id: { type: 'integer' },
+        year: { type: 'integer' },
+        population_count: { type: 'integer' },
+        building_id: { type: 'integer' },
+        }
+      },
+      TransportationVehicle: {
+        type: 'object',
+        properties: {
+        id: { type: 'integer' },
+        vehicle_type: { type: 'string' },
+        capacity: { type: 'integer' },
+        fuel_type: { type: 'string' },
+        technology_id: { type: 'integer' },
+        }
+      },
     // AverageBinsPerIRIS: {
     //   type: 'object',
     //   properties: {

@@ -1,7 +1,8 @@
 
 
 // Import the database connection
-const db = require('/home/dan/wastemanagement-project/waste-management-api/db.js');
+const db = require('../db.js');
+
 // Create a new waste collection point in the database
 exports.createWasteCollectionPoint = async (req, res) => {
   try {

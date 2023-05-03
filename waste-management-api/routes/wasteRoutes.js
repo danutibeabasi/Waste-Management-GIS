@@ -4,12 +4,24 @@ const wasteRoutes = express.Router();
 // Import the routes from the other files
 const collectionPointsRoutes = require('./collectionPointsRoutes');
 const communesRoutes = require('./communesRoutes');
-const wasteTypeRoutes = require('./wasteTypesRoutes');
+const wasteTypeRoutes = require('./wasteTypeRoutes');
+const wasteContainerRoutes = require('./wasteContainerRoutes');
+const assignedWasteContainerRoutes = require('./assignedWasteContainerRoutes');
+const collectionScheduleRoutes = require('./collectionScheduleRoutes');
+const wasteRecordRoutes = require('./wasteRecordRoutes');
+const populationRoutes = require('./populationRoutes');
+const transportationVehiclesRoutes = require('./transportationVehiclesRoutes');
 
 // Use the imported routes as middleware
 wasteRoutes.use('/', collectionPointsRoutes);
 wasteRoutes.use('/', communesRoutes);
 wasteRoutes.use('/', wasteTypeRoutes);
+wasteRoutes.use('/', wasteContainerRoutes);
+wasteRoutes.use('/', assignedWasteContainerRoutes);
+wasteRoutes.use('/', collectionScheduleRoutes);
+wasteRoutes.use('/', wasteRecordRoutes);
+wasteRoutes.use('/', populationRoutes);
+wasteRoutes.use('/', transportationVehiclesRoutes);
 
 // You can add other routes and middlewares here as needed
 module.exports = wasteRoutes;
