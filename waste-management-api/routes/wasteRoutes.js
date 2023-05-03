@@ -11,6 +11,9 @@ const collectionScheduleRoutes = require('./collectionScheduleRoutes');
 const wasteRecordRoutes = require('./wasteRecordRoutes');
 const populationRoutes = require('./populationRoutes');
 const transportationVehiclesRoutes = require('./transportationVehiclesRoutes');
+const transportationRoutes = require('./transportationRoutes');
+const transportationTechnologyRoutes = require('./transportationTechnologyRoutes');
+const treatmentTechnologyRoutes = require('./treatmentTechnologyRoutes');
 
 // Use the imported routes as middleware
 wasteRoutes.use('/', collectionPointsRoutes);
@@ -22,6 +25,9 @@ wasteRoutes.use('/', collectionScheduleRoutes);
 wasteRoutes.use('/', wasteRecordRoutes);
 wasteRoutes.use('/', populationRoutes);
 wasteRoutes.use('/', transportationVehiclesRoutes);
+wasteRoutes.use('/', transportationRoutes);
+wasteRoutes.use('/', transportationTechnologyRoutes);
+wasteRoutes.use('/', treatmentTechnologyRoutes);
 
 // You can add other routes and middlewares here as needed
 module.exports = wasteRoutes;

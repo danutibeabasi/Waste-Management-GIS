@@ -122,6 +122,28 @@ specs.components = {
         technology_id: { type: 'integer' },
         }
       },
+      TransportationRoute: {
+        type: 'object',
+        properties: {
+        id: { type: 'integer' },
+        vehicle_id: { type: 'integer' },
+        collection_point_id: { type: 'integer' },
+        treatmentsite_id: { type: 'integer' },
+        distance: { type: 'number' },
+        duration: { type: 'number' },
+        }
+      },
+      TreatmentTechnology: {
+        type: 'object',
+        properties: {
+        id: { type: 'integer' },
+        name: { type: 'string' },
+        description: { type: 'string' },
+        treatment_type: { type: 'string' },
+        }
+      },
+      
+
     // AverageBinsPerIRIS: {
     //   type: 'object',
     //   properties: {
