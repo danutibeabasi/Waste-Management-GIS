@@ -2,12 +2,12 @@ MAP
   NAME "Saint_Etienne_Waste_PostGIS_Visualization"
   STATUS ON
   SIZE 800 600
-  EXTENT 780153.5 6442093.3 841063.4 6518545.6
-  UNITS METERS
+  EXTENT 4.0827800404153365 45.1683534934951112 4.7741824507896871 45.7287892804703446
+  UNITS DD
   CONFIG "MS_ERRORFILE" "/home/dan/wastemanagement-project/error_log.txt"
   DEBUG 5
   PROJECTION
-    "init=epsg:2154"
+    "init=epsg:4326"
   END
 
   WEB
@@ -15,41 +15,41 @@ MAP
       "wms_title" "Saint_Etienne_Waste_PostGIS_Visualization"
       "wms_onlineresource" "http://localhost/cgi-bin/mapserv?map=/home/dan/wastemanagement-project/postgis_data_visualization.map"
       "wms_srs" "EPSG:2154 EPSG:4326 EPSG:3857"
+      "wfs_getfeature_formatlist" "GML2,GML3,geojson"
       "ows_enable_request" "*"
     END
   END
 
-  LAYER
-    NAME "Communes_collecte"
-    STATUS DEFAULT
-    TYPE POLYGON
-    CONNECTIONTYPE POSTGIS
-    CONNECTION "host=localhost dbname=wastemanagementdb user=postgres password=emse2023"
-    DATA "geom FROM \"Communes_collecte\" USING UNIQUE pk USING srid=2154"
-    CLASS
-      STYLE
-        COLOR 255 20 0
-        OUTLINECOLOR 0 0 0
-      END
+  OUTPUTFORMAT
+    NAME "geojson"
+    DRIVER "OGR/GEOJSON"
+    MIMETYPE "application/json"
+    FORMATOPTION "STORAGE=stream"
+    FORMATOPTION "FORM=SIMPLE"
+  END
+  
+  
+  SYMBOL
+    NAME "circle"
+    TYPE ELLIPSE
+    FILLED TRUE
+    POINTS
+      1 1
     END
   END
 
   LAYER
-    NAME "Points de collecte"
+    NAME "collection_points"
     STATUS DEFAULT
-    TYPE LINE
+    TYPE POINT
     CONNECTIONTYPE POSTGIS
-    CONNECTION "host=localhost dbname=wastemanagementdb user=postgres password=emse2023"
-    DATA "geom FROM \"Points de collecte_CSV\" USING UNIQUE pk USING srid=2154"
-    CLASS
-      STYLE
-        COLOR 0 0 255
-        WIDTH 2
-      END
+    CONNECTION "host=localhost dbname=IntegratedWasteManagementDB user=postgres password=emse2023"
+    DATA "geom FROM \"collection_points\" USING UNIQUE id USING srid=4326"
+    METADATA
+      "wfs_fields" "id,city,code,average_weight,postal_code"
+      "gml_include_items" "id,city,code,average_weight,postal_code,name,latitude,longitude,address_1"
+      "wms_enable_request" "*"
     END
   END
-
-
   
 END
-

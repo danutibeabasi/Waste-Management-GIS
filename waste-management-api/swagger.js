@@ -142,6 +142,54 @@ specs.components = {
         treatment_type: { type: 'string' },
         }
       },
+      TreatmentRecord: {
+        type: 'object',
+        properties: {
+        id: { type: 'integer' },
+        treatment_site_id: { type: 'integer' },
+        waste_type_id: { type: 'integer' },
+        treatment_technology_id: { type: 'integer' },
+        weight: { type: 'number' },
+        treatment_date: { type: 'string' },
+        }
+      },
+      Building: {
+        type: 'object',
+        properties: {
+        id: { type: 'integer' },
+        building_name: { type: 'string' },
+        building_address: { type: 'string' },
+        number_of_units: { type: 'integer' },
+        geometry: { type: 'string' },
+        }
+      },
+      TreatmentSiteTechnology: {
+        type: 'object',
+        properties: {
+        id: { type: 'integer' },
+        treatment_site_id: { type: 'integer' },
+        treatment_technology_id: { type: 'integer' },
+        }
+      },
+      TreatmentSite: {
+        type: 'object',
+        properties: {
+        id: { type: 'integer' },
+        code: { type: 'string' },
+        name: { type: 'string' },
+        address_1: { type: 'string' },
+        address_2: { type: 'string' },
+        postal_code: { type: 'string' },
+        city: { type: 'string' },
+        phone: { type: 'string' },
+        email: { type: 'string' },
+        latitude: { type: 'number' },
+        longitude: { type: 'number' },
+        geometry: { type: 'string' },
+        }
+      },
+
+    
       
 
     // AverageBinsPerIRIS: {

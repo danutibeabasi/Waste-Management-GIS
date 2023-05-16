@@ -4,8 +4,6 @@
     <title>PostGIS Data Visualization</title>
     <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/build/ol.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/css/ol.css" type="text/css">
-    <script src="https://cdn.jsdelivr.net/gh/walkermatt/ol-layerswitcher@master/dist/ol-layerswitcher.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/walkermatt/ol-layerswitcher@master/dist/ol-layerswitcher.css" type="text/css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
@@ -20,61 +18,41 @@
   <body>
     <div id="map"></div>
     <script>
-
-      // Point de collecte Layer
-      const pointDeCollecteSource = new ol.source.TileWMS({
-        title: 'Point de collecte',
-        url: 'http://localhost/cgi-bin/mapserv',
-        params: {
-          'LAYERS': 'Points de collecte',
-          'MAP': '/home/dan/wastemanagement-project/postgis_data_visualization.map'
-        },
-        serverType: 'mapserver'
-      });
-
-      const pointDeCollecteLayer = new ol.layer.Tile({
-        source: pointDeCollecteSource
-      });
-
       // Communes de collecte Layer
       const wmsSource = new ol.source.TileWMS({
-        title: 'Communes de collecte',
         url: 'http://localhost/cgi-bin/mapserv',
         params: {
-          'LAYERS': 'Communes_collecte',
-          'MAP': '/home/dan/wastemanagement-project/postgis_data_visualization.map'
+          'LAYERS': 'collection_points',
+          'MAP': '/home/dan/wastemanagement-project/postgis_data_visualization.map',
+          'TILED': true,
+          'FORMAT': 'image/png',
+          'VERSION': '1.1.1',
+          'TRANSPARENT': true
         },
         serverType: 'mapserver'
       });
-  
-      const communesLayer = new ol.layer.Tile({
-        source: wmsSource
-      });
-  
+
       const osmLayer = new ol.layer.Tile({
         title: 'OpenStreetMap',
         type: 'base',
         source: new ol.source.OSM()
       });
 
-      // const view = new ol.View({
-      //   center: ol.proj.fromLonLat([2.3522, 48.8566]),
-      //   zoom: 12
-      // });
+      const collectionPointsLayer = new ol.layer.Tile({
+        title: 'collection_points',
+        source: wmsSource
+      });
 
       const view = new ol.View({
-        center: [810608.45, 6480319.45],
-        zoom: 5,
+        center: ol.proj.fromLonLat([4.3872, 45.4397]),
+        zoom: 15,
         projection: 'EPSG:3857'
       });
 
       const map = new ol.Map({
         target: 'map',
-        layers: [osmLayer, communesLayer, pointDeCollecteLayer],
+        layers: [osmLayer, collectionPointsLayer],
         view: view,
-        // controls: ol.control.defaults().extend([
-        //   new ol.control.LayerSwitcher()
-        // ])
       });
     </script>
   </body>

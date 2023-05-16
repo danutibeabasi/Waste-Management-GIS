@@ -1,0 +1,3 @@
+This script can only be used to decode form results and 
+should be initiated as a CGI process via a httpd server.
+For other options please try using the --help switch.

@@ -1,0 +1,429 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title Waste Management gis
+    meta(name="description" content="")
+    meta(name="keywords" content="")
+
+    // Favicons
+    link(href="/assets/img/favicon.png" rel="icon")
+  
+
+    // Google Fonts
+    link(href="https://fonts.gstatic.com" rel="preconnect")
+    link(href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet")
+
+    /// Vendor CSS Files
+    link(href="/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet")
+    link(href="/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet")
+    link(href="/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet")
+    link(href="/assets/vendor/quill/quill.snow.css" rel="stylesheet")
+    link(href="/assets/vendor/quill/quill.bubble.css" rel="stylesheet")
+    link(href="/assets/vendor/remixicon/remixicon.css" rel="stylesheet")
+    link(href="/assets/vendor/simple-datatables/style.css" rel="stylesheet")
+    link(href="/assets/css/style.css" rel="stylesheet")
+
+
+    script(src="https://maps.stamen.com/js/tile.stamen.js?v1.3.0")
+    script(src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/build/ol.js")
+    link(rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/css/ol.css" type="text/css")
+    script(src="https://cdn.jsdelivr.net/gh/walkermatt/ol-layerswitcher@master/dist/ol-layerswitcher.js")
+    link(rel="stylesheet" href="https://cdn.jsdelivr.net/gh/walkermatt/ol-layerswitcher@master/dist/ol-layerswitcher.css" type="text/css")
+
+    style.
+      html, body, #map {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+  body
+    // ======= Header =======
+    header#header.header.fixed-top.d-flex.align-items-center
+      div.d-flex.align-items-center.justify-content-between
+        a(href="#" class="logo d-flex align-items-center")
+        //- img(src="/assets/img/logo.png" alt="")
+        i.bi.bi-list.toggle-sidebar-btn
+
+        // End Logo
+      div.search-bar
+        form.search-form.d-flex.align-items-center(method="POST" action="#")
+          input(type="text" name="query" placeholder="Search" title="Enter search keyword")
+          button(type="submit" title="Search")
+            i.bi.bi-search
+
+      // End Search Bar
+      nav.header-nav.ms-auto
+        ul.d-flex.align-items-center
+          li.nav-item.d-block.d-lg-none
+            a.nav-link.nav-icon.search-bar-toggle(href="#")
+              i.bi.bi-search
+
+      // End Icons Navigation
+    // End Header
+
+    
+    // ======= Sidebar =======
+    aside#sidebar.sidebar
+      ul.sidebar-nav#sidebar-nav
+        // Dashboard Nav
+        include map_dashboard.pug 
+
+        // Collection Points Nav
+        include collection_point.pug
+
+        // Treatment Sites Nav
+        include treatment_sites.pug
+
+        // Communes Nav
+        include  communes.pug
+
+        // Iris Nav
+        include iris.pug
+
+        // Buildings Nav
+        include building.pug
+
+        // Indicators Nav
+        include indicators.pug
+
+
+        nav-item
+          a.nav-link.collapsed(href="#")
+            i.bi.bi-clock-history
+            span Collection Schedule
+
+        nav-item
+          a.nav-link.collapsed(href="#")
+            i.bi.bi-card-checklist
+            span Waste Records 
+
+        nav-item
+          a.nav-link.collapsed(href="#")
+            i.bi.bi-record2-fill
+            span Waste Types
+
+        nav-item
+          a.nav-link.collapsed(href="#")
+            i.bi.bi-archive
+            span Waste Containers
+
+        nav-item
+          a.nav-link.collapsed(href="#")
+            i.bi.bi-truck
+            span Transportation Vechicles
+
+        nav-item
+          a.nav-link.collapsed(href="#")
+            i.bi.bi-sign-intersection-y
+            span Transportstion Routes
+
+        nav-item
+          a.nav-link.collapsed(href="#")
+            i.bi.bi-recycle
+            span Treatment Technologies
+
+
+    main#main.main
+      div#popup
+      #map(style='position: absolute; top: 0; bottom: 0; width: 100%;') 
+
+      script.
+        const collectionPointsSource = new ol.source.Vector();
+        
+        const collectionPointsLayer = new ol.layer.Vector({
+          title: 'collection_points',
+          source: collectionPointsSource,
+          style: function (feature) {
+            console.log('Feature:', feature);
+            
+            const average_weight = feature.get('average_weight');
+            const radius = average_weight ? 3 + (average_weight / 100) * 5 : 5;
+            
+            console.log('average_weight:', average_weight, 'radius:', radius);
+            
+            return new ol.style.Style({
+              image: new ol.style.Circle({
+                radius: radius,
+                fill: new ol.style.Fill({ color: 'rgba(230, 57, 70, 1)' }),
+                stroke: new ol.style.Stroke({
+                  color: 'rgba(225, 225, 225, 1)',
+                  width: 1,
+                }),
+              }),
+            });
+          },
+        });
+
+        const osmLayer = new ol.layer.Tile({
+          title: 'OpenStreetMap',
+          type: 'base',
+          source: new ol.source.OSM(),
+        });
+
+        const view = new ol.View({
+          center: ol.proj.fromLonLat([4.3872, 45.4397]),
+          zoom: 13,
+          projection: 'EPSG:3857',
+        });
+
+        const map = new ol.Map({
+          target: 'map',
+          layers: [osmLayer, collectionPointsLayer],
+          view: view,
+        });
+
+        // Pop up
+        const popup = new ol.Overlay({
+          element: document.getElementById('popup')
+        });
+        map.addOverlay(popup);
+
+        // In your script
+        map.on('singleclick', function (evt) {
+          const feature = map.forEachFeatureAtPixel(evt.pixel, function (feature) {
+            return feature;
+          });
+
+          if (feature) {
+            const coordinates = feature.getGeometry().getCoordinates();
+            let content = `
+              <section class="section profile">
+                    <div class="col-xl-12">
+
+                      <div class="card">
+                        <div class="card-body pt-3">
+                          <!-- Bordered Tabs -->
+                          <ul class="nav nav-tabs nav-tabs-bordered">
+
+                            <li class="nav-item">
+                              <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-overview">Overview</button>
+                            </li>
+
+                            <li class="nav-item">
+                              <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">Edit Points</button>
+                            </li>
+
+                            <li class="nav-item">
+                              <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings">Delete</button>
+                            </li>
+
+                          </ul>
+                          <div class="tab-content pt-2">
+
+                            <div class="tab-pane fade show active profile-overview" id="profile-overview">
+                              <h5 class="card-title">Collection Points Details</h5>
+
+                              <div class="row">
+                                <div class="col-lg-3 col-md-4 label ">ID</div>
+                                <div class="col-lg-9 col-md-8">${feature.get('id')}</div>
+                              </div>
+
+                              <div class="row">
+                                <div class="col-lg-3 col-md-4 label">Code</div>
+                                <div class="col-lg-9 col-md-8">${feature.get('code')}</div>
+                              </div>
+
+                              <div class="row">
+                                <div class="col-lg-3 col-md-4 label">Name</div>
+                                <div class="col-lg-9 col-md-8">${feature.get('name')}</div>
+                              </div>
+
+                              <div class="row">
+                                <div class="col-lg-4 col-md-5 label">Address</div>
+                                <div class="col-lg-8 col-md-8">${feature.get('address_1')}</div>
+                              </div>
+
+                              <div class="row">
+                                <div class="col-lg-4 col-md-5 label">Postal Code</div>
+                                <div class="col-lg-6 col-md-8">${feature.get('postal_code')}</div>
+                              </div>
+
+                              <div class="row">
+                                <div class="col-lg-4 col-md-5 label">City</div>
+                                <div class="col-lg-6 col-md-8">${feature.get('city')}</div>
+                              </div>
+
+                              <div class="row">
+                                <div class="col-lg-4 col-md-5 label">Longitude</div>
+                                <div class="col-lg-8 col-md-8">${feature.get('longitude')}</div>
+                              </div>
+
+                              <div class="row">
+                                <div class="col-lg-4 col-md-5 label">Latitude</div>
+                                <div class="col-lg-8 col-md-9">${feature.get('latitude')}</div>
+                              </div>
+                            </div>
+
+                            <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
+
+                              <!-- Profile Edit Form -->
+                              <form>
+                                <div class="row mb-3">
+                                  <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Full Name</label>
+                                  <div class="col-md-8 col-lg-9">
+                                    <input name="fullName" type="text" class="form-control" id="fullName" value="Kevin Anderson">
+                                  </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                  <label for="about" class="col-md-4 col-lg-3 col-form-label">About</label>
+                                  <div class="col-md-8 col-lg-9">
+                                    <textarea name="about" class="form-control" id="about" style="height: 100px">Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Tempora libero non est unde veniam est qui dolor. Ut sunt iure rerum quae quisquam autem eveniet perspiciatis odit. Fuga sequi sed ea saepe at unde.</textarea>
+                                  </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                  <label for="company" class="col-md-4 col-lg-3 col-form-label">Company</label>
+                                  <div class="col-md-8 col-lg-9">
+                                    <input name="company" type="text" class="form-control" id="company" value="Lueilwitz, Wisoky and Leuschke">
+                                  </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                  <label for="Job" class="col-md-4 col-lg-3 col-form-label">Job</label>
+                                  <div class="col-md-8 col-lg-9">
+                                    <input name="job" type="text" class="form-control" id="Job" value="Web Designer">
+                                  </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                  <label for="Country" class="col-md-4 col-lg-3 col-form-label">Country</label>
+                                  <div class="col-md-8 col-lg-9">
+                                    <input name="country" type="text" class="form-control" id="Country" value="USA">
+                                  </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                  <label for="Address" class="col-md-4 col-lg-3 col-form-label">Address</label>
+                                  <div class="col-md-8 col-lg-9">
+                                    <input name="address" type="text" class="form-control" id="Address" value="A108 Adam Street, New York, NY 535022">
+                                  </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                  <label for="Phone" class="col-md-4 col-lg-3 col-form-label">Phone</label>
+                                  <div class="col-md-8 col-lg-9">
+                                    <input name="phone" type="text" class="form-control" id="Phone" value="(436) 486-3538 x29071">
+                                  </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                  <label for="Email" class="col-md-4 col-lg-3 col-form-label">Email</label>
+                                  <div class="col-md-8 col-lg-9">
+                                    <input name="email" type="email" class="form-control" id="Email" value="k.anderson@example.com">
+                                  </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                  <label for="Twitter" class="col-md-4 col-lg-3 col-form-label">Twitter Profile</label>
+                                  <div class="col-md-8 col-lg-9">
+                                    <input name="twitter" type="text" class="form-control" id="Twitter" value="https://twitter.com/#">
+                                  </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                  <label for="Facebook" class="col-md-4 col-lg-3 col-form-label">Facebook Profile</label>
+                                  <div class="col-md-8 col-lg-9">
+                                    <input name="facebook" type="text" class="form-control" id="Facebook" value="https://facebook.com/#">
+                                  </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                  <label for="Instagram" class="col-md-4 col-lg-3 col-form-label">Instagram Profile</label>
+                                  <div class="col-md-8 col-lg-9">
+                                    <input name="instagram" type="text" class="form-control" id="Instagram" value="https://instagram.com/#">
+                                  </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                  <label for="Linkedin" class="col-md-4 col-lg-3 col-form-label">Linkedin Profile</label>
+                                  <div class="col-md-8 col-lg-9">
+                                    <input name="linkedin" type="text" class="form-control" id="Linkedin" value="https://linkedin.com/#">
+                                  </div>
+                                </div>
+
+                                <div class="text-center">
+                                  <button type="submit" class="btn btn-primary">Save Changes</button>
+                                </div>
+                              </form><!-- End Profile Edit Form -->
+
+                            </div>
+
+                            <div class="tab-pane fade pt-3" id="profile-settings">
+
+                              <!-- Settings Form -->
+                              <form>
+
+                                <div class="row mb-3">
+                                    <div class="form-check">
+                                      <input class="form-check-input" type="checkbox" id="changesMade" checked>
+                                      <label class="form-check-label" for="changesMade">
+                                        I understand that once I click the delete button below,<br>
+                                         the collection point will be automatically removed from the system.
+                                      </label>
+                                    </div>  
+                                </div>
+
+                                <div class="text-center">
+                                  <button type="submit" class="btn btn-danger">Delete</button>
+                                </div>
+                              </form><!-- End settings Form -->
+
+                          
+
+                          </div><!-- End Bordered Tabs -->
+
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                </section>
+            
+            `;
+
+            const popupElement = popup.getElement();
+            popupElement.innerHTML = content;
+
+            // get the size of the map
+            const mapSize = map.getSize();
+
+            // get the size of the popup
+            const popupSize = [popupElement.offsetWidth, popupElement.offsetHeight];
+
+            // calculate the position of the popup so it always fits on the screen
+            const positioning = [
+              evt.pixel[0] > mapSize[0] / 2 ? 'right' : 'left',
+              evt.pixel[1] > mapSize[1] / 2 ? 'top' : 'bottom'
+            ];
+
+            // adjust the coordinates for the popup position
+            let overlayPosition = coordinates.slice();
+            overlayPosition[0] += positioning[0] === 'right' ? -popupSize[0] / 2 : popupSize[0] / 2;
+            overlayPosition[1] += positioning[1] === 'top' ? -popupSize[1] / 2 : popupSize[1] / 2;
+
+            popup.setPositioning(positioning);
+            popup.setPosition(overlayPosition);
+          } else {
+            popup.setPosition(undefined);
+          }
+        });
+
+        
+
+
+
+
+
+
+      a(href='#', class='back-to-top d-flex.align-items-center.justify-content-center')
+        i.bi.bi-arrow-up-short
+      script(src='/assets/vendor/apexcharts/apexcharts.min.js')
+      script(src='/assets/vendor/bootstrap/js/bootstrap.bundle.min.js')
+      script(src='/assets/vendor/chart.js/chart.umd.js')
+      script(src='/assets/vendor/echarts/echarts.min.js')
+      script(src='/assets/vendor/quill/quill.min.js')
+      script(src='/assets/vendor/simple-datatables/simple-datatables.js')
+      script(src='/assets/js/main.js')
