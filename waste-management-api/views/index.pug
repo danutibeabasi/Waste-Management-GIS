@@ -31,6 +31,8 @@ html(lang="en")
     link(rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/css/ol.css" type="text/css")
     script(src="https://cdn.jsdelivr.net/gh/walkermatt/ol-layerswitcher@master/dist/ol-layerswitcher.js")
     link(rel="stylesheet" href="https://cdn.jsdelivr.net/gh/walkermatt/ol-layerswitcher@master/dist/ol-layerswitcher.css" type="text/css")
+    script(src="https://code.jquery.com/jquery-3.6.0.min.js")
+    script(src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js")
 
     style.
       html, body, #map {
@@ -40,93 +42,19 @@ html(lang="en")
       }
   body
     // ======= Header =======
-    header#header.header.fixed-top.d-flex.align-items-center
-      div.d-flex.align-items-center.justify-content-between
-        a(href="#" class="logo d-flex align-items-center")
-        //- img(src="/assets/img/logo.png" alt="")
-        i.bi.bi-list.toggle-sidebar-btn
-
-        // End Logo
-      div.search-bar
-        form.search-form.d-flex.align-items-center(method="POST" action="#")
-          input(type="text" name="query" placeholder="Search" title="Enter search keyword")
-          button(type="submit" title="Search")
-            i.bi.bi-search
-
-      // End Search Bar
-      nav.header-nav.ms-auto
-        ul.d-flex.align-items-center
-          li.nav-item.d-block.d-lg-none
-            a.nav-link.nav-icon.search-bar-toggle(href="#")
-              i.bi.bi-search
-
-      // End Icons Navigation
+    include header.pug
     // End Header
 
     
     // ======= Sidebar =======
     aside#sidebar.sidebar
       ul.sidebar-nav#sidebar-nav
-        // Dashboard Nav
-        include map_dashboard.pug 
+        include sidebar_items.pug
 
-        // Collection Points Nav
-        include collection_point.pug
-
-        // Treatment Sites Nav
-        include treatment_sites.pug
-
-        // Communes Nav
-        include  communes.pug
-
-        // Iris Nav
-        include iris.pug
-
-        // Buildings Nav
-        include building.pug
-
-        // Indicators Nav
-        include indicators.pug
-
-
-        nav-item
-          a.nav-link.collapsed(href="#")
-            i.bi.bi-clock-history
-            span Collection Schedule
-
-        nav-item
-          a.nav-link.collapsed(href="#")
-            i.bi.bi-card-checklist
-            span Waste Records 
-
-        nav-item
-          a.nav-link.collapsed(href="#")
-            i.bi.bi-record2-fill
-            span Waste Types
-
-        nav-item
-          a.nav-link.collapsed(href="#")
-            i.bi.bi-archive
-            span Waste Containers
-
-        nav-item
-          a.nav-link.collapsed(href="#")
-            i.bi.bi-truck
-            span Transportation Vechicles
-
-        nav-item
-          a.nav-link.collapsed(href="#")
-            i.bi.bi-sign-intersection-y
-            span Transportstion Routes
-
-        nav-item
-          a.nav-link.collapsed(href="#")
-            i.bi.bi-recycle
-            span Treatment Technologies
+    div#popup(style="z-index: 10; touch-action: none; max-height: 80vh; overflow-x: hidden; overflow-y: auto; box-sizing: border-box; padding: 0; margin: 0;")
 
 
     main#main.main
-      div#popup
       #map(style='position: absolute; top: 0; bottom: 0; width: 100%;') 
 
       script.
@@ -180,7 +108,7 @@ html(lang="en")
         });
         map.addOverlay(popup);
 
-        // In your script
+        // pop up script
         map.on('singleclick', function (evt) {
           const feature = map.forEachFeatureAtPixel(evt.pixel, function (feature) {
             return feature;
@@ -188,235 +116,135 @@ html(lang="en")
 
           if (feature) {
             const coordinates = feature.getGeometry().getCoordinates();
-            let content = `
-              <section class="section profile">
-                    <div class="col-xl-12">
 
-                      <div class="card">
-                        <div class="card-body pt-3">
-                          <!-- Bordered Tabs -->
-                          <ul class="nav nav-tabs nav-tabs-bordered">
-
-                            <li class="nav-item">
-                              <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-overview">Overview</button>
-                            </li>
-
-                            <li class="nav-item">
-                              <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">Edit Points</button>
-                            </li>
-
-                            <li class="nav-item">
-                              <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings">Delete</button>
-                            </li>
-
-                          </ul>
-                          <div class="tab-content pt-2">
-
-                            <div class="tab-pane fade show active profile-overview" id="profile-overview">
-                              <h5 class="card-title">Collection Points Details</h5>
-
-                              <div class="row">
-                                <div class="col-lg-3 col-md-4 label ">ID</div>
-                                <div class="col-lg-9 col-md-8">${feature.get('id')}</div>
-                              </div>
-
-                              <div class="row">
-                                <div class="col-lg-3 col-md-4 label">Code</div>
-                                <div class="col-lg-9 col-md-8">${feature.get('code')}</div>
-                              </div>
-
-                              <div class="row">
-                                <div class="col-lg-3 col-md-4 label">Name</div>
-                                <div class="col-lg-9 col-md-8">${feature.get('name')}</div>
-                              </div>
-
-                              <div class="row">
-                                <div class="col-lg-4 col-md-5 label">Address</div>
-                                <div class="col-lg-8 col-md-8">${feature.get('address_1')}</div>
-                              </div>
-
-                              <div class="row">
-                                <div class="col-lg-4 col-md-5 label">Postal Code</div>
-                                <div class="col-lg-6 col-md-8">${feature.get('postal_code')}</div>
-                              </div>
-
-                              <div class="row">
-                                <div class="col-lg-4 col-md-5 label">City</div>
-                                <div class="col-lg-6 col-md-8">${feature.get('city')}</div>
-                              </div>
-
-                              <div class="row">
-                                <div class="col-lg-4 col-md-5 label">Longitude</div>
-                                <div class="col-lg-8 col-md-8">${feature.get('longitude')}</div>
-                              </div>
-
-                              <div class="row">
-                                <div class="col-lg-4 col-md-5 label">Latitude</div>
-                                <div class="col-lg-8 col-md-9">${feature.get('latitude')}</div>
-                              </div>
-                            </div>
-
-                            <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
-
-                              <!-- Profile Edit Form -->
-                              <form>
-                                <div class="row mb-3">
-                                  <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Full Name</label>
-                                  <div class="col-md-8 col-lg-9">
-                                    <input name="fullName" type="text" class="form-control" id="fullName" value="Kevin Anderson">
-                                  </div>
-                                </div>
-
-                                <div class="row mb-3">
-                                  <label for="about" class="col-md-4 col-lg-3 col-form-label">About</label>
-                                  <div class="col-md-8 col-lg-9">
-                                    <textarea name="about" class="form-control" id="about" style="height: 100px">Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Tempora libero non est unde veniam est qui dolor. Ut sunt iure rerum quae quisquam autem eveniet perspiciatis odit. Fuga sequi sed ea saepe at unde.</textarea>
-                                  </div>
-                                </div>
-
-                                <div class="row mb-3">
-                                  <label for="company" class="col-md-4 col-lg-3 col-form-label">Company</label>
-                                  <div class="col-md-8 col-lg-9">
-                                    <input name="company" type="text" class="form-control" id="company" value="Lueilwitz, Wisoky and Leuschke">
-                                  </div>
-                                </div>
-
-                                <div class="row mb-3">
-                                  <label for="Job" class="col-md-4 col-lg-3 col-form-label">Job</label>
-                                  <div class="col-md-8 col-lg-9">
-                                    <input name="job" type="text" class="form-control" id="Job" value="Web Designer">
-                                  </div>
-                                </div>
-
-                                <div class="row mb-3">
-                                  <label for="Country" class="col-md-4 col-lg-3 col-form-label">Country</label>
-                                  <div class="col-md-8 col-lg-9">
-                                    <input name="country" type="text" class="form-control" id="Country" value="USA">
-                                  </div>
-                                </div>
-
-                                <div class="row mb-3">
-                                  <label for="Address" class="col-md-4 col-lg-3 col-form-label">Address</label>
-                                  <div class="col-md-8 col-lg-9">
-                                    <input name="address" type="text" class="form-control" id="Address" value="A108 Adam Street, New York, NY 535022">
-                                  </div>
-                                </div>
-
-                                <div class="row mb-3">
-                                  <label for="Phone" class="col-md-4 col-lg-3 col-form-label">Phone</label>
-                                  <div class="col-md-8 col-lg-9">
-                                    <input name="phone" type="text" class="form-control" id="Phone" value="(436) 486-3538 x29071">
-                                  </div>
-                                </div>
-
-                                <div class="row mb-3">
-                                  <label for="Email" class="col-md-4 col-lg-3 col-form-label">Email</label>
-                                  <div class="col-md-8 col-lg-9">
-                                    <input name="email" type="email" class="form-control" id="Email" value="k.anderson@example.com">
-                                  </div>
-                                </div>
-
-                                <div class="row mb-3">
-                                  <label for="Twitter" class="col-md-4 col-lg-3 col-form-label">Twitter Profile</label>
-                                  <div class="col-md-8 col-lg-9">
-                                    <input name="twitter" type="text" class="form-control" id="Twitter" value="https://twitter.com/#">
-                                  </div>
-                                </div>
-
-                                <div class="row mb-3">
-                                  <label for="Facebook" class="col-md-4 col-lg-3 col-form-label">Facebook Profile</label>
-                                  <div class="col-md-8 col-lg-9">
-                                    <input name="facebook" type="text" class="form-control" id="Facebook" value="https://facebook.com/#">
-                                  </div>
-                                </div>
-
-                                <div class="row mb-3">
-                                  <label for="Instagram" class="col-md-4 col-lg-3 col-form-label">Instagram Profile</label>
-                                  <div class="col-md-8 col-lg-9">
-                                    <input name="instagram" type="text" class="form-control" id="Instagram" value="https://instagram.com/#">
-                                  </div>
-                                </div>
-
-                                <div class="row mb-3">
-                                  <label for="Linkedin" class="col-md-4 col-lg-3 col-form-label">Linkedin Profile</label>
-                                  <div class="col-md-8 col-lg-9">
-                                    <input name="linkedin" type="text" class="form-control" id="Linkedin" value="https://linkedin.com/#">
-                                  </div>
-                                </div>
-
-                                <div class="text-center">
-                                  <button type="submit" class="btn btn-primary">Save Changes</button>
-                                </div>
-                              </form><!-- End Profile Edit Form -->
-
-                            </div>
-
-                            <div class="tab-pane fade pt-3" id="profile-settings">
-
-                              <!-- Settings Form -->
-                              <form>
-
-                                <div class="row mb-3">
-                                    <div class="form-check">
-                                      <input class="form-check-input" type="checkbox" id="changesMade" checked>
-                                      <label class="form-check-label" for="changesMade">
-                                        I understand that once I click the delete button below,<br>
-                                         the collection point will be automatically removed from the system.
-                                      </label>
-                                    </div>  
-                                </div>
-
-                                <div class="text-center">
-                                  <button type="submit" class="btn btn-danger">Delete</button>
-                                </div>
-                              </form><!-- End settings Form -->
-
-                          
-
-                          </div><!-- End Bordered Tabs -->
-
-                        </div>
-                      </div>
-
-                    </div>
-                  </div>
-                </section>
-            
-            `;
-
-            const popupElement = popup.getElement();
-            popupElement.innerHTML = content;
-
-            // get the size of the map
-            const mapSize = map.getSize();
-
-            // get the size of the popup
-            const popupSize = [popupElement.offsetWidth, popupElement.offsetHeight];
-
-            // calculate the position of the popup so it always fits on the screen
-            const positioning = [
-              evt.pixel[0] > mapSize[0] / 2 ? 'right' : 'left',
-              evt.pixel[1] > mapSize[1] / 2 ? 'top' : 'bottom'
+            // Center the map on the clicked feature
+            // Calculate the new center of the map view
+            const size = map.getSize();
+            const resolution = view.getResolution();
+            const newCenter = [
+              coordinates[0],
+              coordinates[1] + (-size[1] / 3) * resolution
             ];
 
-            // adjust the coordinates for the popup position
-            let overlayPosition = coordinates.slice();
-            overlayPosition[0] += positioning[0] === 'right' ? -popupSize[0] / 2 : popupSize[0] / 2;
-            overlayPosition[1] += positioning[1] === 'top' ? -popupSize[1] / 2 : popupSize[1] / 2;
+            // Center the map on the new center
+            view.animate({ center: newCenter });
 
-            popup.setPositioning(positioning);
-            popup.setPosition(overlayPosition);
+            // Fetch the HTML content from the external file
+            fetch('/assets/collection-point-popup.html')
+              .then(response => response.text())
+              .then(html => {
+                // Replace placeholders in the HTML content with feature properties
+                let content = html
+                  .replace(/{{id}}/g, feature.get('id'))
+                  .replace(/{{code}}/g, feature.get('code'))
+                  .replace(/{{name}}/g, feature.get('name'))
+                  .replace(/{{address_1}}/g, feature.get('address_1'))
+                  .replace(/{{postal_code}}/g, feature.get('postal_code'))
+                  .replace(/{{city}}/g, feature.get('city'))
+                  .replace(/{{longitude}}/g, feature.get('longitude'))
+                  .replace(/{{latitude}}/g, feature.get('latitude'));
+
+                const popupElement = popup.getElement();
+                popupElement.innerHTML = content;
+
+                popup.setPosition(coordinates);
+
+                // Make the popup draggable
+                $( function() {
+                  $( "#popup" ).draggable();
+                } );
+
+                // Close button logic
+                document.querySelector('.btn-close').addEventListener('click', function() {
+                  popup.setPosition(undefined);
+                });
+
+                // Add event listener for the edit form submission
+                document.getElementById('edit-form').addEventListener('submit', function(e) {
+                  e.preventDefault();
+
+                  const id = document.getElementById('edit-id').value;
+
+                  fetch(`/collectionpoint/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      // Include the values from the form here
+                      id: document.getElementById('edit-id').value,
+                      code: document.getElementById('edit-code').value,
+                      name: document.getElementById('edit-name').value,
+                      address: document.getElementById('edit-address').value,
+                      postal_code: document.getElementById('edit-postal-code').value,
+                      city: document.getElementById('edit-city').value,
+                      longitude: document.getElementById('edit-longitude').value,
+                      latitude: document.getElementById('edit-latitude').value,
+                    }),
+                  })
+                  .then(response => response.json())
+                  .then(data => console.log(data))
+                  .catch((error) => {
+                    console.error('Error:', error);
+                  });
+                });
+
+                // Add event listener for the delete form submission
+                document.getElementById('delete-form').addEventListener('submit', function(e) {
+                  e.preventDefault();
+
+                  // Check if the checkbox is ticked
+                  if (!document.getElementById('confirm-delete').checked) {
+                    alert('You must confirm the deletion before proceeding.');
+                    return;
+                  }
+
+                  const id = document.getElementById('edit-id').value;
+
+                  fetch(`/collectionpoint/${id}`, {
+                    method: 'DELETE',
+                  })
+                  .then(response => response.json())
+                  .then(data => console.log(data))
+                  .catch((error) => {
+                    console.error('Error:', error);
+                  });
+                });
+
+              });
           } else {
             popup.setPosition(undefined);
           }
         });
-
         
 
 
+        let selected = null;
 
+        map.on('pointermove', function (e) {
+          if (selected !== null) {
+            selected.setStyle(undefined);
+            selected = null;
+          }
 
+          map.forEachFeatureAtPixel(e.pixel, function (f) {
+            selected = f;
+            f.setStyle(new ol.style.Style({
+              image: new ol.style.Circle({
+                radius: 23, // Increase the radius
+                fill: new ol.style.Fill({ color: 'rgba(120, 0, 0, 1)' }), // Change the color
+              }),
+            }));
+            return true;
+          });
+        });
 
+        map.on('pointerout', function () {
+          if (selected !== null) {
+            selected.setStyle(undefined);
+            selected = null;
+          }
+        });
 
       a(href='#', class='back-to-top d-flex.align-items-center.justify-content-center')
         i.bi.bi-arrow-up-short

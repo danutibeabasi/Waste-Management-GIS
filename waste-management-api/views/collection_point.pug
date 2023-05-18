@@ -28,7 +28,7 @@ li.nav-item
                 input.form-control(type="text", id="filterValue", aria-describedby="inputGroupPrepend2", required)
                 button.btn.btn-primary(type="submit")
                   i.bi.bi-check
-    
+ 
 
 script.
   // Fetch all data when the page loads
@@ -38,13 +38,13 @@ script.
     event.preventDefault();
 
     // Get the selected radio button value
-    const radioButtonValue = document.querySelector('input[name="collectionPointOption"]:checked').value;
+    const filterType = document.querySelector('input[name="collectionPointOption"]:checked').value;
 
     // Get the filter value
     const filterValue = document.getElementById('filterValue').value;
 
     // Fetch the data
-    fetchData(radioButtonValue, filterValue);
+    fetchData(filterType, filterValue);
   });
 
   function fetchData(radioButtonValue = null, filterValue = null) {
@@ -62,7 +62,7 @@ script.
 
     // Only add the CQL_FILTER if both radioButtonValue and filterValue are not null
     if (radioButtonValue && filterValue) {
-      wmsParams.set('FILTER', filterValue);
+      wmsParams.set('CQL_FILTER', `${radioButtonValue} = '${filterValue}'`);
     }
 
     const url = `${wmsUrl}${wmsParams.toString()}`;
@@ -86,3 +86,7 @@ script.
         console.error('Error fetching GeoJSON data:', error);
       });
   }
+
+
+
+     
