@@ -1,85 +1,37 @@
-doctype html
-html(lang="en")
-  head
-    meta(charset="utf-8")
-    meta(name="viewport" content="width=device-width, initial-scale=1.0")
-    title Waste Management gis
-    meta(name="description" content="")
-    meta(name="keywords" content="")
-
-    // Favicons
-    link(href="/assets/img/favicon.png" rel="icon")
+extends layout.pug
   
 
-    // Google Fonts
-    link(href="https://fonts.gstatic.com" rel="preconnect")
-    link(href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet")
-
-    /// Vendor CSS Files
-    link(href="/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet")
-    link(href="/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet")
-    link(href="/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet")
-    link(href="/assets/vendor/quill/quill.snow.css" rel="stylesheet")
-    link(href="/assets/vendor/quill/quill.bubble.css" rel="stylesheet")
-    link(href="/assets/vendor/remixicon/remixicon.css" rel="stylesheet")
-    link(href="/assets/vendor/simple-datatables/style.css" rel="stylesheet")
-    link(href="/assets/css/style.css" rel="stylesheet")
-
-
-    script(src="https://maps.stamen.com/js/tile.stamen.js?v1.3.0")
-    script(src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/build/ol.js")
-    link(rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/css/ol.css" type="text/css")
-    script(src="https://cdn.jsdelivr.net/gh/walkermatt/ol-layerswitcher@master/dist/ol-layerswitcher.js")
-    link(rel="stylesheet" href="https://cdn.jsdelivr.net/gh/walkermatt/ol-layerswitcher@master/dist/ol-layerswitcher.css" type="text/css")
-    script(src="https://code.jquery.com/jquery-3.6.0.min.js")
-    script(src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js")
-
-    style.
-      html, body, #map {
-        width: 100%;
-        margin: 0;
-        padding: 0;
-      }
-        .card-bottom-center {
-        position: fixed;
-        bottom: 1rem;
-        left: 40%;
-        transform: translateX(-50%);
-        z-index: 1000;
-        width: 350px;
-        height: 200px;
-      }
-  body
-    // ======= Header =======
-    include header.pug
-    // End Header
-
-    
-    // ======= Sidebar =======
-    aside#sidebar.sidebar
-      ul.sidebar-nav#sidebar-nav
-        include sidebar_items.pug
-
-    div#popup(style="z-index: 10; touch-action: none; max-height: 80vh; overflow-x: hidden; overflow-y: auto; box-sizing: border-box; padding: 0; margin: 0;")
-
-
+  
+block content
     main#main.main
       #map(style='position: absolute; top: 0; bottom: 0; width: 100%;') 
+
+      // Collection Point Popup element used to show feature details
+      div#popup(style="z-index: 10; touch-action: none; max-height: 80vh; overflow-x: hidden; overflow-y: auto; box-sizing: border-box; padding: 0; margin: 0;")
+      
+      // Collection Point Card element used to show the donut chart for waste weight
       div.card.card-bottom-center(style='display: none;')
         .card-body
           h5.card-title-charts Waste Weight
               #donutChart.echart(style='min-height: 190px; bottom: 10px;')
+      
+      
       script.
+        // Create an empty source for the collection points layer
         const collectionPointsSource = new ol.source.Vector();
         
+         // Create the collection points layer with the specified styling function
         const collectionPointsLayer = new ol.layer.Vector({
           title: 'collection_points',
           source: collectionPointsSource,
+          // Define styling function for features
           style: function (feature) {
+            // The radius depends on the average weight
             const average_weight = feature.get('average_weight');
             const radius = average_weight ? 3 + (average_weight / 100) * 5 : 5;
             
             return new ol.style.Style({
+              // Use a circular symbol with a fill and a stroke
               image: new ol.style.Circle({
                 radius: radius,
                 fill: new ol.style.Fill({ color: 'rgba(230, 57, 70, 1)' }),
@@ -92,30 +44,34 @@ html(lang="en")
           },
         });
 
+        // Create the base layer with OpenStreetMap tiles
         const osmLayer = new ol.layer.Tile({
           title: 'OpenStreetMap',
           type: 'base',
           source: new ol.source.OSM(),
         });
 
+        // Define the initial view of the map
         const view = new ol.View({
           center: ol.proj.fromLonLat([4.3872, 45.4397]),
           zoom: 13,
           projection: 'EPSG:3857',
         });
 
+        // Create the map with the specified layers and view
         const map = new ol.Map({
           target: 'map',
           layers: [osmLayer, collectionPointsLayer],
           view: view,
         });
 
-        // Pop up
+        // Create a popup overlay for the map
         const popup = new ol.Overlay({
           element: document.getElementById('popup')
         });
         map.addOverlay(popup);
 
+        // Function to display the donut chart in the card
         function showCardWithDonutChart(feature) {
           const cardElement = document.querySelector(".card.card-bottom-center");
           cardElement.style.display = "block";  // Make the card visible
@@ -169,7 +125,7 @@ html(lang="en")
         }
 
 
-        // pop up script
+        // Add an event listener for single clicks
         map.on('singleclick', function (evt) {
           const feature = map.forEachFeatureAtPixel(evt.pixel, function (feature) {
             return feature;
@@ -211,7 +167,6 @@ html(lang="en")
                 // Show the card and update the donut chart
                 showCardWithDonutChart(feature);
 
-                // Continue with the rest of your code...
                 // Make the popup draggable
                 $( function() {
                   $( "#popup" ).draggable();
@@ -284,11 +239,11 @@ html(lang="en")
 
           
         });
-            
-
-
+      
+        // Add event listeners for pointer movement and pointer out events
         let selected = null;
 
+        // Change style of the feature under the pointer
         map.on('pointermove', function (e) {
           if (selected !== null) {
             selected.setStyle(undefined);
@@ -307,6 +262,7 @@ html(lang="en")
           });
         });
 
+        // Reset style when pointer moves out of a feature
         map.on('pointerout', function () {
           if (selected !== null) {
             selected.setStyle(undefined);
@@ -314,12 +270,4 @@ html(lang="en")
           }
         });
 
-      a(href='#', class='back-to-top d-flex.align-items-center.justify-content-center')
-        i.bi.bi-arrow-up-short
-      script(src='/assets/vendor/apexcharts/apexcharts.min.js')
-      script(src='/assets/vendor/bootstrap/js/bootstrap.bundle.min.js')
-      script(src='/assets/vendor/chart.js/chart.umd.js')
-      script(src='/assets/vendor/echarts/echarts.min.js')
-      script(src='/assets/vendor/quill/quill.min.js')
-      script(src='/assets/vendor/simple-datatables/simple-datatables.js')
-      script(src='/assets/js/main.js')
+      
