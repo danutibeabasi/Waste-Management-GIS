@@ -28,7 +28,6 @@ MAP
     FORMATOPTION "FORM=SIMPLE"
   END
   
-  
   SYMBOL
     NAME "circle"
     TYPE ELLIPSE
@@ -46,10 +45,9 @@ MAP
     CONNECTION "host=localhost dbname=IntegratedWasteManagementDB user=postgres password=emse2023"
     DATA "geom FROM \"collection_points\" USING UNIQUE id USING srid=4326"
     METADATA
-      "wfs_fields" "id,city,code,average_weight,postal_code"
-      "gml_include_items" "id,city,code,average_weight,postal_code,name,latitude,longitude,address_1"
+      "wfs_fields" "id,city,code,average_weight,postal_code,total_weight,total_weight,min_weight,max_weight,name,latitude,longitude,address_1"
+      "gml_include_items" "id,city,code,average_weight,postal_code,total_weight,total_weight,min_weight,max_weight,name,latitude,longitude,address_1"
       "wms_enable_request" "*"
     END
   END
-  
 END

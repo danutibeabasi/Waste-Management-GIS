@@ -40,6 +40,15 @@ html(lang="en")
         margin: 0;
         padding: 0;
       }
+        .card-bottom-center {
+        position: fixed;
+        bottom: 1rem;
+        left: 40%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        width: 350px;
+        height: 200px;
+      }
   body
     // ======= Header =======
     include header.pug
@@ -56,7 +65,10 @@ html(lang="en")
 
     main#main.main
       #map(style='position: absolute; top: 0; bottom: 0; width: 100%;') 
-
+      div.card.card-bottom-center(style='display: none;')
+        .card-body
+          h5.card-title-charts Waste Weight
+              #donutChart.echart(style='min-height: 190px; bottom: 10px;')
       script.
         const collectionPointsSource = new ol.source.Vector();
         
@@ -64,12 +76,8 @@ html(lang="en")
           title: 'collection_points',
           source: collectionPointsSource,
           style: function (feature) {
-            console.log('Feature:', feature);
-            
             const average_weight = feature.get('average_weight');
             const radius = average_weight ? 3 + (average_weight / 100) * 5 : 5;
-            
-            console.log('average_weight:', average_weight, 'radius:', radius);
             
             return new ol.style.Style({
               image: new ol.style.Circle({
@@ -108,6 +116,59 @@ html(lang="en")
         });
         map.addOverlay(popup);
 
+        function showCardWithDonutChart(feature) {
+          const cardElement = document.querySelector(".card.card-bottom-center");
+          cardElement.style.display = "block";  // Make the card visible
+
+          // Get the waste data from the feature properties
+          const totalWeight = feature.get('total_weight');
+          const averageWeight = feature.get('average_weight');
+          const minWeight = feature.get('min_weight');
+          const maxWeight = feature.get('max_weight');
+
+          // Initialize the chart with the data
+          const donutChartElement = document.querySelector("#donutChart");
+          const donutChart = echarts.init(donutChartElement);
+          donutChart.setOption({
+            color: ['#123456', '#789abc', '#def012', '#345678'],
+            tooltip: { trigger: 'item' },
+            legend: {
+              top: '5%',
+              bottom: '3%',
+              left: 'center',
+              itemWidth: 6,
+              itemHeight: 6,
+              textStyle: { rich: { fontSize: 7 } }
+            },
+            series: [{
+              type: 'pie',
+              radius: ['40%', '70%'],
+              avoidLabelOverlap: false,
+              label: {
+                show: false,
+                position: 'center'
+              },
+              emphasis: {
+                label: {
+                  show: true,
+                  fontSize: '11',
+                  fontWeight: 'bold'
+                }
+              },
+              labelLine: {
+                show: false
+              },
+              data: [
+                { value: totalWeight, name: 'Total' },
+                { value: averageWeight, name: 'Average' },
+                { value: minWeight, name: 'Minimum' },
+                { value: maxWeight, name: 'Maximum' }
+              ]
+            }]
+          });
+        }
+
+
         // pop up script
         map.on('singleclick', function (evt) {
           const feature = map.forEachFeatureAtPixel(evt.pixel, function (feature) {
@@ -118,15 +179,12 @@ html(lang="en")
             const coordinates = feature.getGeometry().getCoordinates();
 
             // Center the map on the clicked feature
-            // Calculate the new center of the map view
             const size = map.getSize();
             const resolution = view.getResolution();
             const newCenter = [
               coordinates[0],
               coordinates[1] + (-size[1] / 3) * resolution
             ];
-
-            // Center the map on the new center
             view.animate({ center: newCenter });
 
             // Fetch the HTML content from the external file
@@ -145,10 +203,15 @@ html(lang="en")
                   .replace(/{{latitude}}/g, feature.get('latitude'));
 
                 const popupElement = popup.getElement();
+                popupElement.dataset.featureId = feature.get('id').toString();
                 popupElement.innerHTML = content;
 
                 popup.setPosition(coordinates);
 
+                // Show the card and update the donut chart
+                showCardWithDonutChart(feature);
+
+                // Continue with the rest of your code...
                 // Make the popup draggable
                 $( function() {
                   $( "#popup" ).draggable();
@@ -157,6 +220,7 @@ html(lang="en")
                 // Close button logic
                 document.querySelector('.btn-close').addEventListener('click', function() {
                   popup.setPosition(undefined);
+                  document.querySelector(".card.card-bottom-center").style.display = "none";
                 });
 
                 // Add event listener for the edit form submission
@@ -180,43 +244,47 @@ html(lang="en")
                       city: document.getElementById('edit-city').value,
                       longitude: document.getElementById('edit-longitude').value,
                       latitude: document.getElementById('edit-latitude').value,
-                    }),
-                  })
-                  .then(response => response.json())
-                  .then(data => console.log(data))
-                  .catch((error) => {
-                    console.error('Error:', error);
+                      }),
+                    })
+                    .then(response => response.json())
+                    .then(data => console.log(data))
+                    .catch((error) => {
+                      console.error('Error:', error);
+                    });
                   });
-                });
 
-                // Add event listener for the delete form submission
-                document.getElementById('delete-form').addEventListener('submit', function(e) {
-                  e.preventDefault();
+                  // Add event listener for the delete form submission
+                  document.getElementById('delete-form').addEventListener('submit', function(e) {
+                    e.preventDefault();
 
-                  // Check if the checkbox is ticked
-                  if (!document.getElementById('confirm-delete').checked) {
-                    alert('You must confirm the deletion before proceeding.');
-                    return;
-                  }
+                    // Check if the checkbox is ticked
+                    if (!document.getElementById('confirm-delete').checked) {
+                      alert('You must confirm the deletion before proceeding.');
+                      return;
+                    }
 
-                  const id = document.getElementById('edit-id').value;
+                    const id = document.getElementById('edit-id').value;
 
-                  fetch(`/collectionpoint/${id}`, {
-                    method: 'DELETE',
-                  })
-                  .then(response => response.json())
-                  .then(data => console.log(data))
-                  .catch((error) => {
-                    console.error('Error:', error);
+                    fetch(`/collectionpoint/${id}`, {
+                      method: 'DELETE',
+                    })
+                    .then(response => response.json())
+                    .then(data => console.log(data))
+                    .catch((error) => {
+                      console.error('Error:', error);
+                    });
                   });
-                });
-
               });
           } else {
             popup.setPosition(undefined);
+            // Hide the card
+            const cardElement = document.querySelector(".card.card-bottom-center");
+            cardElement.style.display = "none";
           }
+
+          
         });
-        
+            
 
 
         let selected = null;
