@@ -1,16 +1,26 @@
 const express = require('express');
 const router = express.Router();
-
-// Import controller
 const collectionPointsController = require('../controllers/collectionPointsController');
+const communesController = require('../controllers/communesController');
 
-/**
- * ************************** BEGINNING OF ROUTES FOR COLLECTION POINTS **************************
- */
+
+
+
+
+// Here is the route for creating a new collection point. Notice it's defined before the '/:id' route
+router.get('/create', async (req, res) => {
+  try {
+    const communes = await communesController.getAllCommunes(req, res);
+    res.render('createCollectionPoint', { communes: communes });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 /**
  * @swagger
- * /collectionpoint:
+ * /api/collectionpoints:
  *   post:
  *     summary: Create a new waste collection point
  *     tags: [Waste Collection Points]
@@ -28,12 +38,11 @@ const collectionPointsController = require('../controllers/collectionPointsContr
  *             schema:
  *               $ref: '#/components/schemas/WasteCollectionPoint'
  */
-router.post('/collectionpoint', collectionPointsController.createWasteCollectionPoint);
-
+router.post('/', collectionPointsController.createWasteCollectionPoint);
 
 /**
  * @swagger
- * /collectionpoint:
+ * /api/collectionpoints:
  *   get:
  *     summary: Retrieve a list of waste collection points
  *     tags: [Waste Collection Points]
@@ -47,11 +56,11 @@ router.post('/collectionpoint', collectionPointsController.createWasteCollection
  *               items:
  *                 $ref: '#/components/schemas/WasteCollectionPoint'
  */
-router.get('/collectionpoint', collectionPointsController.getAllWasteCollectionPoint);
+router.get('/', collectionPointsController.getAllWasteCollectionPoint);
 
 /**
  * @swagger
- * /collectionpoint/{id}:
+ * /api/collectionpoints/{id}:
  *   get:
  *     summary: Retrieve a waste collection point by ID
  *     tags: [Waste Collection Points]
@@ -70,11 +79,11 @@ router.get('/collectionpoint', collectionPointsController.getAllWasteCollectionP
  *             schema:
  *               $ref: '#/components/schemas/WasteCollectionPoint'
  */
-router.get('/collectionpoint/:id', collectionPointsController.getWasteCollectionPointById);
+router.get('/:id', collectionPointsController.getWasteCollectionPointById);
 
 /**
  * @swagger
- * /collectionpoint/postalcode/{postal_code}:
+ * /api/collectionpoints/postalcode/{postal_code}:
  *   get:
  *     summary: Retrieve waste collection points by postal code
  *     tags: [Waste Collection Points]
@@ -95,12 +104,12 @@ router.get('/collectionpoint/:id', collectionPointsController.getWasteCollection
  *               items:
  *                 $ref: '#/components/schemas/WasteCollectionPoint'
  */
-router.get('/collectionpoint/postalcode/:postal_code', collectionPointsController.getWasteCollectionPointByPostalCode);
+router.get('/postalcode/:postal_code', collectionPointsController.getWasteCollectionPointByPostalCode);
 
 /**
  * @swagger
- * /collectionpoint/city/{city}:
- *   get:
+ * /api/collectionpoints/city/{city}:
+    get:
  *     summary: Retrieve waste collection points by city
  *     tags: [Waste Collection Points]
  *     parameters:
@@ -120,11 +129,11 @@ router.get('/collectionpoint/postalcode/:postal_code', collectionPointsControlle
  *               items:
  *                 $ref: '#/components/schemas/WasteCollectionPoint'
  */
-router.get('/collectionpoint/city/:city', collectionPointsController.getWasteCollectionPointByCity);
+router.get('/city/:city', collectionPointsController.getWasteCollectionPointByCity);
 
 /**
  * @swagger
- * /collectionpoint/code/{code}:
+ * /api/collectionpoints/code/{code}:
  *   get:
  *     summary: Retrieve waste collection points by code
  *     tags: [Waste Collection Points]
@@ -145,12 +154,11 @@ router.get('/collectionpoint/city/:city', collectionPointsController.getWasteCol
  *               items:
  *                 $ref: '#/components/schemas/WasteCollectionPoint'
  */
-router.get('/collectionpoint/code/:code', collectionPointsController.getWasteCollectionPointByCode);
-
+router.get('/code/:code', collectionPointsController.getWasteCollectionPointByCode);
 
 /**
  * @swagger
- * /collectionpoint/{id}:
+ * /api/collectionpoints/{id}:
  *   put:
  *     summary: Update a waste collection point by ID
  *     tags: [Waste Collection Points]
@@ -177,11 +185,11 @@ router.get('/collectionpoint/code/:code', collectionPointsController.getWasteCol
  *       404:
  *         description: Waste collection point not found
  */
-router.put('/collectionpoint/:id', collectionPointsController.updateWasteCollectionPoint);
+router.put('/:id', collectionPointsController.updateWasteCollectionPoint);
 
 /**
  * @swagger
- * /collectionpoint/{id}:
+ * /api/collectionpoints/{id}:
  *   delete:
  *     summary: Delete a waste collection point by ID
  *     tags: [Waste Collection Points]
@@ -198,12 +206,11 @@ router.put('/collectionpoint/:id', collectionPointsController.updateWasteCollect
  *       404:
  *         description: Waste collection point not found
  */
-router.delete('/collectionpoint/:id', collectionPointsController.deleteWasteCollectionPoint);
+router.delete('/:id', collectionPointsController.deleteWasteCollectionPoint);
 
 
 
-/**
- * ************************** END OF ROUTES FOR COLLECTION POINTS **************************
- */
+
+
 
 module.exports = router;

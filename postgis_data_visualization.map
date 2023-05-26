@@ -45,9 +45,39 @@ MAP
     CONNECTION "host=localhost dbname=IntegratedWasteManagementDB user=postgres password=emse2023"
     DATA "geom FROM \"collection_points\" USING UNIQUE id USING srid=4326"
     METADATA
-      "wfs_fields" "id,city,code,average_weight,postal_code,total_weight,total_weight,min_weight,max_weight,name,latitude,longitude,address_1"
-      "gml_include_items" "id,city,code,average_weight,postal_code,total_weight,total_weight,min_weight,max_weight,name,latitude,longitude,address_1"
+      "wfs_fields" "id,city,code,average_weight,postal_code,total_weight,total_weight,min_weight,max_weight,name,total_bins,latitude,longitude,address_1"
+      "gml_include_items" "id,city,code,average_weight,postal_code,total_weight,total_weight,min_weight,max_weight,name,total_bins,latitude,longitude,address_1"
+      "wms_enable_request" "*"
+    END
+  END
+
+  LAYER
+    NAME "treatment_sites"
+    STATUS DEFAULT
+    TYPE POINT
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "host=localhost dbname=IntegratedWasteManagementDB user=postgres password=emse2023"
+    DATA "geom FROM \"treatment_sites\" USING UNIQUE id USING srid=4326"
+    METADATA
+      "wfs_fields" "id,code,name,address_1,address_2,postal_code,city,phone,email,latitude,longitude,fax,service_status,opening_date,closing_date,service_type_description"
+      "gml_include_items" "id,code,name,address_1,address_2,postal_code,city,phone,email,latitude,longitude,fax,service_status,opening_date,closing_date,service_type_description"
+      "wms_enable_request" "*"
+    END
+  END
+
+  LAYER
+    NAME "communes"
+    STATUS DEFAULT
+    TYPE POLYGON
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "host=localhost dbname=IntegratedWasteManagementDB user=postgres password=emse2023"
+    DATA "geom FROM \"communes\" USING UNIQUE id USING srid=4326"
+    METADATA
+      "wfs_fields" "id,commune_codeid,name,insee_code,statut,population,insee_can,insee_arr,insee_dep,insee_reg,insee_epci"
+      "gml_include_items" "id,commune_codeid,name,insee_code,statut,population,insee_can,insee_arr,insee_dep,insee_reg,insee_epci"
       "wms_enable_request" "*"
     END
   END
 END
+
+

@@ -30,6 +30,12 @@ specs.components = {
         latitude: { type: 'number' },
         longitude: { type: 'number' },
         code: { type: 'string' },
+        total_weight: { type: 'number' },
+        average_weight: { type: 'number' },
+        min_weight: { type: 'number' },
+        max_weight: { type: 'number' },
+        total_bins: { type: 'integer' },
+        average_bins: { type: 'number' },
       },
     },
     Commune: {

@@ -1,0 +1,47 @@
+extends layout
+
+block content
+  .card(style='width: 50%; margin: 0 auto; margin-top: 5%')
+    .card-body
+      h5.card-title Create Waste Collection Point
+      form.row.g-3(method='post', action='/api/collectionpoints')
+        .col-md-6
+          label.form-label(for='inputName') Name
+          input.form-control#inputName(type='text', name='name')
+        .col-md-6
+          label.form-label(for='inputAddress1') Address 1
+          input.form-control#inputAddress1(type='text', name='address_1')
+        .col-md-6
+          label.form-label(for='inputAddress2') Address 2
+          input.form-control#inputAddress2(type='text', name='address_2')
+        .col-md-6
+          label.form-label(for='inputPostalCode') Postal Code
+          input.form-control#inputPostalCode(type='text', name='postal_code')
+        .col-md-6
+          label.form-label(for='inputCity') City
+          select.form-select#inputCity(name='city')
+            each commune in communes
+              option(value=commune.name) #{commune.name}
+        .col-md-6
+          label.form-label(for='inputPhone') Phone
+          input.form-control#inputPhone(type='text', name='phone')
+        .col-md-6
+          label.form-label(for='inputEmail') Email
+          input.form-control#inputEmail(type='email', name='email')
+        .col-md-6
+          label.form-label(for='inputTotalBins') Total Bins
+          input.form-control#inputTotalBins(type='text', name='total_bins')
+        .col-md-6
+          label.form-label(for='inputTotalWeight') Total Weight
+          input.form-control#inputTotalWeight(type='text', name='total_weight')
+        .col-md-6
+          label.form-label(for='inputLatitude') Latitude
+          input.form-control#inputLatitude(type='text', name='latitude')
+        .col-md-6
+          label.form-label(for='inputLongitude') Longitude
+          input.form-control#inputLongitude(type='text', name='longitude')
+        .col-md-6
+          label.form-label(for='inputCode') Code
+          input.form-control#inputCode(type='text', name='code')
+        .text-center
+          button.btn.btn-primary(type='submit') Submit

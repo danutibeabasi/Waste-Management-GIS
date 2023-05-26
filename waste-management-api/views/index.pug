@@ -3,7 +3,14 @@ extends layout.pug
 
   
 block content
-    main#main.main
+
+
+      if message
+        .alert.alert-success.alert-dismissible.fade.show(role="alert")
+          h4.alert-heading Success Heading
+          p #{message}
+          
+            
       #map(style='position: absolute; top: 0; bottom: 0; width: 100%;') 
 
       // Collection Point Popup element used to show feature details
@@ -17,21 +24,40 @@ block content
       
       
       script.
+
+        // Create an empty source for the treatment sites layer
+        const treatmentSitesSource = new ol.source.Vector();
+        const treatmentSitesLayer = new ol.layer.Vector({
+          title: 'treatment_sites',
+          source: treatmentSitesSource,
+          // Define styling function for features
+          style: function (feature) {
+            return new ol.style.Style({
+              // Use a triangle (a regular shape with 3 sides) as the symbol
+              image: new ol.style.RegularShape({
+                points: 3,
+                radius: 15, // increase the size
+                fill: new ol.style.Fill({ color: 'black' }),
+                stroke: new ol.style.Stroke({
+                  color: 'rgba(225, 225, 225, 1)',
+                  width: 1,
+                }),
+              }),
+            });
+          },
+        });
+
+
+
         // Create an empty source for the collection points layer
         const collectionPointsSource = new ol.source.Vector();
-        
-         // Create the collection points layer with the specified styling function
         const collectionPointsLayer = new ol.layer.Vector({
           title: 'collection_points',
           source: collectionPointsSource,
-          // Define styling function for features
           style: function (feature) {
-            // The radius depends on the average weight
             const average_weight = feature.get('average_weight');
             const radius = average_weight ? 3 + (average_weight / 100) * 5 : 5;
-            
             return new ol.style.Style({
-              // Use a circular symbol with a fill and a stroke
               image: new ol.style.Circle({
                 radius: radius,
                 fill: new ol.style.Fill({ color: 'rgba(230, 57, 70, 1)' }),
@@ -61,7 +87,7 @@ block content
         // Create the map with the specified layers and view
         const map = new ol.Map({
           target: 'map',
-          layers: [osmLayer, collectionPointsLayer],
+          layers: [osmLayer, collectionPointsLayer, treatmentSitesLayer],
           view: view,
         });
 
@@ -138,8 +164,8 @@ block content
             const size = map.getSize();
             const resolution = view.getResolution();
             const newCenter = [
-              coordinates[0],
-              coordinates[1] + (-size[1] / 3) * resolution
+              coordinates[0] + (-size[1] / 8) * resolution,
+              coordinates[1] + (-size[1] / 3.5) * resolution
             ];
             view.animate({ center: newCenter });
 
@@ -155,6 +181,8 @@ block content
                   .replace(/{{address_1}}/g, feature.get('address_1'))
                   .replace(/{{postal_code}}/g, feature.get('postal_code'))
                   .replace(/{{city}}/g, feature.get('city'))
+                  .replace(/{{total_bins}}/g, feature.get('total_bins'))
+                  .replace(/{{total_weight}}/g, feature.get('total_weight'))
                   .replace(/{{longitude}}/g, feature.get('longitude'))
                   .replace(/{{latitude}}/g, feature.get('latitude'));
 
@@ -184,7 +212,7 @@ block content
 
                   const id = document.getElementById('edit-id').value;
 
-                  fetch(`/collectionpoint/${id}`, {
+                  fetch(`/api/collectionpoints/${id}`, {
                     method: 'PUT',
                     headers: {
                       'Content-Type': 'application/json',
@@ -202,33 +230,58 @@ block content
                       }),
                     })
                     .then(response => response.json())
-                    .then(data => console.log(data))
-                    .catch((error) => {
-                      console.error('Error:', error);
-                    });
-                  });
+                    .then(data => {
+                        console.log(data);
+                        // Show the alert message
+                        const alert = document.getElementById('success-alert');
+                      alert.style.display = 'block';
+                      // Hide the alert message after 5 seconds
+                        setTimeout(() => {
+                        alert.style.opacity = '0';
+                        setTimeout(() => {
+                          alert.style.display = 'none';
+                        }, 500);  // This should be the same as the duration of the CSS transition
+                      }, 1000);  // This should be the same as the duration of the CSS transition + 500ms
 
-                  // Add event listener for the delete form submission
-                  document.getElementById('delete-form').addEventListener('submit', function(e) {
-                    e.preventDefault();
-
-                    // Check if the checkbox is ticked
-                    if (!document.getElementById('confirm-delete').checked) {
-                      alert('You must confirm the deletion before proceeding.');
-                      return;
-                    }
-
-                    const id = document.getElementById('edit-id').value;
-
-                    fetch(`/collectionpoint/${id}`, {
-                      method: 'DELETE',
                     })
-                    .then(response => response.json())
-                    .then(data => console.log(data))
                     .catch((error) => {
-                      console.error('Error:', error);
+                        console.error('Error:', error);
                     });
                   });
+
+                 // Add event listener for the delete form submission
+                document.getElementById('delete-form').addEventListener('submit', function(e) {
+                  e.preventDefault();
+
+                  // Check if the checkbox is ticked
+                  if (!document.getElementById('confirm-delete').checked) {
+                    alert('You must confirm the deletion before proceeding.');
+                    return;
+                  }
+
+                  const id = document.getElementById('edit-id').value;
+
+                  fetch(`/api/collectionpoints/${id}`, {
+                    method: 'DELETE',
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                    console.log(data);
+                    // Set the alert message
+                    const alert = document.getElementById('success-alert');
+                    alert.textContent = data.message;
+                    alert.style.display = 'block';
+                    // Hide the alert message after 5 seconds
+                    setTimeout(() => {
+                      alert.style.display = 'none';
+                    }, 5000);
+                    // Redirect to the index page
+                    window.location.href = "/";
+                  })
+                  .catch((error) => {
+                    console.error('Error:', error);
+                  });
+                });
               });
           } else {
             popup.setPosition(undefined);
@@ -236,8 +289,6 @@ block content
             const cardElement = document.querySelector(".card.card-bottom-center");
             cardElement.style.display = "none";
           }
-
-          
         });
       
         // Add event listeners for pointer movement and pointer out events

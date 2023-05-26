@@ -29,12 +29,12 @@ app.set('views', path.join(__dirname, 'views'));
 // Import routes
 const wasteRoutes = require('./routes/wasteRoutes');
 
-// Use routes
-app.use('/', wasteRoutes);
+/// Use routes
+app.use('/api', wasteRoutes);
 
 // Route to serve index.pug
 app.get('/', (req, res) => {
-    res.render('index');
+    res.render('index', { message: req.query.message });
 });
 
 // Swagger setup

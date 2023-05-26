@@ -28,17 +28,31 @@ exports.createCommune = async (req, res) => {
 };
 
 // Get all communes from the database
-exports.getAllCommunes = async (req, res) => {
+exports.getAllCommunes = async () => {
   try {
     const result = await db.manyOrNone(
       'SELECT "id", "commune_codeid", "name", "insee_code", "statut", "population", "insee_can", "insee_arr", "insee_dep", "insee_reg", "insee_epci", "total_weight", "sum_average_weight", "min_weight", "max_weight", "total_bins", "sum_average_bins", "geom" FROM "communes"'
     );
 
-    res.status(200).json(result);
+    return result; // return the result directly, instead of sending a response
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    throw err; // throw the error so that it can be caught in the route handler
   }
 };
+
+
+// // Get all communes from the database
+// exports.getAllCommunes = async (req, res) => {
+//   try {
+//     const result = await db.manyOrNone(
+//       'SELECT "id", "commune_codeid", "name", "insee_code", "statut", "population", "insee_can", "insee_arr", "insee_dep", "insee_reg", "insee_epci", "total_weight", "sum_average_weight", "min_weight", "max_weight", "total_bins", "sum_average_bins", "geom" FROM "communes"'
+//     );
+
+//     res.status(200).json(result);
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// };
 
 // Get a commune by ID
 exports.getCommuneById = async (req, res) => {

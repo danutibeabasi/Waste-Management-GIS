@@ -20,22 +20,23 @@ const TreatmentSiteTechnologyRoutes = require('./treatmentSiteTechnologyRoutes')
 const TreatmentSiteRoutes = require('./treatmentSitesRoutes');
 
 // Use the imported routes as middleware
-wasteRoutes.use('/', collectionPointsRoutes);
-wasteRoutes.use('/', communesRoutes);
-wasteRoutes.use('/', wasteTypeRoutes);
-wasteRoutes.use('/', wasteContainerRoutes);
-wasteRoutes.use('/', assignedWasteContainerRoutes);
-wasteRoutes.use('/', collectionScheduleRoutes);
-wasteRoutes.use('/', wasteRecordRoutes);
-wasteRoutes.use('/', populationRoutes);
-wasteRoutes.use('/', transportationVehiclesRoutes);
-wasteRoutes.use('/', transportationRoutes);
-wasteRoutes.use('/', transportationTechnologyRoutes);
-wasteRoutes.use('/', treatmentTechnologyRoutes);
-wasteRoutes.use('/', treatmentRecordRoutes);
-wasteRoutes.use('/', buildingsRoutes);
-wasteRoutes.use('/', TreatmentSiteTechnologyRoutes);
-wasteRoutes.use('/', TreatmentSiteRoutes);
+wasteRoutes.use('/collectionpoints', collectionPointsRoutes);
+wasteRoutes.use('/communes', communesRoutes);
+wasteRoutes.use('/wastetypes', wasteTypeRoutes);
+wasteRoutes.use('/wastecontainers', wasteContainerRoutes);
+wasteRoutes.use('/assignedwastecontainers', assignedWasteContainerRoutes);
+wasteRoutes.use('/collectionschedules', collectionScheduleRoutes);
+wasteRoutes.use('/wasterecords', wasteRecordRoutes);
+wasteRoutes.use('/populations', populationRoutes);
+wasteRoutes.use('/transportationvehicles', transportationVehiclesRoutes);
+wasteRoutes.use('/transportations', transportationRoutes);
+wasteRoutes.use('/transportationtechnologies', transportationTechnologyRoutes);
+wasteRoutes.use('/treatmenttechnologies', treatmentTechnologyRoutes);
+wasteRoutes.use('/treatmentrecords', treatmentRecordRoutes);
+wasteRoutes.use('/buildings', buildingsRoutes);
+wasteRoutes.use('/treatmentsitetechnologies', TreatmentSiteTechnologyRoutes);
+wasteRoutes.use('/treatmentsites', TreatmentSiteRoutes);
+
 
 // You can add other routes and middlewares here as needed
 module.exports = wasteRoutes;

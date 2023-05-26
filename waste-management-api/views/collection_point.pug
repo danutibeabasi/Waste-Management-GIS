@@ -1,47 +1,57 @@
 li.nav-item
-  a.nav-link.collapsed(href='#', data-bs-toggle='collapse', data-bs-target='#components-nav')
+  a.nav-link.collapsed(href='', data-bs-toggle='collapse', data-bs-target='#components-nav')
     i.bi.bi-geo-alt-fill
-    span(onclick="fetchData('collection_points')") Collection points
+    span Collection points
     i.bi.bi-chevron-down.ms-auto
   ul#components-nav.nav-content.collapse(data-bs-parent='#sidebar-nav')
     li
-      a(href="#")
+      a(href="/?layer=collection_points")
+        i.bi.bi-circle
+        span See all Collection Points
+
+    li
+      a(href="/api/collectionpoints/create")
         i.bi.bi-circle
         span Create Collection Point
-    li
+
+    li 
       a(href="#")
         i.bi.bi-circle
         span Filter Points
     li 
-      div
-        form.ml-5(id="filterForm")
+      div.form-filter
+        form.ml-5(id="collectionFilterForm")
           .row
             .col-md-12
               .input-group.mt-2.form-option
                 .col-md-4
-                  select#filterOptions.form-control(name="filterType")
+                  select#collectionFilterOptions.form-control(name="filterType")
                     option(value="id") ID
                     option(value="code") Code
                     option(value="postal_code") Postal Code
                     //- option(value="city") City
                 .col-md-5
-                  input.form-control(type="text", id="filterValue", aria-describedby="inputGroupPrepend2", required)
+                  input.form-control(type="text", id="collectionFilterValue", aria-describedby="inputGroupPrepend2", required)
                 .col-md-3  
                   button.btn.btn-primary(type="submit")
                     i.bi.bi-check-circle
 script.
+
+  async function isPostalCodeExist(filterValue) {
+    const result = await db.manyOrNone('SELECT * FROM collection_points WHERE postal_code = $1', [filterValue]);
+    return result.rows.length > 0;
+    }
+
   // Fetch all data when the page loads
   fetchData('collection_points');
 
-  const filterForm = document.getElementById('filterForm');
-  filterForm.addEventListener('submit', function(event) {
+  const collectionFilterForm = document.getElementById('collectionFilterForm');
+  collectionFilterForm.addEventListener('submit', function(event) {
     event.preventDefault();
 
     // Get the selected option value
-    const filterType = document.getElementById('filterOptions').value;
-
-    // Get the filter value
-    const filterValue = document.getElementById('filterValue').value;
+    const filterType = document.getElementById('collectionFilterOptions').value;
+    const filterValue = document.getElementById('collectionFilterValue').value;
 
     // Validation
     if (filterType === 'id' && isNaN(filterValue)) {
@@ -54,10 +64,16 @@ script.
       return;
     }
 
-    if (filterType === 'postal_code' && isNaN(filterValue)) {
-      alert('Please enter a valid Postal Code');
-      return;
+    if (filterType === 'postal_code') {
+      if (isNaN(filterValue) || filterValue.length !== 5) {
+        alert('Please enter a valid Postal Code');
+        return;
+      } else if (!isPostalCodeExist(filterValue)) {
+        alert('Postal Code does not exist in the system');
+        return;
+      }
     }
+
 
     if (filterType === 'city' && !/^[a-zA-Z\s]+$/.test(filterValue)) {
       alert('City must only contain letters');

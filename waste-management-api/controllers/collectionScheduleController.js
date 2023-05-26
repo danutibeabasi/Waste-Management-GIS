@@ -12,7 +12,7 @@ exports.createCollectionSchedule = async (req, res) => {
     );
 
     if (result) {
-      res.status(201).json(result);
+      res.redirect('/?message=Collection point created successfully.');
     } else {
       res.status(500).json({ error: "Error inserting new collection schedule." });
     }
