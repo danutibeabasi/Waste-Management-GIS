@@ -1,15 +1,19 @@
 // Import the database connection
 const db = require('../db.js');
 
+
 // Create a new waste record in the database
 exports.createWasteRecord = async (req, res) => {
   try {
     const { collection_point_id, waste_type_id, weight, collection_date, building_id } = req.body;
+    console.log("Request Body: ", req.body); // Log the request body
     const result = await db.oneOrNone(
       `INSERT INTO "waste_records" ("collection_point_id", "waste_type_id", "weight", "collection_date", "building_id")
        VALUES ($1, $2, $3, $4, $5) RETURNING *`,
       [collection_point_id, waste_type_id, weight, collection_date, building_id]
     );
+
+    console.log("DB Result: ", result); // Log the database result
 
     if (result) {
       res.status(201).json(result);
@@ -17,26 +21,40 @@ exports.createWasteRecord = async (req, res) => {
       res.status(500).json({ error: "Error inserting new waste record." });
     }
   } catch (err) {
+    console.error("DB Error: ", err); // Log any error that occurs
     res.status(500).json({ error: err.message });
   }
 };
+
+
 
 // Get all waste records from the database
 exports.getAllWasteRecords = async (req, res) => {
   try {
     const result = await db.manyOrNone(
-      'SELECT * FROM "waste_records"'
+      `
+      SELECT 
+        waste_records.*, 
+        waste_types.name as waste_type_name 
+      FROM 
+        waste_records 
+      LEFT JOIN 
+        waste_types ON waste_records.waste_type_id = waste_types.id
+      `
     );
 
     if (result) {
       res.status(200).json(result);
     } else {
-      res.status(404).json({ error: "No waste records found." });
+      res.status(200).json([]);
     }
   } catch (err) {
+    console.error(err);  // log error for debugging
     res.status(500).json({ error: err.message });
   }
 };
+
+
 
 // Get a waste record by its ID
 exports.getWasteRecordById = async (req, res) => {

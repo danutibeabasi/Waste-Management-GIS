@@ -35,7 +35,7 @@ wasteRoutes.use('/treatmenttechnologies', treatmentTechnologyRoutes);
 wasteRoutes.use('/treatmentrecords', treatmentRecordRoutes);
 wasteRoutes.use('/buildings', buildingsRoutes);
 wasteRoutes.use('/treatmentsitetechnologies', TreatmentSiteTechnologyRoutes);
-wasteRoutes.use('/treatmentsites', TreatmentSiteRoutes);
+wasteRoutes.use('/treatmentsite', TreatmentSiteRoutes);
 
 
 // You can add other routes and middlewares here as needed

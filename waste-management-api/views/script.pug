@@ -1,0 +1,143 @@
+map.on('singleclick', function (evt) {
+  const feature = map.forEachFeatureAtPixel(evt.pixel, function (feature) {
+    return feature;
+  });
+
+  if (feature) {
+    const coordinates = feature.getGeometry().getCoordinates();
+
+    // Center the map on the clicked feature
+    const size = map.getSize();
+    const resolution = view.getResolution();
+    const newCenter = [
+      coordinates[0] + (-size[1] / 8) * resolution,
+      coordinates[1] + (-size[1] / 3.5) * resolution
+    ];
+    view.animate({ center: newCenter });
+
+    // Fetch the HTML content from the external file
+    let fetchUrl = '/assets/collection-point-popup.html';
+    if (feature.get('layer') === 'treatment_sites') {
+      fetchUrl = '/assets/treatment-site-popup.html';  // Replace with your HTML file for treatment sites
+    }
+
+    fetch(fetchUrl)
+      .then(response => response.text())
+      .then(html => {
+        // Replace placeholders in the HTML content with feature properties
+        let content = html
+                  .replace(/{{id}}/g, feature.get('id'))
+                  .replace(/{{code}}/g, feature.get('code'))
+                  .replace(/{{name}}/g, feature.get('name'))
+                  .replace(/{{address_1}}/g, feature.get('address_1'))
+                  .replace(/{{postal_code}}/g, feature.get('postal_code'))
+                  .replace(/{{city}}/g, feature.get('city'))
+                  .replace(/{{total_bins}}/g, feature.get('total_bins'))
+                  .replace(/{{total_weight}}/g, feature.get('total_weight'))
+                  .replace(/{{longitude}}/g, feature.get('longitude'))
+                  .replace(/{{latitude}}/g, feature.get('latitude'));
+
+                const popupElement = popup.getElement();
+                popupElement.dataset.featureId = feature.get('id').toString();
+                popupElement.innerHTML = content;
+
+                popup.setPosition(coordinates);
+
+                // Show the card and update the donut chart
+                showCardWithDonutChart(feature);
+
+                // Make the popup draggable
+                $( function() {
+                  $( "#popup" ).draggable();
+                } );
+
+                // Close button logic
+                document.querySelector('.btn-close').addEventListener('click', function() {
+                  popup.setPosition(undefined);
+                  document.querySelector(".card.card-bottom-center").style.display = "none";
+                });
+
+                // Add event listener for the edit form submission
+                document.getElementById('edit-form').addEventListener('submit', function(e) {
+                  e.preventDefault();
+
+                  const id = document.getElementById('edit-id').value;
+
+                  fetch(`/api/collectionpoints/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      // Include the values from the form here
+                      id: document.getElementById('edit-id').value,
+                      code: document.getElementById('edit-code').value,
+                      name: document.getElementById('edit-name').value,
+                      address: document.getElementById('edit-address').value,
+                      postal_code: document.getElementById('edit-postal-code').value,
+                      city: document.getElementById('edit-city').value,
+                      longitude: document.getElementById('edit-longitude').value,
+                      latitude: document.getElementById('edit-latitude').value,
+                      }),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        // Show the alert message
+                        const alert = document.getElementById('success-alert');
+                      alert.style.display = 'block';
+                      // Hide the alert message after 5 seconds
+                        setTimeout(() => {
+                        alert.style.opacity = '0';
+                        setTimeout(() => {
+                          alert.style.display = 'none';
+                        }, 500);  // This should be the same as the duration of the CSS transition
+                      }, 1000);  // This should be the same as the duration of the CSS transition + 500ms
+
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                    });
+                  });
+
+                 // Add event listener for the delete form submission
+                document.getElementById('delete-form').addEventListener('submit', function(e) {
+                  e.preventDefault();
+
+                  // Check if the checkbox is ticked
+                  if (!document.getElementById('confirm-delete').checked) {
+                    alert('You must confirm the deletion before proceeding.');
+                    return;
+                  }
+
+                  const id = document.getElementById('edit-id').value;
+
+                  fetch(`/api/collectionpoints/${id}`, {
+                    method: 'DELETE',
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                    console.log(data);
+                    // Set the alert message
+                    const alert = document.getElementById('success-alert');
+                    alert.textContent = data.message;
+                    alert.style.display = 'block';
+                    // Hide the alert message after 5 seconds
+                    setTimeout(() => {
+                      alert.style.display = 'none';
+                    }, 5000);
+                    // Redirect to the index page
+                    window.location.href = "/";
+                  })
+                  .catch((error) => {
+                    console.error('Error:', error);
+                  });
+                });
+              });
+  } else {
+    popup.setPosition(undefined);
+    // Hide the card
+    const cardElement = document.querySelector(".card.card-bottom-center");
+    cardElement.style.display = "none";
+  }
+});

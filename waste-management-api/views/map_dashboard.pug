@@ -1,4 +1,34 @@
 li.nav-item
           a.nav-link(href='/')
             i.bi.bi-grid
-            span(onclick="fetchData('collection_points')") Map Dashboard
+            span Map Dashboard
+
+script(src="./assets/js/utils.js")
+script.
+  document.addEventListener('DOMContentLoaded', (event) => {
+    // Check if we're on the '/' path with no search parameters
+    if (window.location.pathname === '/' && !window.location.search) {
+      let urlParams = new URLSearchParams(window.location.search);
+      const layer = urlParams.get('layer');
+
+      // Fetch data and handle filter form for collection points
+      window.fetchData('collection_points', null, null)
+      .then(nestedFeatures => [].concat(...nestedFeatures))
+      .then(features => {
+        collectionPointsSource.clear();
+        collectionPointsSource.addFeatures(features);
+      });
+
+      window.handleFilterForm('collectionFilterForm', 'collection_points', collectionPointsSource);
+
+      // Fetch data and handle filter form for treatment sites
+      window.fetchData('treatment_sites', null, null)
+      .then(nestedFeatures => [].concat(...nestedFeatures))
+      .then(features => {
+        treatmentSitesSource.clear();
+        treatmentSitesSource.addFeatures(features);
+      });
+
+      window.handleFilterForm('treatmentFilterForm', 'treatment_sites', treatmentSitesSource);
+    }
+  });

@@ -1,0 +1,78 @@
+extends layout
+
+block content
+  div.grid-container
+    div.grid-item-1
+      section.section
+      div.row
+        div.col-lg-12
+          div.card
+            div.card-body
+              h5.card-title Waste Records
+              
+              // Table with stripped rows
+              table.table.datatable
+                thead
+                  tr
+                    th(scope="col") #
+                    th(scope="col") Collection Point ID
+                    th(scope="col") Waste Type
+                    th(scope="col") Weight
+                    //- th(scope="col") Collection Date
+                    th(scope="col") Edit
+                    th(scope="col") Delete
+                tbody
+                  each record, i in records
+                    tr
+                      th(scope="row")= i+1
+                      td= record.collection_point_id
+                      td= record.waste_type_name
+                      td= record.weight
+                      //- td= record.collection_date
+                      td
+                        a(href=`/edit-waste-record/${record.id}`)
+                          i.bi.bi-pencil-square
+                      td
+                        button(onclick=`deleteRecord(${record.id})`)
+                          i.bi.bi-trash 
+      
+    div.grid-item-2 Item 2
+  
+  script.
+    function deleteRecord(id) {
+      if (confirm('Are you sure you want to delete this record?')) {
+          fetch(`/api/wasterecords/${id}`, {
+              method: 'DELETE'
+          })
+          .then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  alert('Record deleted successfully');
+                  location.reload();
+              } else {
+                  alert('Failed to delete record');
+              }
+          });
+      }
+    } 
+
+  style.
+    .grid-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-gap: 10px;
+      padding: 10px;
+    }
+
+    .grid-item-1 {
+      grid-column: 1 / span 2;
+    }
+
+    .grid-item-2 {
+      border: solid 2px blue;
+      padding: 10px;
+      text-align: center;
+      grid-column: 3;
+    }
+
+  

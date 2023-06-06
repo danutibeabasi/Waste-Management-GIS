@@ -1,8 +1,20 @@
 const express = require('express');
 const router = express.Router();
-
-// Import controller
 const treatmentSiteController = require('../controllers/treatmentSiteController');
+const communesController = require('../controllers/communesController');
+
+
+// Here is the route for creating a new collection point. Notice it's defined before the '/:id' route
+router.get('/create', async (req, res) => {
+  try {
+    const communes = await communesController.getAllCommunes(req, res);
+    res.render('createTreatmentSites', { communes: communes });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 
 /**
  * ************************** BEGINNING OF ROUTES FOR TREATMENT SITE **************************
@@ -10,7 +22,7 @@ const treatmentSiteController = require('../controllers/treatmentSiteController'
 
 /**
  * @swagger
- * /treatmentsite:
+ * /api/treatmentsite:
  *   post:
  *     summary: Create a new treatment site
  *     tags: [Treatment Sites]
@@ -28,11 +40,11 @@ const treatmentSiteController = require('../controllers/treatmentSiteController'
  *             schema:
  *               $ref: '#/components/schemas/TreatmentSite'
  */
-router.post('/treatmentsite', treatmentSiteController.createTreatmentSite);
+router.post('/', treatmentSiteController.createTreatmentSite);
 
 /**
  * @swagger
- * /treatmentsite:
+ * /api/treatmentsite:
  *   get:
  *     summary: Retrieve a list of treatment sites
  *     tags: [Treatment Sites]
@@ -46,11 +58,11 @@ router.post('/treatmentsite', treatmentSiteController.createTreatmentSite);
  *               items:
  *                 $ref: '#/components/schemas/TreatmentSite'
  */
-router.get('/treatmentsite', treatmentSiteController.getAllTreatmentSites);
+router.get('/', treatmentSiteController.getAllTreatmentSites);
 
 /**
  * @swagger
- * /treatmentsite/{id}:
+ * /api/treatmentsite/{id}:
  *   get:
  *     summary: Retrieve a treatment site by ID
  *     tags: [Treatment Sites]
@@ -69,11 +81,11 @@ router.get('/treatmentsite', treatmentSiteController.getAllTreatmentSites);
  *             schema:
  *               $ref: '#/components/schemas/TreatmentSite'
  */
-router.get('/treatmentsite/:id', treatmentSiteController.getTreatmentSiteById);
+router.get('/:id', treatmentSiteController.getTreatmentSiteById);
 
 /**
  * @swagger
- * /treatmentsite/{id}:
+ * /api/treatmentsite/{id}:
  *   put:
  *     summary: Update a treatment site by ID
  *     tags: [Treatment Sites]
@@ -100,11 +112,11 @@ router.get('/treatmentsite/:id', treatmentSiteController.getTreatmentSiteById);
  *       404:
  *         description: Treatment site not found
  */
-router.put('/treatmentsite/:id', treatmentSiteController.updateTreatmentSite);
+router.put('/:id', treatmentSiteController.updateTreatmentSite);
 
 /**
  * @swagger
- * /treatmentsite/{id}:
+ * /api/treatmentsite/{id}:
  *   delete:
  *     summary: Delete a treatment site by ID
  *     tags: [Treatment Sites]
@@ -121,7 +133,7 @@ router.put('/treatmentsite/:id', treatmentSiteController.updateTreatmentSite);
  *       404:
  *         description: Treatment site not found
  */
-router.delete('/treatmentsite/:id', treatmentSiteController.deleteTreatmentSite);
+router.delete('/:id', treatmentSiteController.deleteTreatmentSite);
 
 /**
  * ************************** END OF ROUTES FOR TREATMENT SITE **************************

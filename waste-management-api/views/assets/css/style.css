@@ -918,26 +918,40 @@ h6 {
   color: #012970;
 }
 
-.profile .profile-overview .row {
+.profile .overview .row {
   margin-bottom: 20px;
   font-size: 15px;
 }
 
-.profile .profile-overview .card-title {
+.profile .overview .card-title {
   color: #012970;
 }
 
-.profile .profile-overview .label {
+.profile .overview .label {
   font-weight: 600;
   color: rgba(1, 41, 112, 0.6);
 }
 
-.profile .profile-edit label {
+.profile .records .row {
+  margin-bottom: 20px;
+  font-size: 15px;
+}
+
+.profile .records .card-title {
+  color: #012970;
+}
+
+.profile .records .label {
   font-weight: 600;
   color: rgba(1, 41, 112, 0.6);
 }
 
-.profile .profile-edit img {
+.profile .edit label {
+  font-weight: 600;
+  color: rgba(1, 41, 112, 0.6);
+}
+
+.profile .edit img {
   max-width: 50px;
 }
 

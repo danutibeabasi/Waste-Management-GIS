@@ -4,13 +4,23 @@ const router = express.Router();
 // Import controller
 const wasteRecordController = require('../controllers/wasteRecordController');
 
+router.get('/data', async (req, res) => {
+  try {
+    await wasteRecordController.getAllWasteRecords(req, res);
+  } catch (err) {
+    console.error(err);  // log error for debugging
+    res.status(500).render('error_page', { error: err.message });
+  }
+});
+
+
 /**
  * ************************** BEGINNING OF ROUTES FOR WASTE RECORDS **************************
  */
 
 /**
  * @swagger
- * /waste-records:
+ * /api/wasterecords:
  *   post:
  *     summary: Create a new waste record
  *     tags: [Waste Records]
@@ -28,11 +38,11 @@ const wasteRecordController = require('../controllers/wasteRecordController');
  *             schema:
  *               $ref: '#/components/schemas/WasteRecord'
  */
-router.post('/waste-records', wasteRecordController.createWasteRecord);
+router.post('/', wasteRecordController.createWasteRecord);
 
 /**
  * @swagger
- * /waste-records:
+ * /api/wasterecords:
  *   get:
  *     summary: Retrieve a list of waste records
  *     tags: [Waste Records]
@@ -46,11 +56,11 @@ router.post('/waste-records', wasteRecordController.createWasteRecord);
  *               items:
  *                 $ref: '#/components/schemas/WasteRecord'
  */
-router.get('/waste-records', wasteRecordController.getAllWasteRecords);
+router.get('/', wasteRecordController.getAllWasteRecords);
 
 /**
  * @swagger
- * /waste-records/{id}:
+ * /api/wasterecords/{id}:
  *   get:
  *     summary: Retrieve a waste record by ID
  *     tags: [Waste Records]
@@ -69,11 +79,11 @@ router.get('/waste-records', wasteRecordController.getAllWasteRecords);
  *             schema:
  *               $ref: '#/components/schemas/WasteRecord'
  */
-router.get('/waste-records/:id', wasteRecordController.getWasteRecordById);
+router.get('/:id', wasteRecordController.getWasteRecordById);
 
 /**
  * @swagger
- * /waste-records/{id}:
+ * /api/wasterecords/{id}:
  *   put:
  *     summary: Update a waste record by ID
  *     tags: [Waste Records]
@@ -100,11 +110,11 @@ router.get('/waste-records/:id', wasteRecordController.getWasteRecordById);
  *       404:
  *         description: Waste record not found
  */
-router.put('/waste-records/:id', wasteRecordController.updateWasteRecord);
+router.put('/:id', wasteRecordController.updateWasteRecord);
 
 /**
  * @swagger
- * /waste-records/{id}:
+ * /api/wasterecords/{id}:
  *   delete:
  *     summary: Delete a waste record by ID
  *     tags: [Waste Records]
@@ -121,7 +131,7 @@ router.put('/waste-records/:id', wasteRecordController.updateWasteRecord);
  *       404:
  *         description: Waste record not found
  */
-router.delete('/waste-records/:id', wasteRecordController.deleteWasteRecord);
+router.delete('/:id', wasteRecordController.deleteWasteRecord);
 
 /**
  * ************************** END OF ROUTES FOR WASTE RECORDS **************************

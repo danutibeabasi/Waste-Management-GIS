@@ -1,47 +1,116 @@
 extends layout
 
 block content
-  .card(style='width: 50%; margin: 0 auto; margin-top: 5%')
-    .card-body
-      h5.card-title Create Waste Collection Point
-      form.row.g-3(method='post', action='/api/collectionpoints')
-        .col-md-6
-          label.form-label(for='inputName') Name
-          input.form-control#inputName(type='text', name='name')
-        .col-md-6
-          label.form-label(for='inputAddress1') Address 1
-          input.form-control#inputAddress1(type='text', name='address_1')
-        .col-md-6
-          label.form-label(for='inputAddress2') Address 2
-          input.form-control#inputAddress2(type='text', name='address_2')
-        .col-md-6
-          label.form-label(for='inputPostalCode') Postal Code
-          input.form-control#inputPostalCode(type='text', name='postal_code')
-        .col-md-6
-          label.form-label(for='inputCity') City
-          select.form-select#inputCity(name='city')
-            each commune in communes
-              option(value=commune.name) #{commune.name}
-        .col-md-6
-          label.form-label(for='inputPhone') Phone
-          input.form-control#inputPhone(type='text', name='phone')
-        .col-md-6
-          label.form-label(for='inputEmail') Email
-          input.form-control#inputEmail(type='email', name='email')
-        .col-md-6
-          label.form-label(for='inputTotalBins') Total Bins
-          input.form-control#inputTotalBins(type='text', name='total_bins')
-        .col-md-6
-          label.form-label(for='inputTotalWeight') Total Weight
-          input.form-control#inputTotalWeight(type='text', name='total_weight')
-        .col-md-6
-          label.form-label(for='inputLatitude') Latitude
-          input.form-control#inputLatitude(type='text', name='latitude')
-        .col-md-6
-          label.form-label(for='inputLongitude') Longitude
-          input.form-control#inputLongitude(type='text', name='longitude')
-        .col-md-6
-          label.form-label(for='inputCode') Code
-          input.form-control#inputCode(type='text', name='code')
-        .text-center
-          button.btn.btn-primary(type='submit') Submit
+  .row
+    .col-md-6
+      .card(style='width: 100%; margin-left:50%; margin-bottom:5%; margin-top: 5%')
+        .card-body
+          h5.card-title Create Waste Collection Point
+          form.row.g-3(method='post', action='/api/collectionpoints')
+            .col-md-12
+              label.form-label(for='inputName') Name
+              input.form-control#inputName(type='text', name='name')
+            .col-md-12
+              label.form-label(for='inputAddress1') Address 1
+              input.form-control#inputAddress1(type='text', name='address_1')
+            .col-md-12
+              label.form-label(for='inputAddress2') Address 2
+              input.form-control#inputAddress2(type='text', name='address_2')
+            .col-md-12
+              label.form-label(for='inputPostalCode') Postal Code
+              input.form-control#inputPostalCode(type='text', name='postal_code')
+            .col-md-12
+              label.form-label(for='inputCity') City
+              select.form-select#inputCity(name='city')
+                each commune in communes
+                  option(value=commune.name) #{commune.name}
+            .col-md-12
+              label.form-label(for='inputPhone') Phone
+              input.form-control#inputPhone(type='text', name='phone')
+            .col-md-12
+              label.form-label(for='inputEmail') Email
+              input.form-control#inputEmail(type='email', name='email')
+            .col-md-12
+              label.form-label(for='inputTotalBins') Total Bins
+              input.form-control#inputTotalBins(type='text', name='total_bins')
+            .col-md-12
+              label.form-label(for='inputTotalWeight') Total Weight
+              input.form-control#inputTotalWeight(type='text', name='total_weight')
+            .col-md-12
+                  label.form-label(for='locationSearch') Search Location
+                  input#locationSearch.form-control(type='text', placeholder='Type a location')
+            .col-md-12
+                  #map(style='width: 100%; height: 200px; ')
+            .col-md-12
+              label.form-label(for='inputLatitude') Latitude
+              input.form-control#inputLatitude(type='text', name='latitude')
+            .col-md-12
+              label.form-label(for='inputLongitude') Longitude
+              input.form-control#inputLongitude(type='text', name='longitude')
+            .col-md-12
+              label.form-label(for='inputCode') Code
+              input.form-control#inputCode(type='text', name='code')
+            .text-center
+              button.btn.btn-primary(type='submit') Submit
+
+  script(async defer src="https://maps.googleapis.com/maps/api/js?key=hahahaha&libraries=places&callback=initMap")
+  script.
+    var map, marker;
+    
+    function initMap() {
+      var initialLocation = {lat: -34.397, lng: 150.644}; // Initial coordinates
+
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: initialLocation,
+        zoom: 8
+      });
+
+      // Create the initial marker
+      marker = new google.maps.Marker({
+        position: initialLocation,
+        map: map,
+        draggable: true // Allow the marker to be dragged
+      });
+
+      // Create the search box and link it to the UI element.
+      const input = document.getElementById('locationSearch');
+      const searchBox = new google.maps.places.SearchBox(input);
+
+      // Bias the SearchBox results towards current map's viewport.
+      map.addListener("bounds_changed", () => {
+        searchBox.setBounds(map.getBounds());
+      });
+
+      // Listen for the event fired when the user selects a prediction and retrieve
+      // more details for that place.
+      searchBox.addListener("places_changed", () => {
+        const places = searchBox.getPlaces();
+
+        if (places.length == 0) {
+          return;
+        }
+
+        // For each place, get the latlng
+        const bounds = new google.maps.LatLngBounds();
+        places.forEach((place) => {
+          if (!place.geometry || !place.geometry.location) {
+            console.log("Returned place contains no geometry");
+            return;
+          }
+
+          // Create a new marker for the selected place
+          marker.setPosition(place.geometry.location);
+          document.getElementById('inputLatitude').value = place.geometry.location.lat();
+          document.getElementById('inputLongitude').value = place.geometry.location.lng();
+
+          bounds.extend(place.geometry.location);
+        });
+        map.fitBounds(bounds);
+      });
+
+      // Add an event listener to update latitude and longitude inputs when marker is dragged
+      google.maps.event.addListener(marker, 'dragend', function (event) {
+        document.getElementById('inputLatitude').value = this.getPosition().lat();
+        document.getElementById('inputLongitude').value = this.getPosition().lng();
+      });
+    }

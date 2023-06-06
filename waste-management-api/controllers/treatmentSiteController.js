@@ -29,12 +29,16 @@ exports.getTreatmentSiteById = async (req, res) => {
 exports.createTreatmentSite = async (req, res) => {
   try {
     const { code, name, address_1, address_2, postal_code, city, phone, email, latitude, longitude } = req.body;
-    const results = await db.one('INSERT INTO treatment_sites (code, name, address_1, address_2, postal_code, city, phone, email, latitude, longitude) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *', [code, name, address_1, address_2, postal_code, city, phone, email, latitude, longitude]);
-    res.status(201).json(results);
+    const results = await db.one(
+      'INSERT INTO treatment_sites (code, name, address_1, address_2, postal_code, city, phone, email, latitude, longitude, geom) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, ST_SetSRID(ST_MakePoint($10, $9), 4326)) RETURNING *', 
+      [code, name, address_1, address_2, postal_code, city, phone, email, latitude, longitude]
+    );
+    res.redirect('/?layer=treatment_sites');
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-};
+}; 
+
 
 // Update a treatment site by ID
 exports.updateTreatmentSite = async (req, res) => {

@@ -15,7 +15,7 @@ exports.createWasteCollectionPoint = async (req, res) => {
 
       if (result) {
         console.log(result);
-        res.redirect('/?message=Collection point created successfully.');
+        res.redirect('/?layer=collection_points');
       } else {
         res.status(500).json({ error: "Error inserting new waste collection point." });
       }

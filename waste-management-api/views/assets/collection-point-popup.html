@@ -2,30 +2,33 @@
     <div class="col-xl-12">
 
       <div class="card">
-        <div class="alert alert-success alert-dismissible fade show" style="display: none;" id="success-alert" role="alert">
-          Collection point updated successfully.
-        </div>
         <button type="button" class="btn-close float-end m-2" aria-label="Close"></button>
         <div class="card-body pt-3">
           <!-- Bordered Tabs -->
-          <ul class="nav nav-tabs nav-tabs-bordered">
+          <div class="nav-container">
+            <div class="alert alert-success alert-dismissible fade show" style="display: none;" id="success-alert" role="alert">
+              Collection point updated successfully.
+            </div>
+            <ul class="nav nav-tabs nav-tabs-bordered">
+              <!-- Header -->
+              <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#overview">Overview</button>
+              </li>
+              <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#records">Waste Records</button>
+              </li>
 
-            <li class="nav-item">
-              <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-overview">Overview</button>
-            </li>
-
-            <li class="nav-item">
-              <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">Edit Points</button>
-            </li>
-
-            <li class="nav-item">
-              <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings">Delete</button>
-            </li>
-
-          </ul>
+              <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#edit">Edit Points</button>
+              </li>
+             
+              <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#delete">Delete</button>
+              </li>
+            </ul>
+          </div>
           <div class="tab-content pt-2">
-
-            <div class="tab-pane fade show active profile-overview" id="profile-overview">
+            <div class="tab-pane fade show active overview" id="overview">
               <h5 class="card-title">Collection Points Details</h5>
 
               <div class="row">
@@ -74,26 +77,101 @@
               </div>
             </div>
 
-            <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
+            <div class="tab-pane fade  records pt-3" id="records">
+              <h5 class="card-title">Waste Statistics</h5>
+              <div class="row">
+                <div class="col-lg-3 col-md-4 label ">Waste Type</div>
+                <div class="col-lg-9 col-md-8">{{id}}</div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-3 col-md-4 label">Weight</div>
+                <div class="col-lg-9 col-md-8">{{code}}</div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-3 col-md-4 label">Average Weight</div>
+                <div class="col-lg-9 col-md-8">{{name}}</div>
+              </div>
+
+              <h5 class="card-title">Collection Schedule</h5>
+              <div class="row">
+                <div class="col-lg-4 col-md-5 label">Collection Date</div>
+                <div class="col-lg-8 col-md-8">{{address_1}}</div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-4 col-md-5 label">Collection Frequency</div>
+                <div class="col-lg-6 col-md-8">{{postal_code}}</div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-4 col-md-5 label">Collection Day of the week</div>
+                <div class="col-lg-6 col-md-8">{{city}}</div>
+              </div>
+
+              <h5 class="card-title">Transportation Routes</h5>
+              <div class="row">
+                <div class="col-lg-4 col-md-5 label">Vechcle</div>
+                <div class="col-lg-6 col-md-8">{{total_bins}}</div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-4 col-md-5 label">Treatment Site</div>
+                <div class="col-lg-8 col-md-8">{{longitude}}</div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-4 col-md-5 label">Distances</div>
+                <div class="col-lg-8 col-md-9">{{latitude}}</div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-4 col-md-5 label">Duration</div>
+                <div class="col-lg-8 col-md-9">{{latitude}}</div>
+              </div>
+
+              <h5 class="card-title">Deployed Bins</h5>
+              <div class="row">
+                <div class="col-lg-4 col-md-5 label">Waste Bin</div>
+                <div class="col-lg-6 col-md-8">{{total_bins}}</div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-4 col-md-5 label">Capacity</div>
+                <div class="col-lg-8 col-md-8">{{longitude}}</div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-4 col-md-5 label">Total Number</div>
+                <div class="col-lg-8 col-md-9">{{latitude}}</div>
+              </div>
+            </div>
+
+
+
+
+
+            <div class="tab-pane fade edit pt-3" id="edit">
 
               <!-- Profile Edit Form -->
               <form id="edit-form">
                 <div class="row mb-3">
-                  <label for="edit-id" class="col-md-4 col-lg-3 col-form-label">ID</label>
+                  <label for="edit-id" class="col-md-4 col-lg-3 col-form-label">ID  </label>
                   <div class="col-md-8 col-lg-9">
                     <input name="id" type="text" class="form-control" id="edit-id" value="{{id}}">
                   </div>
                 </div>
             
                 <div class="row mb-3">
-                  <label for="edit-code" class="col-md-4 col-lg-3 col-form-label">Code</label>
+                  <label for="edit-code" class="col-md-4 col-lg-3 col-form-label">Code  </label>
                   <div class="col-md-8 col-lg-9">
                     <input name="code" type="text" class="form-control" id="edit-code" value="{{code}}">
                   </div>
                 </div>
             
                 <div class="row mb-3">
-                  <label for="edit-name" class="col-md-4 col-lg-3 col-form-label">Name</label>
+                  <label for="edit-name" class="col-md-4 col-lg-3 col-form-label">Name  </label>
                   <div class="col-md-8 col-lg-9">
                     <input name="name" type="text" class="form-control" id="edit-name" value="{{name}}">
                   </div>
@@ -119,20 +197,6 @@
                     <input name="city" type="text" class="form-control" id="edit-city" value="{{city}}">
                   </div>
                 </div>
-
-                <div class="row mb-3">
-                  <label for="edit-total-bins" class="col-md-4 col-lg-3 col-form-label">Total Bin</label>
-                  <div class="col-md-8 col-lg-9">
-                    <input name="total_bins" type="text" class="form-control" id="edit-total-bins" value="{{total_bins}}">
-                  </div>
-                </div>
-
-                <div class="row mb-3">
-                  <label for="edit-total-weight" class="col-md-4 col-lg-3 col-form-label">Total Weight</label>
-                  <div class="col-md-8 col-lg-9">
-                    <input name="total_weight" type="text" class="form-control" id="edit-total-weight" value="{{total_weight}}">
-                  </div>
-                </div>
             
                 <div class="row mb-3">
                   <label for="edit-longitude" class="col-md-4 col-lg-3 col-form-label">Longitude</label>
@@ -154,7 +218,7 @@
 
             </div>
 
-            <div class="tab-pane fade pt-3" id="profile-settings">
+            <div class="tab-pane fade pt-3" id="delete">
               <form id="delete-form">
                 <div class="row mb-3">
                   <div class="form-check">
@@ -184,3 +248,13 @@
     </div>
   </div>
 </section>
+
+<style>
+  .nav-container {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: #fff;
+  }
+
+</style>
