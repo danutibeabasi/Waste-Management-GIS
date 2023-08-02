@@ -1,0 +1,299 @@
+li.nav-item
+  a.nav-link.collapsed(href='#', data-bs-toggle='collapse', data-bs-target='#transport-nav')
+    i.bi.bi-truck
+    span Transportation Routes
+    i.bi.bi-chevron-down.ms-auto
+  ul#transport-nav.nav-content.collapse(data-bs-parent='#sidebar-nav')
+    li
+      a(href="#")
+        i.bi.bi-circle
+        span View Transportation Routes
+    li 
+      a(href="#")
+        i.bi.bi-circle
+        span Vehicle
+
+    li 
+      a(href="#")
+        i.bi.bi-circle
+        span Route
+
+    li 
+      a(href="#")
+        i.bi.bi-circle
+        span Collection Point per Route
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//- extends layout
+
+//- block content
+
+//-   div.modal.fade#largeModal(tabindex="-1")
+//-     div.modal-dialog.modal-lg
+//-       div.modal-content
+//-         div.modal-header
+//-           h5.modal-title#modalTitle Add New Route
+//-           button.btn-close(type="button", data-bs-dismiss="modal", aria-label="Close")
+//-         div.modal-body
+//-           form#routeForm(method="POST")
+//-             div.form-group
+//-               label(for='collectionPointId') Collection Point
+//-               select#collectionPointId.form-control(name='collection_point_id')
+//-                 each collectionPoint in collectionPoints
+//-                   option(value=collectionPoint.id) #{collectionPoint.name}
+//-             div.form-group
+//-               label(for='treatmentSiteId') Treatment Site
+//-               select#treatmentSiteId.form-control(name='treatment_site_id')
+//-                 each treatmentSite in treatmentSites
+//-                   option(value=treatmentSite.id) #{treatmentSite.name}
+//-             div.form-group
+//-               label(for='transportationVehicleId') Transportation Vehicle
+//-               select#transportationVehicleId.form-control(name='transportation_vehicle_id')
+//-                 each vehicle in vehicles
+//-                   option(value=vehicle.id) #{vehicle.vehicle_type}
+//-             div.form-group
+//-               label(for='distance') Distance
+//-               input#distance.form-control(name='distance', readonly)
+//-             div.form-group
+//-               label(for='duration') Duration
+//-               input#duration.form-control(name='duration', readonly)
+
+//-         div.modal-footer
+//-           button.btn.btn-secondary(type="button", data-bs-dismiss="modal") Close
+//-           button#submitFormBtn.btn.btn-primary(type="submit") Submit
+
+//-   div.grid-container
+//-     div.grid-item-1
+//-       section.section
+//-       div.row
+//-         div.col-lg-12
+//-           div.card
+//-             div.card-body
+//-               div.d-flex.justify-content-between
+//-                 h5.card-title Routes 
+//-                 button#addNewRouteBtn.btn.btn-primary(type="button") Add New Route
+              
+//-               // Table with stripped rows
+//-               table.table.datatable-paginated
+//-                 thead
+//-                   tr
+//-                     th(scope="col") #
+//-                     th(scope="col") Collection Point ID
+//-                     th(scope="col") Treatment Site ID
+//-                     th(scope="col") Transportation Vehicle ID
+//-                     th(scope="col") Distance
+//-                     th(scope="col") Duration
+//-                     th(scope="col") Edit
+//-                     th(scope="col") Delete
+//-                 tbody
+//-                   each route, i in routes
+//-                     tr(data-route=JSON.stringify(route))
+//-                       th(scope="row")= i+1
+//-                       td= route.collection_point_id
+//-                       td= route.treatment_site_id
+//-                       td= route.transportation_vehicle_id
+//-                       td= route.distance
+//-                       td= route.duration
+//-                       td
+//-                         a.edit-route-btn
+//-                           i.bi.bi-pencil-square
+//-                       td
+//-                         i.bi.bi-trash(onclick=`deleteRoute(${route.id})`)
+
+//-   script(src='https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY')
+
+//-   script.
+//-     let collectionPoints = JSON.parse(decodeURIComponent("#{encodeURIComponent(JSON.stringify(collectionPoints))}"));
+//-     let treatmentSites = JSON.parse(decodeURIComponent("#{encodeURIComponent(JSON.stringify(treatmentSites))}"));
+
+//-     $(document).ready(function() {
+//-       $('.datatable-paginated').DataTable();
+
+//-       const calculateAndSetDistanceDuration = () => {
+//-         let collectionPointId = $("#collectionPointId").val();
+//-         let treatmentSiteId = $("#treatmentSiteId").val();
+
+//-         let collectionPoint = collectionPoints.find(point => point.id == collectionPointId);
+//-         let treatmentSite = treatmentSites.find(site => site.id == treatmentSiteId);
+
+//-         let origin = new google.maps.LatLng(collectionPoint.latitude, collectionPoint.longitude);
+//-         let destination = new google.maps.LatLng(treatmentSite.latitude, treatmentSite.longitude);
+
+//-         let service = new google.maps.DistanceMatrixService();
+//-         service.getDistanceMatrix({
+//-           origins: [origin],
+//-           destinations: [destination],
+//-           travelMode: 'DRIVING',
+//-         }, function(response, status) {
+//-           if (status !== 'OK') {
+//-             swal("Error!", `Error was: ${status}`, "error");
+//-           } else {
+//-             let distance = response.rows[0].elements[0].distance.text;
+//-             let duration = response.rows[0].elements[0].duration.text;
+
+//-             $('#distance').val(distance);
+//-             $('#duration').val(duration);
+//-           }
+//-         });
+//-       };
+
+//-       $("#collectionPointId, #treatmentSiteId").change(calculateAndSetDistanceDuration);
+
+//-       $(document).on("click", ".edit-route-btn", function(e) {
+//-         e.preventDefault(); 
+
+//-         const route = $(this).parents('tr').data('route');
+
+//-         $('#collectionPointId').val(route.collection_point_id);
+//-         $('#treatmentSiteId').val(route.treatment_site_id);
+//-         $('#transportationVehicleId').val(route.transportation_vehicle_id);
+//-         $('#distance').val(route.distance);
+//-         $('#duration').val(route.duration);
+
+//-         $('#routeForm').attr('action', `/api/routes/${route.id}`);
+//-         $('#modalTitle').text('Edit Route');
+//-         $('#largeModal').modal('show');
+//-       });
+
+//-       $("#addNewRouteBtn").click(function() {
+//-         $('#collectionPointId').val($("#collectionPointId option:first").val());
+//-         $('#treatmentSiteId').val($("#treatmentSiteId option:first").val());
+//-         $('#transportationVehicleId').val($("#transportationVehicleId option:first").val());
+//-         $('#distance').val("");
+//-         $('#duration').val("");
+
+//-         $('#routeForm').attr('action', `/api/routes`);
+//-         $('#modalTitle').text('Add Route');
+//-         $('#largeModal').modal('show');
+//-       });
+
+//-       // Add event listener for the "Submit" button
+//-       $("#submitFormBtn").click(function(e) {
+//-         e.preventDefault();
+//-         // Trigger the form submit event
+//-         $("#routeForm").submit();
+//-         // Hide the modal
+//-         $('#largeModal').modal('hide');
+//-       });
+
+//-       $('#routeForm').on('submit', function(e) {
+//-         e.preventDefault();
+
+//-         const url = $(this).attr('action');
+//-         const formData = $(this).serialize();
+//-         const httpMethod = url.includes('routes/') ? 'PUT' : 'POST';
+
+//-         $.ajax({
+//-           url: url,
+//-           type: httpMethod,
+//-           data: formData,
+//-           success: function() {
+//-             swal("Good job!", "You have successfully updated the route!", "success").then(function() {
+//-                 location.reload();
+//-             });
+//-             $('#collectionPointId').val($("#collectionPointId option:first").val());
+//-             $('#treatmentSiteId').val($("#treatmentSiteId option:first").val());
+//-             $('#transportationVehicleId').val($("#transportationVehicleId option:first").val());
+//-             $('#distance').val("");
+//-             $('#duration').val("");
+//-             $('#largeModal').modal('hide');
+//-           },
+//-           error: function() {
+//-             swal("Oops!", "Failed to create/update the route.", "error");
+//-           }
+//-         });
+//-       });
+//-     });
+
+//-     function deleteRoute(id) {
+//-       swal({
+//-         title: "Are you sure?",
+//-         text: "Once deleted, you will not be able to recover this route!",
+//-         icon: "warning",
+//-         buttons: true,
+//-         dangerMode: true,
+//-       })
+//-       .then((willDelete) => {
+//-         if (willDelete) {
+//-           fetch(`/api/routes/${id}`, {
+//-             method: 'DELETE'
+//-           })
+//-           .then(response => response.json())
+//-           .then(data => {
+//-             if (data.message) {
+//-               swal("Deleted!", "Your route has been deleted.", "success").then(function() {
+//-                   location.reload();
+//-               });
+//-             } else {
+//-               swal("Oops!", "Failed to delete the route.", "error");
+//-             }
+//-           });
+//-         }
+//-       });
+//-     }
+
+
+
+//-   style.
+//-     .form-group {
+//-       margin-bottom: 15px; 
+//-     }
+
+//-     .grid-container {
+//-       display: grid;
+//-       grid-template-columns: 1fr;
+//-       grid-template-rows:20px 2fr;
+//-       grid-gap: 50px;
+//-       padding: 10px;
+//-     }   
+
+//-     .datatable-paginated thead th {
+//-       font-size: 12px;  
+//-     }
+//-     .datatable-paginated tbody td {
+//-       font-size: 11px;  
+//-     }
+
+//-     .datatable-paginated th, .datatable-paginated td {
+//-       text-align: center;  
+//-     }
+
+//-     i.bi.bi-trash {
+//-       color: red;  
+//-       cursor: pointer;
+//-     }
+
+//-     #addNewRouteBtn {
+//-       margin: 10px;
+//-       margin-left: auto;
+//-       padding: 10px 20px;
+//-       background-color: #007bff;
+//-       border: none;
+//-       border-radius: 4px;
+//-       color: white;
+//-       font-size: 16px;
+//-       cursor: pointer;
+//-       transition: background-color 0.3s ease;
+//-     }
+
+//-     #addNewRouteBtn:hover {
+//-       background-color: #0056b3;
+//-     }

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <style>
+    .nav-container {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background-color: #fff;
+    }
+    #myChart {
+      max-width: 100%;
+      max-height: 100%;
+      margin: auto;
+    }
+
+    
+  </style>
+</head>
+<body>
+  <section class="section profile">
+    <div class="col-xl-12">
+      <div class="card">
+        <button type="button" class="btn-close float-end m-2" aria-label="Close"></button>
+        <div class="card-body pt-3">
+          <!-- Bordered Tabs -->
+          <div class="nav-container">
+            <ul class="nav nav-tabs nav-tabs-bordered">
+              <!-- Header -->
+              <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#overview">Overview</button>
+              </li>
+              <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#records">Statistics</button>
+              </li>
+            </ul>
+          </div>
+          <div class="tab-content pt-2">
+            <div class="tab-pane fade show active overview" id="overview">
+              <h5 class="card-title">City Detail</h5>
+
+              <div class="row">
+                <div class="col-lg-3 col-md-4 label ">ID</div>
+                <div class="col-lg-9 col-md-8">{{id}}</div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-3 col-md-4 label">Name</div>
+                <div class="col-lg-9 col-md-8">{{name}}</div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-3 col-md-4 label">INSEE Code</div>
+                <div class="col-lg-9 col-md-8">{{insee_code}}</div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-3 col-md-4 label">Status</div>
+                <div class="col-lg-9 col-md-8">{{status}}</div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-3 col-md-4 label">City_Code ID</div>
+                <div class="col-lg-9 col-md-8">{{city_codeid}}</div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-3 col-md-4 label">Population</div>
+                <div class="col-lg-9 col-md-8">{{population}}</div>
+              </div> 
+
+              <div class="row">
+                <div class="col-lg-3 col-md-4 label">Data Source</div>
+                <div class="col-lg-9 col-md-8"><a href="{{data_source}}">{{data_source_name}}</a></div>
+              </div>
+              
+            </div>
+
+            <div class="tab-pane fade  records pt-3" id="records">
+              <h5 class="card-title">Waste Statistics</h5>
+
+              <div class="row">
+                <div class="col-lg-9 col-md-8 label">Total Collection Points</div>
+                <div class="col-lg-6 col-md-6">{{total_collection_point}}</div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-9 col-md-8 label">Total Waste Containers</div>
+                <div class="col-lg-6 col-md-6">{{total_bins_per_city}}</div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-9 col-md-8 label">Total Weight (tons)</div>
+                <div class="col-lg-6 col-md-6">{{total_weight_per_city}}</div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-9 col-md-8 label">Average Weight (tons)</div>
+                <div class="col-lg-6 col-md-6">{{average_weight_per_city}}</div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-9 col-md-8 label">Minimum Weight (tons)</div>
+                <div class="col-lg-6 col-md-6">{{min_weight_per_city}}</div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-9 col-md-8 label">Maximum Weight (tons)</div>
+                <div class="col-lg-6 col-md-6">{{max_weight_per_city}}</div>
+              </div>
+            </div>
+          </div><!-- End Bordered Tabs -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>

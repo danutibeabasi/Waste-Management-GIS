@@ -57,13 +57,13 @@
               </div>
 
               <div class="row">
-                <div class="col-lg-4 col-md-5 label">City</div>
-                <div class="col-lg-6 col-md-8">{{city}}</div>
+                <div class="col-lg-4 col-md-5 label">City ID</div>
+                <div class="col-lg-6 col-md-8">{{city_id}}</div>
               </div>
 
               <div class="row">
-                <div class="col-lg-4 col-md-5 label">Total Bins</div>
-                <div class="col-lg-6 col-md-8">{{total_bins}}</div>
+                <div class="col-lg-4 col-md-5 label">Iris ID</div>
+                <div class="col-lg-6 col-md-8">{{iris_id}}</div>
               </div>
 
               <div class="row">
@@ -80,29 +80,39 @@
             <div class="tab-pane fade  records pt-3" id="records">
               <h5 class="card-title">Waste Statistics</h5>
               <div class="row">
-                <div class="col-lg-3 col-md-4 label ">Waste Type</div>
-                <div class="col-lg-9 col-md-8">{{id}}</div>
+                <div class="col-lg-3 col-md-4 label ">Waste Type ID</div>
+                <div class="col-lg-9 col-md-8">{{waste_types_id}}</div>
               </div>
 
               <div class="row">
-                <div class="col-lg-3 col-md-4 label">Weight</div>
-                <div class="col-lg-9 col-md-8">{{code}}</div>
+                <div class="col-lg-3 col-md-4 label">Total Weight</div>
+                <div class="col-lg-9 col-md-8">{{total_weight_collected}}</div>
               </div>
 
               <div class="row">
                 <div class="col-lg-3 col-md-4 label">Average Weight</div>
-                <div class="col-lg-9 col-md-8">{{name}}</div>
+                <div class="col-lg-9 col-md-8">{{average_weight_collected}}</div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-3 col-md-4 label">Minimum Weight</div>
+                <div class="col-lg-9 col-md-8">{{min_weight_collected}}</div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-3 col-md-4 label">Maximum Weight</div>
+                <div class="col-lg-9 col-md-8">{{max_weight_collected}}</div>
               </div>
 
               <h5 class="card-title">Collection Schedule</h5>
               <div class="row">
-                <div class="col-lg-4 col-md-5 label">Collection Date</div>
-                <div class="col-lg-8 col-md-8">{{address_1}}</div>
+                <div class="col-lg-4 col-md-5 label">Number of Collection</div>
+                <div class="col-lg-8 col-md-8">{{total_collections_so_far}}</div>
               </div>
 
               <div class="row">
                 <div class="col-lg-4 col-md-5 label">Collection Frequency</div>
-                <div class="col-lg-6 col-md-8">{{postal_code}}</div>
+                <div class="col-lg-6 col-md-8">{{collection_frequency}}</div>
               </div>
 
               <div class="row">
@@ -133,25 +143,10 @@
 
               <h5 class="card-title">Deployed Bins</h5>
               <div class="row">
-                <div class="col-lg-4 col-md-5 label">Waste Bin</div>
-                <div class="col-lg-6 col-md-8">{{total_bins}}</div>
-              </div>
-
-              <div class="row">
-                <div class="col-lg-4 col-md-5 label">Capacity</div>
-                <div class="col-lg-8 col-md-8">{{longitude}}</div>
-              </div>
-
-              <div class="row">
-                <div class="col-lg-4 col-md-5 label">Total Number</div>
-                <div class="col-lg-8 col-md-9">{{latitude}}</div>
+                <div class="col-lg-4 col-md-5 label">Total Deployed Waste Bin</div>
+                <div class="col-lg-6 col-md-8">{{total_bins_collected}}</div>
               </div>
             </div>
-
-
-
-
-
             <div class="tab-pane fade edit pt-3" id="edit">
 
               <!-- Profile Edit Form -->
@@ -191,12 +186,6 @@
                   </div>
                 </div>
             
-                <div class="row mb-3">
-                  <label for="edit-city" class="col-md-4 col-lg-3 col-form-label">City</label>
-                  <div class="col-md-8 col-lg-9">
-                    <input name="city" type="text" class="form-control" id="edit-city" value="{{city}}">
-                  </div>
-                </div>
             
                 <div class="row mb-3">
                   <label for="edit-longitude" class="col-md-4 col-lg-3 col-form-label">Longitude</label>

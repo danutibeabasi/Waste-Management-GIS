@@ -3,6 +3,30 @@ const router = express.Router();
 
 // Import controller
 const transportationRoutesController = require('../controllers/transportationRoutesController');
+const collectionPointsController = require('../controllers/collectionPointsController');
+const treatmentSiteController = require('../controllers/treatmentSiteController');
+const transportationVehiclesController = require('../controllers/transportationVehiclesController');
+
+
+// Router
+router.get('/', async (req, res) => {
+  try {
+    const routes = await transportationRoutesController.getAllTransportationRoutes(req, res);
+    const collectionPoints = await collectionPointsController.getAllWasteCollectionPoint(req, res);
+    const treatmentSites = await treatmentSiteController.getAllTreatmentSites(req, res);
+    const vehicles = await transportationVehiclesController.getAllTransportationVehicles(req, res);
+    res.render('transportation_routes', { routes, collectionPoints, treatmentSites, vehicles });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+
+
+
+
 
 /**
  * ************************** BEGINNING OF ROUTES FOR TRANSPORTATION ROUTES **************************
@@ -10,7 +34,7 @@ const transportationRoutesController = require('../controllers/transportationRou
 
 /**
  * @swagger
- * /transportation-routes:
+ * /api/routes:
  *   post:
  *     summary: Create a new transportation route
  *     tags: [Transportation Routes]
@@ -28,11 +52,11 @@ const transportationRoutesController = require('../controllers/transportationRou
  *             schema:
  *               $ref: '#/components/schemas/TransportationRoute'
  */
-router.post('/transportation-routes', transportationRoutesController.createTransportationRoute);
+router.post('/', transportationRoutesController.createTransportationRoute);
 
 /**
  * @swagger
- * /transportation-routes:
+ * /api/routes:
  *   get:
  *     summary: Retrieve a list of transportation routes
  *     tags: [Transportation Routes]
@@ -46,11 +70,11 @@ router.post('/transportation-routes', transportationRoutesController.createTrans
  *               items:
  *                 $ref: '#/components/schemas/TransportationRoute'
  */
-router.get('/transportation-routes', transportationRoutesController.getAllTransportationRoutes);
+router.get('/', transportationRoutesController.getAllTransportationRoutes);
 
 /**
  * @swagger
- * /transportation-routes/{id}:
+ * /api/routes/{id}:
  *   get:
  *     summary: Retrieve a transportation route by ID
  *     tags: [Transportation Routes]
@@ -69,11 +93,11 @@ router.get('/transportation-routes', transportationRoutesController.getAllTransp
  *             schema:
  *               $ref: '#/components/schemas/TransportationRoute'
  */
-router.get('/transportation-routes/:id', transportationRoutesController.getTransportationRouteById);
+router.get('/:id', transportationRoutesController.getTransportationRouteById);
 
 /**
  * @swagger
- * /transportation-routes/{id}:
+ * /api/routes/{id}:
  *   put:
  *     summary: Update a transportation route by ID
  *     tags: [Transportation Routes]
@@ -100,11 +124,11 @@ router.get('/transportation-routes/:id', transportationRoutesController.getTrans
  *       404:
  *         description: Transportation route not found
  */
-router.put('/transportation-routes/:id', transportationRoutesController.updateTransportationRoute);
+router.put('/:id', transportationRoutesController.updateTransportationRoute);
 
 /**
  * @swagger
- * /transportation-routes/{id}:
+ * /api/routes/{id}:
  *   delete:
  *     summary: Delete a transportation route by ID
  *     tags: [Transportation Routes]
@@ -121,7 +145,7 @@ router.put('/transportation-routes/:id', transportationRoutesController.updateTr
  *       404:
  *         description: Transportation route not found
 */
-router.delete('/transportation-routes/:id', transportationRoutesController.deleteTransportationRoute);
+router.delete('/:id', transportationRoutesController.deleteTransportationRoute);
 
 /**
 

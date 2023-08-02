@@ -1,8 +1,55 @@
 li.nav-item
-          a.nav-link.collapsed(href='#', data-bs-toggle='collapse', data-bs-target='#tables-nav')
-            i.bi.bi-houses-fill
-            span Communes
-            i.bi.bi-chevron-down.ms-auto
-          ul#tables-nav.nav-content.collapse(data-bs-parent='#sidebar-nav')
-            li
-              // Add table links here
+  a.nav-link.collapsed(href='#', data-bs-toggle='collapse', data-bs-target='#cities-nav')
+    i.bi.bi-houses-fill
+    span cities
+    i.bi.bi-chevron-down.ms-auto
+  ul#cities-nav.nav-content.collapse(data-bs-parent='#sidebar-nav')
+    li
+      a(href="/?layer=cities")
+        i.bi.bi-circle
+        span View cities with Collection Points
+    li 
+      a(href="#")
+        i.bi.bi-circle
+        span Filter cities
+    li 
+      div.form-filter
+        form.ml-5(id="citiesFilterForm")
+          .row
+            .col-md-12
+              .input-group.mt-2.form-option
+                .col-md-4
+                  select#citiesFilterFormOptions.form-control(name="filterType")
+                    option(value="id") ID
+                    option(value="name") Name
+                    //- add other options as required
+                .col-md-5
+                  input.form-control(type="text", id="citiesFilterFormValue", aria-describedby="inputGroupPrepend2", required)
+                .col-md-3  
+                  button.btn.btn-primary(type="submit")
+                    i.bi.bi-check-circle
+
+script(src="./assets/js/utils.js")
+script.
+  document.addEventListener('DOMContentLoaded', (event) => {
+    let urlParams = new URLSearchParams(window.location.search);
+    const layer = urlParams.get('layer');
+
+    if (window.location.href.includes('cities')) {
+      window.fetchData(layer, null, null)
+      .then(nestedFeatures => [].concat(...nestedFeatures))
+      .then(features => {
+        for (let feature of features) {
+          feature.set('layer', 'cities');
+        }
+        citiesSource.clear();
+        citiesSource.addFeatures(features);
+      });
+
+      window.handleFilterForm('citiesFilterForm', 'cities', citiesSource);
+    }
+
+    // Always handle treatment filter form, regardless of the current page
+    window.handleFilterForm('treatmentFilterForm', 'treatment_sites', treatmentSitesSource);
+  });
+

@@ -1,31 +1,40 @@
 map.on('singleclick', function (evt) {
-  const feature = map.forEachFeatureAtPixel(evt.pixel, function (feature) {
-    return feature;
-  });
+  map.forEachFeatureAtPixel(evt.pixel, function (feature, layer) {
 
-  if (feature) {
-    const coordinates = feature.getGeometry().getCoordinates();
+    if (feature) {
+      const coordinates = feature.getGeometry().getCoordinates();
+      const size = map.getSize();
+      const resolution = view.getResolution();
+      const newCenter = [
+        coordinates[0] + (-size[1] / 8) * resolution,
+        coordinates[1] + (-size[1] / 3.5) * resolution
+      ];
+      view.animate({ center: newCenter });
 
-    // Center the map on the clicked feature
-    const size = map.getSize();
-    const resolution = view.getResolution();
-    const newCenter = [
-      coordinates[0] + (-size[1] / 8) * resolution,
-      coordinates[1] + (-size[1] / 3.5) * resolution
-    ];
-    view.animate({ center: newCenter });
+      let fetchUrl;
+      if (layer === treatmentSitesLayer) {
+          fetchUrl = '/assets/treatment-sites-popup.html';
+      } else if (layer === collectionPointsLayer) {
+          fetchUrl = '/assets/collection-point-popup.html';
+      }
 
-    // Fetch the HTML content from the external file
-    let fetchUrl = '/assets/collection-point-popup.html';
-    if (feature.get('layer') === 'treatment_sites') {
-      fetchUrl = '/assets/treatment-site-popup.html';  // Replace with your HTML file for treatment sites
-    }
+      fetch(fetchUrl)
+        .then(response => response.text())
+        .then(html => {
 
-    fetch(fetchUrl)
-      .then(response => response.text())
-      .then(html => {
-        // Replace placeholders in the HTML content with feature properties
-        let content = html
+          // Get the feature ID
+          const featureId = feature.get('id');
+
+          // Build the API endpoint
+          const wasteRecordApiEndpoint = `/api/wasterecords/${featureId}`;
+
+          // Fetch the waste record for this feature
+          fetch(wasteRecordApiEndpoint)
+            .then(response => response.json())
+            .then(wasteRecordData => {
+              // 'wasteRecordData' now contains the data from your API, you can use it to replace the placeholders
+
+              let content = html
                   .replace(/{{id}}/g, feature.get('id'))
                   .replace(/{{code}}/g, feature.get('code'))
                   .replace(/{{name}}/g, feature.get('name'))
@@ -34,110 +43,137 @@ map.on('singleclick', function (evt) {
                   .replace(/{{city}}/g, feature.get('city'))
                   .replace(/{{total_bins}}/g, feature.get('total_bins'))
                   .replace(/{{total_weight}}/g, feature.get('total_weight'))
+                  .replace(/{{service_status}}/g, feature.get('service_status'))
+                  .replace(/{{opening_date}}/g, feature.get('opening_date'))
+                  .replace(/{{closing_date}}/g, feature.get('closing_date'))
+                  .replace(/{{service_type_description}}/g, feature.get('service_type_description'))
                   .replace(/{{longitude}}/g, feature.get('longitude'))
-                  .replace(/{{latitude}}/g, feature.get('latitude'));
+                  .replace(/{{latitude}}/g, feature.get('latitude'))
+                  .replace(/{{waste_type}}/g, wasteRecordData.waste_type) // Modify this according to your API response
+                  .replace(/{{weight}}/g, wasteRecordData.weight); // Modify this according to your API response
 
-                const popupElement = popup.getElement();
-                popupElement.dataset.featureId = feature.get('id').toString();
-                popupElement.innerHTML = content;
+              // Rest of your existing code...
+              const popupElement = popup.getElement();
+                          popupElement.dataset.featureId = feature.get('id').toString();
+                          popupElement.innerHTML = content;
 
-                popup.setPosition(coordinates);
+                          popup.setPosition(coordinates);
 
-                // Show the card and update the donut chart
-                showCardWithDonutChart(feature);
+                          // Show the card and update the donut chart
+                          showCardWithDonutChart(feature);
 
-                // Make the popup draggable
-                $( function() {
-                  $( "#popup" ).draggable();
-                } );
+                          // Make the popup draggable
+                          $( function() {
+                            $( "#popup" ).draggable();
+                          } );
 
-                // Close button logic
-                document.querySelector('.btn-close').addEventListener('click', function() {
-                  popup.setPosition(undefined);
-                  document.querySelector(".card.card-bottom-center").style.display = "none";
-                });
+                          // Close button logic
+                          document.querySelector('.btn-close').addEventListener('click', function() {
+                            popup.setPosition(undefined);
+                            document.querySelector(".card.card-bottom-center").style.display = "none";
+                          });
 
-                // Add event listener for the edit form submission
-                document.getElementById('edit-form').addEventListener('submit', function(e) {
-                  e.preventDefault();
+                          // Add event listener for the edit form submission
+                          document.getElementById('edit-form').addEventListener('submit', function(e) {
+                            e.preventDefault();
 
-                  const id = document.getElementById('edit-id').value;
+                            const id = document.getElementById('edit-id').value;
 
-                  fetch(`/api/collectionpoints/${id}`, {
-                    method: 'PUT',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                      // Include the values from the form here
-                      id: document.getElementById('edit-id').value,
-                      code: document.getElementById('edit-code').value,
-                      name: document.getElementById('edit-name').value,
-                      address: document.getElementById('edit-address').value,
-                      postal_code: document.getElementById('edit-postal-code').value,
-                      city: document.getElementById('edit-city').value,
-                      longitude: document.getElementById('edit-longitude').value,
-                      latitude: document.getElementById('edit-latitude').value,
-                      }),
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log(data);
-                        // Show the alert message
-                        const alert = document.getElementById('success-alert');
-                      alert.style.display = 'block';
-                      // Hide the alert message after 5 seconds
-                        setTimeout(() => {
-                        alert.style.opacity = '0';
-                        setTimeout(() => {
-                          alert.style.display = 'none';
-                        }, 500);  // This should be the same as the duration of the CSS transition
-                      }, 1000);  // This should be the same as the duration of the CSS transition + 500ms
 
-                    })
-                    .catch((error) => {
-                        console.error('Error:', error);
-                    });
-                  });
+                            let apiEndpoint;
+                            if (layer === collectionPointsLayer) {
+                              apiEndpoint = `/api/collectionpoints/${id}`;
+                            } else if (layer === treatmentSitesLayer) {
+                              apiEndpoint = `/api/treatmentsite/${id}`;  // Replace with your API endpoint for treatment sites
+                            }
 
-                 // Add event listener for the delete form submission
-                document.getElementById('delete-form').addEventListener('submit', function(e) {
-                  e.preventDefault();
+                            fetch(apiEndpoint, {
+                              method: 'PUT',
+                              headers: {
+                                'Content-Type': 'application/json',
+                              },
+                              body: JSON.stringify({
+                                // Include the values from the form here
+                                id: document.getElementById('edit-id').value,
+                                code: document.getElementById('edit-code').value,
+                                name: document.getElementById('edit-name').value,
+                                address: document.getElementById('edit-address').value,
+                                postal_code: document.getElementById('edit-postal-code').value,
+                                city: document.getElementById('edit-city').value,
+                                service_status: document.getElementById('edit-service-status').value,
+                                opening_date: document.getElementById('edit-opening-date').value,
+                                closing_date: document.getElementById('edit-closing-date').value,
+                                service_type_desc: document.getElementById('edit-service-type-description').value,
+                                longitude: document.getElementById('edit-longitude').value,
+                                latitude: document.getElementById('edit-latitude').value,
+                                }),
+                              })
+                              .then(response => response.json())
+                              .then(data => {
+                                  console.log(data);
+                                  // Show the alert message
+                                  const alert = document.getElementById('success-alert');
+                                alert.style.display = 'block';
+                                // Hide the alert message after 5 seconds
+                                  setTimeout(() => {
+                                  alert.style.opacity = '0';
+                                  setTimeout(() => {
+                                    alert.style.display = 'none';
+                                  }, 500);  // This should be the same as the duration of the CSS transition
+                                }, 1000);  // This should be the same as the duration of the CSS transition + 500ms
 
-                  // Check if the checkbox is ticked
-                  if (!document.getElementById('confirm-delete').checked) {
-                    alert('You must confirm the deletion before proceeding.');
-                    return;
-                  }
+                              })
+                              .catch((error) => {
+                                  console.error('Error:', error);
+                              });
+                            });
 
-                  const id = document.getElementById('edit-id').value;
+                          // Add event listener for the delete form submission
+                          document.getElementById('delete-form').addEventListener('submit', function(e) {
+                            e.preventDefault();
 
-                  fetch(`/api/collectionpoints/${id}`, {
-                    method: 'DELETE',
-                  })
-                  .then(response => response.json())
-                  .then(data => {
-                    console.log(data);
-                    // Set the alert message
-                    const alert = document.getElementById('success-alert');
-                    alert.textContent = data.message;
-                    alert.style.display = 'block';
-                    // Hide the alert message after 5 seconds
-                    setTimeout(() => {
-                      alert.style.display = 'none';
-                    }, 5000);
-                    // Redirect to the index page
-                    window.location.href = "/";
-                  })
-                  .catch((error) => {
-                    console.error('Error:', error);
-                  });
-                });
-              });
-  } else {
-    popup.setPosition(undefined);
-    // Hide the card
-    const cardElement = document.querySelector(".card.card-bottom-center");
-    cardElement.style.display = "none";
-  }
+                            // Check if the checkbox is ticked
+                            if (!document.getElementById('confirm-delete').checked) {
+                              alert('You must confirm the deletion before proceeding.');
+                              return;
+                            }
+
+                            const id = document.getElementById('edit-id').value;
+
+                            let apiEndpoint;
+                            if (layer === collectionPointsLayer) {
+                              apiEndpoint = `/api/collectionpoints/${id}`;
+                            } else if (layer === treatmentSitesLayer) {
+                              apiEndpoint = `/api/treatmentsite/${id}`;  // Replace with your API endpoint for treatment sites
+                            }
+
+                            fetch(apiEndpoint, {
+                              method: 'DELETE',
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                              console.log(data);
+                              // Set the alert message
+                              const alert = document.getElementById('success-alert');
+                              alert.textContent = data.message;
+                              alert.style.display = 'block';
+                              // Hide the alert message after 5 seconds
+                              setTimeout(() => {
+                                alert.style.display = 'none';
+                              }, 5000);
+                              // Redirect to the index page
+                              window.location.href = "/";
+                            })
+                            .catch((error) => {
+                              console.error('Error:', error);
+                            });
+                          });
+            });
+        });
+    } else {
+      popup.setPosition(undefined);
+      const cardElement = document.querySelector(".card.card-bottom-center");
+      cardElement.style.display = "none";
+    }
+  });
 });

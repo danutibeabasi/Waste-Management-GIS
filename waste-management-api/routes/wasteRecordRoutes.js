@@ -1,17 +1,27 @@
 const express = require('express');
 const router = express.Router();
 
-// Import controller
+// Import controllers
 const wasteRecordController = require('../controllers/wasteRecordController');
+const wasteTypeController = require('../controllers/wasteTypeController');
+const collectionPointsController = require('../controllers/collectionPointsController');
 
-router.get('/data', async (req, res) => {
+
+router.get('/', async (req, res) => {
   try {
-    await wasteRecordController.getAllWasteRecords(req, res);
+    // const records = await wasteRecordController.getAllWasteRecords(req, res);
+    // const wasteTypes = await wasteTypeController.getAllWasteTypes(req, res);
+    // const collectionPoints = await collectionPointsController.getAllWasteCollectionPoint(req, res);
+    res.render('waste_records', );
   } catch (err) {
     console.error(err);  // log error for debugging
-    res.status(500).render('error_page', { error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
+
+
+
+
 
 
 /**
@@ -133,10 +143,52 @@ router.put('/:id', wasteRecordController.updateWasteRecord);
  */
 router.delete('/:id', wasteRecordController.deleteWasteRecord);
 
+ 
+
 /**
- * ************************** END OF ROUTES FOR WASTE RECORDS **************************
- *  
-*/  
+ * @swagger
+ * /api/wasterecords/statistics/{collection_point_id}:
+ *   get:
+ *     summary: Retrieve statistics about waste records for a specific collection point
+ *     tags: [Waste Records]
+ *     parameters:
+ *       - in: path
+ *         name: collection_point_id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID of the collection point
+ *     responses:
+ *       200:
+ *         description: Waste records statistics for the specified collection point
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/WasteRecordStatistics'
+ */
+router.get('/statistics/:collection_point_id', wasteRecordController.getWasteRecordStatisticsByCollectionPoint);
+
+
+/**
+ * @swagger
+ * /api/wasterecords/statistics:
+ *   get:
+ *     summary: Retrieve overall statistics about waste records
+ *     tags: [Waste Records]
+ *     responses:
+ *       200:
+ *         description: Overall waste records statistics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/WasteRecordStatistics'
+ */
+router.get('/statistics', wasteRecordController.getWasteRecordStatistics);
+
 
 module.exports = router;
 
+/**
+ * ************************** END OF ROUTES FOR WASTE RECORDS **************************
+ *  
+*/ 

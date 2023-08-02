@@ -4,11 +4,12 @@ const db = require('../db.js');
 // Create a new transportation vehicle
 exports.createTransportationVehicle = async (req, res) => {
   try {
-    const { vehicle_type, capacity, fuel_type, technology_id } = req.body;
+    const { vehicle_type, capacity, fuel_type, weight_capacity, Container_capacity, waste_container_id } = req.body;
+
     const result = await db.oneOrNone(
-      `INSERT INTO "transportation_vehicles" ("vehicle_type", "capacity", "fuel_type", "technology_id")
-       VALUES ($1, $2, $3, $4) RETURNING *`,
-      [vehicle_type, capacity, fuel_type, technology_id]
+      `INSERT INTO "transportation_vehicles" ("vehicle_type", "capacity", "fuel_type", "weight_capacity", "Container_capacity", "waste_container_id")
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [vehicle_type, capacity, fuel_type, weight_capacity, Container_capacity, waste_container_id]
     );
 
     if (result) {
@@ -28,11 +29,7 @@ exports.getAllTransportationVehicles = async (req, res) => {
       'SELECT * FROM "transportation_vehicles"'
     );
 
-    if (result) {
-      res.status(200).json(result);
-    } else {
-      res.status(404).json({ error: "No transportation vehicles found." });
-    }
+    res.status(200).json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -42,6 +39,7 @@ exports.getAllTransportationVehicles = async (req, res) => {
 exports.getTransportationVehicleById = async (req, res) => {
   try {
     const { id } = req.params;
+
     const result = await db.oneOrNone(
       'SELECT * FROM "transportation_vehicles" WHERE "id" = $1',
       [id]
@@ -60,12 +58,14 @@ exports.getTransportationVehicleById = async (req, res) => {
 // Update a transportation vehicle
 exports.updateTransportationVehicle = async (req, res) => {
   try {
-    const { id, vehicle_type, capacity, fuel_type, technology_id } = req.body;
+    const { vehicle_type, capacity, fuel_type, weight_capacity, Container_capacity, waste_container_id } = req.body;
+    const { id } = req.params;
+
     const result = await db.result(
       `UPDATE "transportation_vehicles"
-       SET "vehicle_type" = $2, "capacity" = $3, "fuel_type" = $4, "technology_id" = $5
-       WHERE "id" = $1`,
-      [id, vehicle_type, capacity, fuel_type, technology_id]
+       SET "vehicle_type" = $1, "capacity" = $2, "fuel_type" = $3, "weight_capacity" = $4, "Container_capacity" = $5, "waste_container_id" = $6
+       WHERE "id" = $7`,
+      [vehicle_type, capacity, fuel_type, weight_capacity, Container_capacity, waste_container_id, id]
     );
 
     if (result.rowCount === 1) {
@@ -82,6 +82,7 @@ exports.updateTransportationVehicle = async (req, res) => {
 exports.deleteTransportationVehicle = async (req, res) => {
   try {
     const { id } = req.params;
+
     const result = await db.result(
       `DELETE FROM "transportation_vehicles" WHERE "id" = $1`,
       [id]
@@ -94,5 +95,5 @@ exports.deleteTransportationVehicle = async (req, res) => {
     }
   } catch (err) {
     res.status(500).json({ error: err.message });
-    }
+  }
 };

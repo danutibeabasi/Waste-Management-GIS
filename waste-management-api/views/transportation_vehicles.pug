@@ -1,0 +1,364 @@
+extends layout
+
+block content
+  div.modal.fade#techModal(tabindex="-1")
+    div.modal-dialog.modal-lg
+      div.modal-content
+        div.modal-header
+          h5.modal-title#techModalTitle Add New Transport Technology
+          button.btn-close(type="button", data-bs-dismiss="modal", aria-label="Close")
+        div.modal-body
+          form#techForm(method="POST")
+            div.form-group
+              label(for="techName") Technology Name
+              input#techName.form-control(type="text", name="name", placeholder="Enter Technology Name", required)
+            div.form-group
+              label(for="techDescription") Description
+              textarea#techDescription.form-control(name="description", placeholder="Enter Description", required)
+        div.modal-footer
+          button.btn.btn-secondary(type="button", data-bs-dismiss="modal") Close
+          button#techSubmitFormBtn.btn.btn-primary(type="submit") Submit
+
+  div.modal.fade#vehicleModal(tabindex="-1")
+    div.modal-dialog.modal-lg
+      div.modal-content
+        div.modal-header
+          h5.modal-title#vehicleModalTitle Add New Transport Vehicle
+          button.btn-close(type="button", data-bs-dismiss="modal", aria-label="Close")
+        div.modal-body
+          form#transportationVehicleForm(method="POST")
+            div.form-group
+              label(for="vehicleType") Vehicle Type
+              input#vehicleType.form-control(type="text", name="vehicle_type", placeholder="Enter Vehicle Type", required)
+            div.form-group
+              label(for="vehicleCapacity") Vehicle Capacity
+              input#vehicleCapacity.form-control(type="number", name="capacity", placeholder="Enter Vehicle Capacity", required)
+            div.form-group
+              label(for="vehicleFuel") Fuel Type
+              input#vehicleFuel.form-control(type="text", name="fuel_type", placeholder="Enter Fuel Type", required)
+            div.form-group
+              label(for="vehicleTechnology") Transport Technology
+              select.form-select#vehicleTechnology(name="technology_id", required)
+                each technology in techList
+                  option(value=technology.id) #{technology.name}
+            div.form-group
+              label(for="vehicleContainer") Waste Container
+              select.form-select#vehicleContainer(name="waste_container_id", required)
+                each container in containerList
+                  option(value=container.id) #{container.description}
+        div.modal-footer
+          button.btn.btn-secondary(type="button", data-bs-dismiss="modal") Close
+          button#vehicleSubmitFormBtn.btn.btn-primary(type="submit") Submit
+
+
+  
+  div.grid-container
+    div.grid-item-1
+      div.card
+        div.card-body
+          h5.card-title Waste Vechicle Management
+          ul.nav.nav-tabs.nav-tabs-bordered(id="borderedTab", role="tablist")
+            li.nav-item(role="presentation")
+              button.nav-link.active(id="home-tab", data-bs-toggle="tab", data-bs-target="#bordered-home", type="button", role="tab", aria-controls="home", aria-selected="true") Transport Technologies
+            li.nav-item(role="presentation")
+              button.nav-link(id="profile-tab", data-bs-toggle="tab", data-bs-target="#bordered-profile", type="button", role="tab", aria-controls="profile", aria-selected="false") Vehicles
+          #borderedTabContent.tab-content.pt-2
+            #bordered-home.tab-pane.fade.show.active(role="tabpanel", aria-labelledby="home-tab")
+              section.section
+                div.row
+                  div.col-lg-12
+                    div
+                      button#addNewTransportTechBtn.btn.btn-primary(type="button") Add New
+                    table.table.datatable-paginated
+                      thead
+                        tr
+                          th(scope="col") #
+                          th(scope="col") Technology Name
+                          th(scope="col") Description
+                          th(scope="col") Edit
+                          th(scope="col") Delete
+                      tbody
+                        each tech, i in techList
+                          tr(data-tech=JSON.stringify(tech))
+                            th(scope="row")= i+1
+                            td= tech.name
+                            td= tech.description
+                            td
+                              a.edit-tech-btn(href="")
+                                i.bi.bi-pencil-square
+                            td
+                              i.bi.bi-trash(onclick=`deleteTech(${tech.id})`)
+            #bordered-profile.tab-pane.fade(role="tabpanel", aria-labelledby="profile-tab")
+              section.section
+                div.row
+                  div.col-lg-12
+                    div
+                      button#addNewTransportVehicleBtn.btn.btn-primary(type="button") Add New
+                    table.table.datatable-paginated
+                      thead
+                        tr
+                          th(scope="col") #
+                          th(scope="col") Vehicle Type
+                          th(scope="col") Capacity
+                          th(scope="col") Fuel Type
+                          th(scope="col") Tech ID
+                          th(scope="col") Container Capacity
+                          th(scope="col") Weight Capacity
+                          th(scope="col") Container ID
+                          th(scope="col") Edit
+                          th(scope="col") Delete
+                      tbody
+                        each vehicle, i in vehicleList
+                          tr(data-vehicle=JSON.stringify(vehicle))
+                            th(scope="row")= i+1
+                            td= vehicle.vehicle_type
+                            td= vehicle.capacity
+                            td= vehicle.fuel_type
+                            td= vehicle.technology_id
+                            td= vehicle.container_capacity
+                            td= vehicle.weight_capacity
+                            td= vehicle.waste_container_id
+                            td
+                              a.edit-vehicle-btn(href="")
+                                i.bi.bi-pencil-square
+                            td
+                              i.bi.bi-trash(onclick=`deleteVehicle(${vehicle.id})`)
+
+  script.
+    $(document).ready(function() {
+      $('.datatable-paginated').DataTable();
+
+      // Edit Transport Technology
+      $(document).on("click", ".edit-tech-btn", function(e) {
+        e.preventDefault(); 
+
+        const tech = $(this).parents('tr').data('tech');
+
+        $('#techName').val(tech.name);
+        $('#techDescription').val(tech.description);
+
+        $('#techForm').attr('action', `/api/transportationtechnologies/${tech.id}`);
+        $('#techModalTitle').text('Edit Technology');
+        $('#techModal').modal('show');
+      });
+
+      // Create New Transport Technology
+      $("#addNewTransportTechBtn").click(function() {
+        $('#techName').val("");
+        $('#techDescription').val("");
+
+        $('#techForm').attr('action', `/api/transportationtechnologies`);
+        $('#techModalTitle').text('Add New Technology');
+        $('#techModal').modal('show');
+      });
+
+      // Add event listener for the "Submit" button for transport technology form
+      $("#techSubmitFormBtn").click(function(e) {
+        e.preventDefault();
+        // Trigger the form submit event
+        $("#techForm").submit();
+        // Hide the modal
+        $('#techModal').modal('hide');
+      });
+
+      // Submit Transport Technology Form
+      $('#techForm').on('submit', function(e) {
+        e.preventDefault();
+
+        const url = $(this).attr('action');
+        const formData = $(this).serialize();
+        const httpMethod = url.includes('transportationtechnologies/') ? 'PUT' : 'POST';
+
+        $.ajax({
+          url: url,
+          type: httpMethod,
+          data: formData,
+          success: function() {
+            swal("Good job!", "You have successfully updated the technology!", "success").then(function() {
+                location.reload();
+            });
+            $('#techName').val("");
+            $('#techDescription').val("");
+            $('#techModal').modal('hide');
+          },
+          error: function() {
+            swal("Oops!", "Failed to create/update the technology.", "error");
+          }
+        });
+      });
+
+      // Edit Transport Vehicle
+      $(document).on("click", ".edit-vehicle-btn", function(e) {
+        e.preventDefault();
+
+        const vehicle = $(this).parents('tr').data('vehicle');
+
+        $('#vehicleType').val(vehicle.vehicle_type);
+        $('#vehicleCapacity').val(vehicle.capacity);
+        $('#vehicleFuel').val(vehicle.fuel_type);
+        $('#vehicleTechnology').val(vehicle.technology_id);
+        $('#vehicleContainer').val(vehicle.waste_container_id);
+
+        $('#transportationVehicleForm').attr('action', `/api/transportationvehicles/${vehicle.id}`);
+        $('#vehicleModalTitle').text('Edit Vehicle');
+        $('#vehicleModal').modal('show');
+      });
+
+      // Create New Transport Vehicle
+      $("#addNewTransportVehicleBtn").click(function() {
+        $('#vehicleType').val("");
+        $('#vehicleCapacity').val("");
+        $('#vehicleFuel').val("");
+        $('#vehicleTechnology').val($("#vehicleTechnology option:first").val());
+
+        $('#transportationVehicleForm').attr('action', `/api/transportationvehicles`);
+        $('#vehicleModalTitle').text('Add New Vehicle');
+        $('#vehicleModal').modal('show');
+      });
+
+      // Add event listener for the "Submit" button for transport vehicle form
+      $("#vehicleSubmitFormBtn").click(function(e) {
+        e.preventDefault();
+        // Trigger the form submit event
+        $("#transportationVehicleForm").submit();
+        // Hide the modal
+        $('#vehicleModal').modal('hide');
+      });
+
+      // Submit Transport Vehicle Form
+      $('#transportationVehicleForm').on('submit', function(e) {
+        e.preventDefault();
+
+        const url = $(this).attr('action');
+        const formData = $(this).serialize();
+        const httpMethod = url.includes('transportationvehicles/') ? 'PUT' : 'POST';
+
+        $.ajax({
+          url: url,
+          type: httpMethod,
+          data: formData,
+          success: function() {
+            swal("Good job!", "You have successfully updated the vehicle!", "success").then(function() {
+                location.reload();
+            });
+            $('#vehicleModal').modal('hide');
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+            swal("Oops!", "Failed to create/update the vehicle.", "error");
+          }
+        });
+      });
+
+      // When a tab is shown, save its id in localStorage
+      $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function(e) {
+        localStorage.setItem('activeTab', $(e.target).attr('id'));
+      });
+
+      // On page load, check if a tab is stored in localStorage and show it
+      let activeTab = localStorage.getItem('activeTab');
+      if (activeTab) {
+        $('#' + activeTab).tab('show');
+      }
+    });
+
+    // Deleting a Transport Technology
+    function deleteTech(id) {
+      swal({
+        title: "Are you sure?",
+        text: "Once deleted, you will not be able to recover this technology!",
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+      })
+      .then((willDelete) => {
+        if (willDelete) {
+          $.ajax({
+            url: `/api/transportationtechnologies/${id}`,
+            type: 'DELETE',
+            success: function() {
+                swal("Deleted!", "Your technology has been deleted.", "success").then(function() {
+                    location.reload();
+                });
+            },
+            error: function() {
+                swal("Oops!", "Failed to delete the technology.", "error");
+            }
+          });
+        }
+      });
+    }
+
+    // Deleting a Transport Vehicle
+    function deleteVehicle(id) {
+      swal({
+        title: "Are you sure?",
+        text: "Once deleted, you will not be able to recover this vehicle!",
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+      })
+      .then((willDelete) => {
+        if (willDelete) {
+          $.ajax({
+            url: `/api/transportationvehicles/${id}`,
+            type: 'DELETE',
+            success: function() {
+                swal("Deleted!", "Your vehicle has been deleted.", "success").then(function() {
+                    location.reload();
+                });
+            },
+            error: function() {
+                swal("Oops!", "Failed to delete the vehicle.", "error");
+            }
+          });
+        }
+      });
+    }
+
+
+
+  style.
+    .form-group {
+      margin-bottom: 15px; 
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows:20px 2fr;
+      grid-gap: 50px;
+      padding: 10px;
+    }   
+
+    .datatable-paginated thead th {
+      font-size: 12px;  
+    }
+    .datatable-paginated tbody td {
+      font-size: 11px;  
+    }
+
+    .datatable-paginated th, .datatable-paginated td {
+      text-align: center;  
+    }
+
+    i.bi.bi-trash {
+      color: red;  
+      cursor: pointer;
+    }
+
+    #addNewTransportVehicleBtn, #addNewTransportTechBtn {
+      margin: 10px;
+      margin-left: auto;
+      padding: 10px 20px;
+      background-color: #007bff;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #addNewTransportVehicleBtn:hover, #addNewTransportTechBtn:hover {
+      background-color: #0056b3;
+    }

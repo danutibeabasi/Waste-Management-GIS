@@ -3,10 +3,24 @@ const router = express.Router();
 
 // Import controller
 const collectionScheduleController = require('../controllers/collectionScheduleController');
+const wasteTypeController = require('../controllers/wasteTypeController');
+const collectionPointsController = require('../controllers/collectionPointsController');
+
+router.get('/', async (req, res) => {
+  try {
+    const schedules = await collectionScheduleController.getAllCollectionSchedules(req, res);
+    const wasteTypes = await wasteTypeController.getAllWasteTypes(req, res);
+    const collectionPoints = await collectionPointsController.getAllWasteCollectionPoint(req, res);
+    res.render('collection_schedule.pug', { schedules: schedules, collectionPoints: collectionPoints, wasteTypes: wasteTypes });
+  } catch (err) {
+    console.error(err);  // log error for debugging
+    res.status(500).json({ error: err.message });
+  }
+});
 
 /**
  * @swagger
- * /collectionschedule:
+ * /api/collectionschedules:
  *   post:
  *     summary: Create a new collection schedule
  *     tags: [CollectionSchedules]
@@ -24,11 +38,11 @@ const collectionScheduleController = require('../controllers/collectionScheduleC
  *             schema:
  *               $ref: '#/components/schemas/CollectionSchedule'
  */
-router.post('/collectionschedule', collectionScheduleController.createCollectionSchedule);
+router.post('/', collectionScheduleController.createCollectionSchedule);
 
 /**
  * @swagger
- * /collectionschedule:
+ * /api/collectionschedules:
  *   get:
  *     summary: Retrieve a list of collection schedules
  *     tags: [CollectionSchedules]
@@ -42,11 +56,11 @@ router.post('/collectionschedule', collectionScheduleController.createCollection
  *               items:
  *                 $ref: '#/components/schemas/CollectionSchedule'
  */
-router.get('/collectionschedule', collectionScheduleController.getAllCollectionSchedules);
+router.get('/', collectionScheduleController.getAllCollectionSchedules);
 
 /**
  * @swagger
- * /collectionschedule/{id}:
+ * /api/collectionschedules/{id}:
  *   get:
  *     summary: Retrieve a collection schedule by ID
  *     tags: [CollectionSchedules]
@@ -65,11 +79,11 @@ router.get('/collectionschedule', collectionScheduleController.getAllCollectionS
  *             schema:
  *               $ref: '#/components/schemas/CollectionSchedule'
  */
-router.get('/collectionschedule/:id', collectionScheduleController.getCollectionScheduleById);
+router.get('/:id', collectionScheduleController.getCollectionScheduleById);
 
 /**
  * @swagger
- * /collectionschedule/{id}:
+ * /api/collectionschedules/{id}:
  *   put:
  *     summary: Update a collection schedule by ID
  *     tags: [CollectionSchedules]
@@ -96,11 +110,11 @@ router.get('/collectionschedule/:id', collectionScheduleController.getCollection
  *       404:
  *         description: Collection schedule not found
  */
-router.put('/collectionschedule/:id', collectionScheduleController.updateCollectionSchedule);
+router.put('/:id', collectionScheduleController.updateCollectionSchedule);
 
 /**
  * @swagger
- * /collectionschedule/{id}:
+ * /api/collectionschedules/{id}:
  *   delete:
  *     summary: Delete a collection schedule by ID
  *     tags: [CollectionSchedules]
@@ -117,6 +131,6 @@ router.put('/collectionschedule/:id', collectionScheduleController.updateCollect
  *       404:
  *         description: Collection schedule not found
  */
-router.delete('/collectionschedule/:id', collectionScheduleController.deleteCollectionSchedule);
+router.delete('/:id', collectionScheduleController.deleteCollectionSchedule);
 
 module.exports = router;

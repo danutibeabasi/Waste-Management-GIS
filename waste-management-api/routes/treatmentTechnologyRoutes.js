@@ -10,7 +10,7 @@ const treatmentTechnologyController = require('../controllers/treatmentTechnolog
 
 /**
  * @swagger
- * /treatment-technology:
+ * /api/treatmenttechnologies:
  *   post:
  *     summary: Create a new treatment technology
  *     tags: [Treatment Technologies]
@@ -28,11 +28,11 @@ const treatmentTechnologyController = require('../controllers/treatmentTechnolog
  *             schema:
  *               $ref: '#/components/schemas/TreatmentTechnology'
  */
-router.post('/treatment-technology', treatmentTechnologyController.createTreatmentTechnology);
+router.post('/', treatmentTechnologyController.createTreatmentTechnology);
 
 /**
  * @swagger
- * /treatment-technology:
+ * /api/treatmenttechnologies:
  *   get:
  *     summary: Retrieve a list of treatment technologies
  *     tags: [Treatment Technologies]
@@ -46,11 +46,11 @@ router.post('/treatment-technology', treatmentTechnologyController.createTreatme
  *               items:
  *                 $ref: '#/components/schemas/TreatmentTechnology'
  */
-router.get('/treatment-technology', treatmentTechnologyController.getAllTreatmentTechnologies);
+router.get('/', treatmentTechnologyController.getAllTreatmentTechnologies);
 
 /**
  * @swagger
- * /treatment-technology/{id}:
+ * /api/treatmenttechnologies/{id}:
  *   get:
  *     summary: Retrieve a treatment technology by ID
  *     tags: [Treatment Technologies]
@@ -69,11 +69,11 @@ router.get('/treatment-technology', treatmentTechnologyController.getAllTreatmen
  *             schema:
  *               $ref: '#/components/schemas/TreatmentTechnology'
  */
-router.get('/treatment-technology/:id', treatmentTechnologyController.getTreatmentTechnologyById);
+router.get('/:id', treatmentTechnologyController.getTreatmentTechnologyById);
 
 /**
  * @swagger
- * /treatment-technology/{id}:
+ * /api/treatmenttechnologies/{id}:
  *   put:
  *     summary: Update a treatment technology by ID
  *     tags: [Treatment Technologies]
@@ -100,11 +100,11 @@ router.get('/treatment-technology/:id', treatmentTechnologyController.getTreatme
  *       404:
  *         description: Treatment technology not found
  */
-router.put('/treatment-technology/:id', treatmentTechnologyController.updateTreatmentTechnology);
+router.put('/:id', treatmentTechnologyController.updateTreatmentTechnology);
 
 /**
  * @swagger
- * /treatment-technology/{id}:
+ * /api/treatmenttechnologies/{id}:
  *   delete:
  *     summary: Delete a treatment technology by ID
  *     tags: [Treatment Technologies]
@@ -121,7 +121,7 @@ router.put('/treatment-technology/:id', treatmentTechnologyController.updateTrea
  *       404:
  *         description: Treatment technology not found
  */
-router.delete('/treatment-technology/:id', treatmentTechnologyController.deleteTreatmentTechnology);
+router.delete('/:id', treatmentTechnologyController.deleteTreatmentTechnology);
 
 /**
  * ************************** END OF ROUTES FOR TREATMENT TECHNOLOGY **************************

@@ -7,7 +7,7 @@ const transportationTechnologyController = require('../controllers/transportatio
 
 /**
  * @swagger
- * /transportation-technology:
+ * /api/transportationtechnologies:
  *   post:
  *     summary: Create a new transportation technology entry
  *     tags: [TransportationTechnology]
@@ -25,11 +25,11 @@ const transportationTechnologyController = require('../controllers/transportatio
  *             schema:
  *               $ref: '#/components/schemas/TransportationTechnology'
  */
-router.post('/transportation-technology', transportationTechnologyController.createTransportationTechnology);
+router.post('/', transportationTechnologyController.createTransportationTechnology);
 
 /**
  * @swagger
- * /transportation-technology:
+ * /api/transportationtechnologies:
  *   get:
  *     summary: Retrieve a list of transportation technology entries
  *     tags: [TransportationTechnology]
@@ -43,11 +43,11 @@ router.post('/transportation-technology', transportationTechnologyController.cre
  *               items:
  *                 $ref: '#/components/schemas/TransportationTechnology'
  */
-router.get('/transportation-technology', transportationTechnologyController.getAllTransportationTechnology);
+router.get('/', transportationTechnologyController.getAllTransportationTechnology);
 
 /**
  * @swagger
- * /transportation-technology/{id}:
+ * /api/transportationtechnologies/{id}:
  *   get:
  *     summary: Retrieve a transportation technology entry by ID
  *     tags: [TransportationTechnology]
@@ -66,11 +66,11 @@ router.get('/transportation-technology', transportationTechnologyController.getA
  *             schema:
  *               $ref: '#/components/schemas/TransportationTechnology'
  */
-router.get('/transportation-technology/:id', transportationTechnologyController.getTransportationTechnologyById);
+router.get('/:id', transportationTechnologyController.getTransportationTechnologyById);
 
 /**
  * @swagger
- * /transportation-technology/{id}:
+ * /api/transportationtechnologies/{id}:
  *   put:
  *     summary: Update a transportation technology entry by ID
  *     tags: [TransportationTechnology]
@@ -97,12 +97,12 @@ router.get('/transportation-technology/:id', transportationTechnologyController.
  *       404:
  *         description: Transportation technology entry not found
  */
-router.put('/transportation-technology/:id', transportationTechnologyController.updateTransportationTechnology);
+router.put('/:id', transportationTechnologyController.updateTransportationTechnology);
 
 
 /**
  * @swagger
- * /transportation-technology/{id}:
+ * /api/transportationtechnologies/{id}:
  *   delete:
  *     summary: Delete a transportation technology entry by ID
  *     tags: [TransportationTechnology]
@@ -119,7 +119,7 @@ router.put('/transportation-technology/:id', transportationTechnologyController.
  *       404:
  *         description: Transportation technology entry not found
 */
-router.delete('/transportation-technology/:id', transportationTechnologyController.deleteTransportationTechnology);
+router.delete('/:id', transportationTechnologyController.deleteTransportationTechnology);
 
 /**
 

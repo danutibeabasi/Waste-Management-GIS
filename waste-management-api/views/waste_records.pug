@@ -1,78 +1,211 @@
 extends layout
 
 block content
-  div.grid-container
-    div.grid-item-1
-      section.section
-      div.row
-        div.col-lg-12
-          div.card
-            div.card-body
-              h5.card-title Waste Records
-              
-              // Table with stripped rows
-              table.table.datatable
-                thead
-                  tr
-                    th(scope="col") #
-                    th(scope="col") Collection Point ID
-                    th(scope="col") Waste Type
-                    th(scope="col") Weight
-                    //- th(scope="col") Collection Date
-                    th(scope="col") Edit
-                    th(scope="col") Delete
-                tbody
-                  each record, i in records
-                    tr
-                      th(scope="row")= i+1
-                      td= record.collection_point_id
-                      td= record.waste_type_name
-                      td= record.weight
-                      //- td= record.collection_date
-                      td
-                        a(href=`/edit-waste-record/${record.id}`)
-                          i.bi.bi-pencil-square
-                      td
-                        button(onclick=`deleteRecord(${record.id})`)
-                          i.bi.bi-trash 
-      
-    div.grid-item-2 Item 2
   
-  script.
-    function deleteRecord(id) {
-      if (confirm('Are you sure you want to delete this record?')) {
-          fetch(`/api/wasterecords/${id}`, {
-              method: 'DELETE'
-          })
-          .then(response => response.json())
-          .then(data => {
-              if (data.success) {
-                  alert('Record deleted successfully');
-                  location.reload();
-              } else {
-                  alert('Failed to delete record');
-              }
-          });
-      }
-    } 
+  //- div.modal.fade#largeModal(tabindex="-1")
+  //-   div.modal-dialog.modal-lg
+  //-     div.modal-content
+  //-       div.modal-header
+  //-         h5.modal-title#modalTitle Add New Schedule
+  //-         button.btn-close(type="button", data-bs-dismiss="modal", aria-label="Close")
+  //-       div.modal-body
+  //-         form#recordForm(method="POST")
+  //-           div.form-group
+  //-             label.form-label(for='inputCollectionPointId') Collection Point
+  //-             select.form-select#inputCollectionPointId(name='collection_point_id')
+  //-               each collectionPoint in collectionPoints
+  //-                 option(value=collectionPoint.id) #{collectionPoint.name}
+  //-           div.form-group
+  //-             label.form-label(for='inputWasteTypeId') Waste Type
+  //-             select.form-select#inputWasteTypeId(name='waste_type_id')
+  //-               each wasteType in wasteTypes
+  //-                 option(value=wasteType.id) #{wasteType.name}
+  //-           div.form-group
+  //-             label(for="weight") Weight
+  //-             input#weight.form-control(type="number" name="weight" placeholder="Enter Weight" required)
+  //-           div.form-group
+  //-             label(for="number_of_collections") Number of Collections
+  //-             input#number_of_collections.form-control(type="number" name="number_of_collections" placeholder="Enter Number of Collections" required)
+  //-       div.modal-footer
+  //-         button.btn.btn-secondary(type="button", data-bs-dismiss="modal") Close
+  //-         button#submitFormBtn.btn.btn-primary(type="submit") Submit
+
+  //- div.grid-container
+  //-   div.grid-item-1
+  //-     section.section
+  //-     div.row
+  //-       div.col-lg-12
+  //-         div.card
+  //-           div.card-body
+  //-             div.d-flex.justify-content-between
+  //-               h5.card-title Waste Records 
+  //-               button#addNewRecordBtn.btn.btn-primary(type="button") Add New Record
+              
+  //-             // Table with stripped rows
+  //-             table.table.datatable-paginated
+  //-               thead
+  //-                 tr
+  //-                   th(scope="col") #
+  //-                   th(scope="col") Collection Point ID
+  //-                   th(scope="col") Waste Type
+  //-                   th(scope="col") Weight
+  //-                   th(scope="col") Total Weight
+  //-                   th(scope="col") Average Weight 
+  //-                   th(scope="col") Min Weight 
+  //-                   th(scope="col") Max Weight 
+  //-                   th(scope="col") Total Bins 
+  //-                   th(scope="col") Number of Collections
+  //-                   th(scope="col") Edit
+  //-                   th(scope="col") Delete
+  //-               tbody
+  //-                 each record, i in records
+  //-                   tr(data-record=JSON.stringify(record))
+  //-                     th(scope="row")= i+1
+  //-                     td= record.collection_point_id
+  //-                     td= record.waste_type_name
+  //-                     td= record.weight
+  //-                     td= record.total_weight
+  //-                     td= record.average_weight
+  //-                     td= record.min_weight 
+  //-                     td= record.max_weight 
+  //-                     td= record.total_bins 
+  //-                     td= record.number_of_collections
+  //-                     td
+  //-                       a.edit-record-btn
+  //-                         i.bi.bi-pencil-square
+
+  //-                     td
+  //-                       i.bi.bi-trash(onclick=`deleteRecord(${record.id})`)
+
+  //- script.
+  //-   $(document).ready(function() {
+  //-     $('.datatable-paginated').DataTable();
+
+  //-     $(document).on("click", ".edit-record-btn", function(e) {
+  //-       e.preventDefault(); 
+
+  //-       const record = $(this).parents('tr').data('record');
+
+  //-       $('#inputCollectionPointId').val(record.collection_point_id);
+  //-       $('#inputWasteTypeId').val(record.waste_type_id);
+  //-       $('#weight').val(record.weight);
+  //-       $('#number_of_collections').val(record.number_of_collections);
+
+  //-       $('#recordForm').attr('action', `/api/wasterecords/${record.id}`);
+  //-       $('#modalTitle').text('Edit Waste Record');
+  //-       $('#largeModal').modal('show');
+  //-     });
+
+  //-     $("#addNewRecordBtn").click(function() {
+  //-       $('#inputCollectionPointId').val($("#inputCollectionPointId option:first").val());
+  //-       $('#inputWasteTypeId').val($("#inputWasteTypeId option:first").val());
+  //-       $('#weight').val("");
+  //-       $('#number_of_collections').val("");
+
+  //-       $('#recordForm').attr('action', `/api/wasterecords`);
+  //-       $('#modalTitle').text('Add Waste Record');
+  //-       $('#largeModal').modal('show');
+  //-     });
+
+  //-     // Add event listener for the "Submit" button
+  //-     $("#submitFormBtn").click(function(e) {
+  //-       e.preventDefault();
+  //-       // Trigger the form submit event
+  //-       $("#recordForm").submit();
+  //-       // Hide the modal
+  //-       $('#largeModal').modal('hide');
+  //-     });
+
+  //-     $('#recordForm').on('submit', function(e) {
+  //-       e.preventDefault();
+
+  //-       const url = $(this).attr('action');
+  //-       const formData = $(this).serialize();
+  //-       const httpMethod = url.includes('wasterecords/') ? 'PUT' : 'POST';
+
+  //-       $.ajax({
+  //-           url: url,
+  //-           type: httpMethod,
+  //-           data: formData,
+  //-           success: function() {
+  //-               swal("Good job!", "You have successfully updated the record!", "success").then(function() {
+  //-                   location.reload();
+  //-               });
+  //-               $('#inputCollectionPointId').val($("#inputCollectionPointId option:first").val());
+  //-               $('#inputWasteTypeId').val($("#inputWasteTypeId option:first").val());
+  //-               $('#weight').val("");
+  //-               $('#number_of_collections').val("");
+  //-               $('#largeModal').modal('hide');
+  //-           },
+  //-           error: function() {
+  //-               swal("Oops!", "Failed to create/update the record.", "error");
+  //-           }
+  //-       });
+  //-     });
+  //-   });
+
+  //-   function deleteRecord(id) {
+  //-     swal({
+  //-       title: "Are you sure?",
+  //-       text: "Once deleted, you will not be able to recover this record!",
+  //-       icon: "warning",
+  //-       buttons: true,
+  //-       dangerMode: true,
+  //-     })
+  //-     .then((willDelete) => {
+  //-       if (willDelete) {
+  //-         fetch(`/api/wasterecords/${id}`, {
+  //-           method: 'DELETE'
+  //-         })
+  //-         .then(response => response.json())
+  //-         .then(data => {
+  //-           if (data.message) {
+  //-               swal("Deleted!", "Your record has been deleted.", "success").then(function() {
+  //-                   location.reload();
+  //-               });
+  //-           } else {
+  //-               swal("Oops!", "Failed to delete record.", "error");
+  //-           }
+  //-         });
+  //-       }
+  //-     });
+  //-   }
+
+
 
   style.
+    .form-group {
+      margin-bottom: 15px; 
+    }
+
     .grid-container {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows:20px 2fr;
       grid-gap: 10px;
       padding: 10px;
     }
 
     .grid-item-1 {
-      grid-column: 1 / span 2;
-    }
-
-    .grid-item-2 {
-      border: solid 2px blue;
-      padding: 10px;
+      grid-column: 1 / span 3;
+      grid-row: 2;
       text-align: center;
-      grid-column: 3;
     }
 
-  
+    .d-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .datatable-paginated thead th {
+      font-size: 12px;  
+    }
+    .datatable-paginated tbody td {
+      font-size: 11px;  
+    }
+
+    i.bi.bi-trash {
+      color: red;  
+      cursor: pointer;
+    }

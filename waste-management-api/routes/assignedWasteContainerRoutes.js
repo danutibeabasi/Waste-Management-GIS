@@ -10,7 +10,7 @@ const assignedWasteContainerController = require('../controllers/assignedWasteCo
 
 /**
  * @swagger
- * /assigned-waste-container:
+ * /api/assignedwastecontainers:
  *   post:
  *     summary: Create a new assigned waste container
  *     tags: [Assigned Waste Containers]
@@ -28,11 +28,11 @@ const assignedWasteContainerController = require('../controllers/assignedWasteCo
  *             schema:
  *               $ref: '#/components/schemas/AssignedWasteContainer'
  */
-router.post('/assigned-waste-container', assignedWasteContainerController.createAssignedWasteContainer);
+router.post('/', assignedWasteContainerController.createAssignedWasteContainer);
 
 /**
  * @swagger
- * /assigned-waste-container:
+ * /api/assignedwastecontainers:
  *   get:
  *     summary: Retrieve a list of assigned waste containers
  *     tags: [Assigned Waste Containers]
@@ -46,11 +46,11 @@ router.post('/assigned-waste-container', assignedWasteContainerController.create
  *               items:
  *                 $ref: '#/components/schemas/AssignedWasteContainer'
  */
-router.get('/assigned-waste-container', assignedWasteContainerController.getAllAssignedWasteContainers);
+router.get('/', assignedWasteContainerController.getAllAssignedWasteContainers);
 
 /**
  * @swagger
- * /assigned-waste-container/{id}:
+ * /api/assignedwastecontainers/{id}:
  *   get:
  *     summary: Retrieve an assigned waste container by ID
  *     tags: [Assigned Waste Containers]
@@ -69,11 +69,11 @@ router.get('/assigned-waste-container', assignedWasteContainerController.getAllA
  *             schema:
  *               $ref: '#/components/schemas/AssignedWasteContainer'
  */
-router.get('/assigned-waste-container/:id', assignedWasteContainerController.getAssignedWasteContainerById);
+router.get('/:id', assignedWasteContainerController.getAssignedWasteContainerById);
 
 /**
  * @swagger
- * /assigned-waste-container/{id}:
+ * /api/assignedwastecontainers/{id}:
  *   put:
  *     summary: Update an assigned waste container by ID
  *     tags: [Assigned Waste Containers]
@@ -100,11 +100,11 @@ router.get('/assigned-waste-container/:id', assignedWasteContainerController.get
  *       404:
  *         description: Assigned waste container not found
  */
-router.put('/assigned-waste-container/:id', assignedWasteContainerController.updateAssignedWasteContainer);
+router.put('/:id', assignedWasteContainerController.updateAssignedWasteContainer);
 
 /**
  * @swagger
- * /assigned-waste-container/{id}:
+ * /api/assignedwastecontainers/{id}:
  *   delete:
  *     summary: Delete an assigned waste container by ID
  *     tags: [Assigned Waste Containers]
@@ -121,7 +121,7 @@ router.put('/assigned-waste-container/:id', assignedWasteContainerController.upd
  *       404:
  *         description: Assigned waste container not found
  */
-router.delete('/assigned-waste-container/:id', assignedWasteContainerController.deleteAssignedWasteContainer);
+router.delete('/:id', assignedWasteContainerController.deleteAssignedWasteContainer);
 
 /**
  * ************************** END OF ROUTES FOR ASSIGNED WASTE CONTAINERS **************************

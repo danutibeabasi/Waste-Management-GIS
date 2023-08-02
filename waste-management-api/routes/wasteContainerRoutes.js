@@ -1,8 +1,38 @@
 const express = require('express');
 const router = express.Router();
 
+
 // Import controller
 const wasteContainerController = require('../controllers/wasteContainerController');
+const wasteTypeController = require('../controllers/wasteTypeController');
+const collectionPointsController = require('../controllers/collectionPointsController');
+const assignedWasteContainerController = require('../controllers/assignedWasteContainerController');
+
+
+router.get('/', async (req, res) => {
+  try {
+    const containerList = await wasteContainerController.getAllWasteContainers(req, res);
+    const assignedContainers = await assignedWasteContainerController.getAllAssignedWasteContainers(req, res);
+    const wasteTypes = await wasteTypeController.getAllWasteTypes(req, res);
+    const collectionPoints = await collectionPointsController.getAllWasteCollectionPoint(req, res);
+
+    res.render('waste_containers', { 
+      containerList, 
+      assignedContainers, 
+      collectionPoints, 
+      wasteTypes 
+    });
+  } catch (err) {
+    console.error(err);  // log error for debugging
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+
+
+
+
 
 /**
  * ************************** BEGINNING OF ROUTES FOR WASTE CONTAINER **************************
@@ -10,7 +40,7 @@ const wasteContainerController = require('../controllers/wasteContainerControlle
 
 /**
  * @swagger
- * /waste-container:
+ * /api/wastecontainers:
  *   post:
  *     summary: Create a new waste container
  *     tags: [Waste Containers]
@@ -28,11 +58,11 @@ const wasteContainerController = require('../controllers/wasteContainerControlle
  *             schema:
  *               $ref: '#/components/schemas/WasteContainer'
  */
-router.post('/waste-container', wasteContainerController.createWasteContainer);
+router.post('/', wasteContainerController.createWasteContainer);
 
 /**
  * @swagger
- * /waste-container:
+ * /api/wastecontainers:
  *   get:
  *     summary: Retrieve a list of waste containers
  *     tags: [Waste Containers]
@@ -46,11 +76,11 @@ router.post('/waste-container', wasteContainerController.createWasteContainer);
  *               items:
  *                 $ref: '#/components/schemas/WasteContainer'
  */
-router.get('/waste-container', wasteContainerController.getAllWasteContainers);
+router.get('/', wasteContainerController.getAllWasteContainers);
 
 /**
  * @swagger
- * /waste-container/{id}:
+ * /api/wastecontainers/{id}:
  *   get:
  *     summary: Retrieve a waste container by ID
  *     tags: [Waste Containers]
@@ -69,11 +99,11 @@ router.get('/waste-container', wasteContainerController.getAllWasteContainers);
  *             schema:
  *               $ref: '#/components/schemas/WasteContainer'
  */
-router.get('/waste-container/:id', wasteContainerController.getWasteContainerById);
+router.get('/:id', wasteContainerController.getWasteContainerById);
 
 /**
  * @swagger
- * /waste-container/{id}:
+ * /api/wastecontainers/{id}:
  *   put:
  *     summary: Update a waste container by ID
  *     tags: [Waste Containers]
@@ -100,11 +130,11 @@ router.get('/waste-container/:id', wasteContainerController.getWasteContainerByI
  *       404:
  *         description: Waste container not found
  */
-router.put('/waste-container/:id', wasteContainerController.updateWasteContainer);
+router.put('/:id', wasteContainerController.updateWasteContainer);
 
 /**
  * @swagger
- * /waste-container/{id}:
+ * /api/wastecontainers/{id}:
  *   delete:
  *     summary: Delete a waste container by ID
  *     tags: [Waste Containers]
@@ -121,7 +151,7 @@ router.put('/waste-container/:id', wasteContainerController.updateWasteContainer
  *       404:
  *         description: Waste container not found
  */
-router.delete('/waste-container/:id', wasteContainerController.deleteWasteContainer);
+router.delete('/:id', wasteContainerController.deleteWasteContainer);
 
 /**
  * ************************** END OF ROUTES FOR WASTE CONTAINER **************************

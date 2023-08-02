@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -15,10 +15,14 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "mathjs": "^11.9.0",
     "pg-promise": "^11.4.3",
     "pug": "^3.0.2",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^4.6.2",
     "terraformer-wkt-parser": "^1.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
   }
 }

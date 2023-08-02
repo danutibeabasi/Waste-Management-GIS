@@ -4,11 +4,11 @@ const db = require('../db.js');
 // Create a new population record in the database
 exports.createPopulation = async (req, res) => {
   try {
-    const { commune_id, iris_id, year, population_count, building_id } = req.body;
+    const { city_id, year, population_count, data_source_id } = req.body;
     const result = await db.oneOrNone(
-      `INSERT INTO "population" ("commune_id", "iris_id", "year", "population_count", "building_id")
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [commune_id, iris_id, year, population_count, building_id]
+      `INSERT INTO "population" ("city_id", "year", "population_count", "data_source_id")
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [city_id, year, population_count, data_source_id]
     );
 
     if (result) {
@@ -55,12 +55,12 @@ exports.getPopulationById = async (req, res) => {
 // Update a population record in the database
 exports.updatePopulation = async (req, res) => {
   try {
-    const { id, commune_id, iris_id, year, population_count, building_id } = req.body;
+    const { id, city_id, year, population_count, data_source_id } = req.body;
     const result = await db.result(
       `UPDATE "population"
-       SET "commune_id" = $2, "iris_id" = $3, "year" = $4, "population_count" = $5, "building_id" = $6
+       SET "city_id" = $2, "year" = $3, "population_count" = $4, "data_source_id" = $5
        WHERE "id" = $1`,
-      [id, commune_id, iris_id, year, population_count, building_id]
+      [id, city_id, year, population_count, data_source_id]
     );
 
     if (result.rowCount === 1) {
@@ -87,7 +87,7 @@ exports.deletePopulation = async (req, res) => {
     } else {
       res.status(404).json({ error: "Population record not found." });
     }
-    } catch (err) {
+  } catch (err) {
     res.status(500).json({ error: err.message });
-    }
+  }
 };

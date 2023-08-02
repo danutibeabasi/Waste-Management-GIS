@@ -4,13 +4,27 @@ const router = express.Router();
 // Import controller
 const wasteTypeController = require('../controllers/wasteTypeController');
 
+router.get('/', async (req, res) => {
+  try {
+    const types = await wasteTypeController.getAllWasteTypes(req);
+    res.render('waste_types', { types });
+  } catch (err) {
+    console.error(err);
+    // render the template with an empty types array in case of an error
+    res.render('waste_types', { types: [] });
+  }
+});
+
+
+
+
 /**
  * ************************** BEGINNING OF ROUTES FOR WASTE TYPE **************************
  */
 
 /**
  * @swagger
- * /wastetype:
+ * /api/wastetypes:
  *   post:
  *     summary: Create a new waste type
  *     tags: [WasteTypes]
@@ -28,11 +42,11 @@ const wasteTypeController = require('../controllers/wasteTypeController');
  *             schema:
  *               $ref: '#/components/schemas/WasteType'
  */
-router.post('/wastetype', wasteTypeController.createWasteType);
+router.post('/', wasteTypeController.createWasteType);
 
 /**
  * @swagger
- * /wastetype:
+ * /api/wastetypes:
  *   get:
  *     summary: Retrieve a list of waste types
  *     tags: [WasteTypes]
@@ -46,11 +60,11 @@ router.post('/wastetype', wasteTypeController.createWasteType);
  *               items:
  *                 $ref: '#/components/schemas/WasteType'
  */
-router.get('/wastetype', wasteTypeController.getAllWasteTypes);
+router.get('/', wasteTypeController.getAllWasteTypes);
 
 /**
  * @swagger
- * /wastetype/{id}:
+ * /api/wastetypes/{id}:
  *   get:
  *     summary: Retrieve a waste type by ID
  *     tags: [WasteTypes]
@@ -69,11 +83,11 @@ router.get('/wastetype', wasteTypeController.getAllWasteTypes);
  *             schema:
  *               $ref: '#/components/schemas/WasteType'
  */
-router.get('/wastetype/:id', wasteTypeController.getWasteTypeById);
+router.get('/:id', wasteTypeController.getWasteTypeById);
 
 /**
  * @swagger
- * /wastetype/{id}:
+ * /api/wastetypes/{id}:
  *   put:
  *     summary: Update a waste type by ID
  *     tags: [WasteTypes]
@@ -100,11 +114,11 @@ router.get('/wastetype/:id', wasteTypeController.getWasteTypeById);
  *       404:
  *         description: Waste type not found
  */
-router.put('/wastetype/:id', wasteTypeController.updateWasteType);
+router.put('/:id', wasteTypeController.updateWasteType);
 
 /**
  * @swagger
- * /wastetype/{id}:
+ * /api/wastetypes/{id}:
  *   delete:
  *     summary: Delete a waste type by ID
  *     tags: [WasteTypes]
@@ -121,6 +135,6 @@ router.put('/wastetype/:id', wasteTypeController.updateWasteType);
  *       404:
  *         description: Waste type not found
  */
-router.delete('/wastetype/:id', wasteTypeController.deleteWasteType);
+router.delete('/:id', wasteTypeController.deleteWasteType);
 
 module.exports = router;

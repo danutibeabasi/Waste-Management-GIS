@@ -45,8 +45,8 @@ MAP
     CONNECTION "host=localhost dbname=IntegratedWasteManagementDB user=postgres password=emse2023"
     DATA "geom FROM \"collection_points\" USING UNIQUE id USING srid=4326"
     METADATA
-      "wfs_fields" "id,city,code,average_weight,postal_code,total_weight,total_weight,min_weight,max_weight,name,total_bins,latitude,longitude,address_1"
-      "gml_include_items" "id,city,code,average_weight,postal_code,total_weight,total_weight,min_weight,max_weight,name,total_bins,latitude,longitude,address_1"
+      "wfs_fields" "id,city,code,postal_code,average_weight,name,latitude,longitude,address_1"
+      "gml_include_items" "id,city,code,postal_code,average_weight,name,latitude,longitude,address_1"
       "wms_enable_request" "*"
     END
   END
@@ -66,18 +66,27 @@ MAP
   END
 
   LAYER
-    NAME "communes"
+    NAME "cities"
     STATUS DEFAULT
     TYPE POLYGON
     CONNECTIONTYPE POSTGIS
     CONNECTION "host=localhost dbname=IntegratedWasteManagementDB user=postgres password=emse2023"
-    DATA "geom FROM \"communes\" USING UNIQUE id USING srid=4326"
+    DATA "geom FROM \"city\" USING UNIQUE id USING srid=2154"
+    PROJECTION
+      "init=epsg:2154"
+    END
     METADATA
-      "wfs_fields" "id,commune_codeid,name,insee_code,statut,population,insee_can,insee_arr,insee_dep,insee_reg,insee_epci"
-      "gml_include_items" "id,commune_codeid,name,insee_code,statut,population,insee_can,insee_arr,insee_dep,insee_reg,insee_epci"
+      "wfs_fields" "id,insee_code,city_codeid,name,status,population,total_collection_point,total_weight_per_city,average_weight_per_city"
+      "gml_include_items" "id,insee_code,city_codeid,name,status,population,total_collection_point,total_weight_per_city,average_weight_per_city"
       "wms_enable_request" "*"
     END
-  END
+    CLASS
+      STYLE
+        OUTLINECOLOR 0 0 0
+        COLOR 255 255 255
+      END
+    END
+  END 
 END
 
 

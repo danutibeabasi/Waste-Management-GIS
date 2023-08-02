@@ -1,0 +1,179 @@
+extends layout
+
+block content
+  div.modal.fade#largeModal(tabindex="-1")
+    div.modal-dialog.modal-lg
+      div.modal-content
+        div.modal-header
+          h5.modal-title#modalTitle Add New Waste Type
+          button.btn-close(type="button", data-bs-dismiss="modal", aria-label="Close")
+        div.modal-body
+          form#recordForm(method="POST")
+            div.form-group
+              label(for='inputName') Name
+              input#inputName.form-control(type="text" name="name" placeholder="Enter Waste Type Name" required)
+            div.form-group
+              label(for='inputDescription') Description
+              textarea#inputDescription.form-control(name='description' placeholder="Enter Description" required)
+        div.modal-footer
+          button.btn.btn-secondary(type="button", data-bs-dismiss="modal") Close
+          button#submitFormBtn.btn.btn-primary(type="submit") Submit
+
+  div.grid-container
+    div.grid-item-1
+      section.section
+      div.row
+        div.col-lg-12
+          div.card
+            div.card-body
+              div.d-flex.justify-content-between
+                h5.card-title Waste Types 
+                button#addNewRecordBtn.btn.btn-primary(type="button") Add New Waste Type
+              
+              // Table with stripped rows
+              table.table.datatable-paginated
+                thead
+                  tr
+                    th(scope="col") #
+                    th(scope="col") Name
+                    th(scope="col") Description
+                    th(scope="col") Edit
+                    th(scope="col") Delete
+                tbody
+                  each type, i in types
+                    tr(data-record=JSON.stringify(type))
+                      th(scope="row")= i+1
+                      td= type.name
+                      td= type.description
+                      td
+                        a.edit-record-btn
+                          i.bi.bi-pencil-square
+
+                      td
+                        i.bi.bi-trash(onclick=`deleteRecord(${type.id})`)
+
+  script.
+    $(document).ready(function() {
+      $('.datatable-paginated').DataTable();
+
+      $(document).on("click", ".edit-record-btn", function(e) {
+        e.preventDefault(); 
+
+        const record = $(this).parents('tr').data('record');
+
+        $('#inputName').val(record.name);
+        $('#inputDescription').val(record.description);
+
+        $('#recordForm').attr('action', `/api/wastetypes/${record.id}`);
+        $('#modalTitle').text('Edit Waste Type');
+        $('#largeModal').modal('show');
+      });
+
+      $("#addNewRecordBtn").click(function() {
+        $('#inputName').val("");
+        $('#inputDescription').val("");
+
+        $('#recordForm').attr('action', `/api/wastetypes`);
+        $('#modalTitle').text('Add Waste Type');
+        $('#largeModal').modal('show');
+      });
+
+      // Add event listener for the "Submit" button
+      $("#submitFormBtn").click(function(e) {
+        e.preventDefault();
+        // Trigger the form submit event
+        $("#recordForm").submit();
+        // Hide the modal
+        $('#largeModal').modal('hide');
+      });
+
+      $('#recordForm').on('submit', function(e) {
+        e.preventDefault();
+
+        const url = $(this).attr('action');
+        const formData = $(this).serialize();
+        const httpMethod = url.includes('wastetypes/') ? 'PUT' : 'POST';
+
+        $.ajax({
+            url: url,
+            type: httpMethod,
+            data: formData,
+            success: function() {
+                swal("Good job!", "You have successfully updated the record!", "success").then(function() {
+                    location.reload();
+                });
+                $('#inputName').val("");
+                $('#inputDescription').val("");
+                $('#largeModal').modal('hide');
+            },
+            error: function() {
+                swal("Oops!", "Failed to create/update the record.", "error");
+            }
+        });
+      });
+    });
+
+    function deleteRecord(id) {
+      swal({
+        title: "Are you sure?",
+        text: "Once deleted, you will not be able to recover this record!",
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+      })
+      .then((willDelete) => {
+        if (willDelete) {
+          fetch(`/api/wastetypes/${id}`, {
+            method: 'DELETE'
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.message) {
+                swal("Deleted!", "Your record has been deleted.", "success").then(function() {
+                    location.reload();
+                });
+            } else {
+                swal("Oops!", "Failed to delete record.", "error");
+            }
+          });
+        }
+      });
+    }
+
+
+  style.
+    .form-group {
+      margin-bottom: 15px; 
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows:20px 2fr;
+      grid-gap: 10px;
+      padding: 10px;
+    }
+
+    .grid-item-1 {
+      grid-column: 1 / span 3;
+      grid-row: 2;
+      text-align: center;
+    }
+
+    .d-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .datatable-paginated thead th {
+      font-size: 12px;  
+    }
+    .datatable-paginated tbody td {
+      font-size: 11px;  
+    }
+
+    i.bi.bi-trash {
+      color: red;  
+      cursor: pointer;
+    }

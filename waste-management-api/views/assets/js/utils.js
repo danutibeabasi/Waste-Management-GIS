@@ -43,6 +43,7 @@ window.fetchData = function(layerName = null, filterType = null, filterValue = n
       })
       .catch(function (error) {
         console.error('Error fetching GeoJSON data:', error);
+        throw error; 
       });
   });
 
@@ -93,8 +94,17 @@ window.handleFilterForm = function(formId, layerName, source) {
           source.clear();
           source.addFeatures(filteredFeatures);
         });
-
     });
     filterForm.setAttribute('data-has-event-listener', 'true');
   }
 }
+
+// ===================================================================================
+  // === EVENT HANDLERS AND FUNCTIONS ===
+  // ===================================================================================
+
+  // ================================
+  // === Single Click Event ===
+  // ================================
+
+  // === Delete Form Submission Event ===

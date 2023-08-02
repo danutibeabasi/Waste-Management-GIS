@@ -29,8 +29,8 @@ exports.getTreatmentTechnologyById = async (req, res) => {
 // Create a new treatment technology
 exports.createTreatmentTechnology = async (req, res) => {
   try {
-    const { name, description } = req.body;
-    const results = await db.one('INSERT INTO treatment_technologies (name, description) VALUES ($1, $2) RETURNING *', [name, description]);
+    const { name, description, Treatment_type, Data_source_id } = req.body;
+    const results = await db.one('INSERT INTO treatment_technologies (name, description, Treatment_type, Data_source_id) VALUES ($1, $2, $3, $4) RETURNING *', [name, description, Treatment_type, Data_source_id]);
     res.status(201).json(results);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -40,8 +40,8 @@ exports.createTreatmentTechnology = async (req, res) => {
 // Update a treatment technology by ID
 exports.updateTreatmentTechnology = async (req, res) => {
   try {
-    const { id, name, description } = req.body;
-    const results = await db.result('UPDATE treatment_technologies SET name = $1, description = $2 WHERE id = $3', [name, description, id]);
+    const { id, name, description, Treatment_type, Data_source_id } = req.body;
+    const results = await db.result('UPDATE treatment_technologies SET name = $1, description = $2, Treatment_type = $3, Data_source_id = $4 WHERE id = $5', [name, description, Treatment_type, Data_source_id, id]);
     if (results.rowCount === 1) {
       res.status(200).json({ message: 'Treatment technology updated successfully.' });
     } else {

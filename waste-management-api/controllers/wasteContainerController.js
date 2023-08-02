@@ -4,11 +4,11 @@ const db = require('/home/dan/wastemanagement-project/waste-management-api/db.js
 // Create a new waste container in the database
 exports.createWasteContainer = async (req, res) => {
   try {
-    const { capacity, description } = req.body;
+    const { capacity, description, weight, data_source_id } = req.body;
     const result = await db.oneOrNone(
-      `INSERT INTO "waste_containers" ("capacity", "description")
-       VALUES ($1, $2) RETURNING *`,
-      [capacity, description]
+      `INSERT INTO "waste_containers" ("capacity", "description", "weight", "data_source_id")
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [capacity, description, weight, data_source_id]
     );
 
     if (result) {
@@ -22,16 +22,16 @@ exports.createWasteContainer = async (req, res) => {
   }
 };
 
-// Get all waste containers
 exports.getAllWasteContainers = async (req, res) => {
   try {
     const result = await db.manyOrNone(
-      'SELECT "id", "capacity", "description" FROM "waste_containers"'
+      'SELECT "id", "capacity", "description", "weight", "data_source_id" FROM "waste_containers"'
     );
-
-    res.status(200).json(result);
+    
+    return result;  // return the result instead of using res.json()
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error(err);  // log error for debugging
+    throw err;
   }
 };
 
@@ -40,7 +40,7 @@ exports.getWasteContainerById = async (req, res) => {
   try {
     const { id } = req.params;
     const result = await db.oneOrNone(
-      'SELECT "id", "capacity", "description" FROM "waste_containers" WHERE "id" = $1',
+      'SELECT "id", "capacity", "description", "weight", "data_source_id" FROM "waste_containers" WHERE "id" = $1',
       [id]
     );
 
@@ -57,13 +57,14 @@ exports.getWasteContainerById = async (req, res) => {
 // Update an existing waste container in the database
 exports.updateWasteContainer = async (req, res) => {
   try {
-    const { id, capacity, description } = req.body;
+    const { capacity, description, weight, data_source_id } = req.body;
+    const { id } = req.params;  // Assume id is a URL parameter
 
     const result = await db.result(
       `UPDATE "waste_containers"
-       SET "capacity" = $2, "description" = $3
-       WHERE "id" = $1`,
-      [id, capacity, description]
+       SET "capacity" = $1, "description" = $2, "weight" = $3, "data_source_id" = $4
+       WHERE "id" = $5`,
+      [capacity, description, weight, data_source_id, id]
     );
 
     if (result.rowCount === 1) {

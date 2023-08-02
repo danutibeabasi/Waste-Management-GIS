@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const collectionPointsController = require('../controllers/collectionPointsController');
-const communesController = require('../controllers/communesController');
+const communesController = require('../controllers/cityController');
 
 
 
@@ -18,27 +18,6 @@ router.get('/create', async (req, res) => {
 });
 
 
-/**
- * @swagger
- * /api/collectionpoints:
- *   post:
- *     summary: Create a new waste collection point
- *     tags: [Waste Collection Points]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/WasteCollectionPoint'
- *     responses:
- *       201:
- *         description: Waste collection point created successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/WasteCollectionPoint'
- */
-router.post('/', collectionPointsController.createWasteCollectionPoint);
 
 /**
  * @swagger
@@ -83,6 +62,31 @@ router.get('/:id', collectionPointsController.getWasteCollectionPointById);
 
 /**
  * @swagger
+ * /api/collectionpoints/city/{city_id}:
+ *   get:
+ *     summary: Retrieve waste collection points by city ID
+ *     tags: [Waste Collection Points]
+ *     parameters:
+ *       - in: path
+ *         name: city_id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: City ID of the waste collection points
+ *     responses:
+ *       200:
+ *         description: Waste collection points retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/WasteCollectionPoint'
+ */
+router.get('/city/:city_id', collectionPointsController.getWasteCollectionPointByCity);
+
+/**
+ * @swagger
  * /api/collectionpoints/postalcode/{postal_code}:
  *   get:
  *     summary: Retrieve waste collection points by postal code
@@ -91,7 +95,7 @@ router.get('/:id', collectionPointsController.getWasteCollectionPointById);
  *       - in: path
  *         name: postal_code
  *         schema:
- *           type: integer
+ *           type: string
  *         required: true
  *         description: Postal code of the waste collection points
  *     responses:
@@ -105,31 +109,6 @@ router.get('/:id', collectionPointsController.getWasteCollectionPointById);
  *                 $ref: '#/components/schemas/WasteCollectionPoint'
  */
 router.get('/postalcode/:postal_code', collectionPointsController.getWasteCollectionPointByPostalCode);
-
-/**
- * @swagger
- * /api/collectionpoints/city/{city}:
-    get:
- *     summary: Retrieve waste collection points by city
- *     tags: [Waste Collection Points]
- *     parameters:
- *       - in: path
- *         name: city
- *         schema:
- *           type: string
- *         required: true
- *         description: City of the waste collection points
- *     responses:
- *       200:
- *         description: Waste collection points retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/WasteCollectionPoint'
- */
-router.get('/city/:city', collectionPointsController.getWasteCollectionPointByCity);
 
 /**
  * @swagger
@@ -202,13 +181,19 @@ router.put('/:id', collectionPointsController.updateWasteCollectionPoint);
  *         description: The waste collection point ID
  *     responses:
  *       200:
- *         description: Waste collection point deleted
+ *         description: Waste collection point deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Success message
  *       404:
  *         description: Waste collection point not found
  */
 router.delete('/:id', collectionPointsController.deleteWasteCollectionPoint);
-
-
 
 
 

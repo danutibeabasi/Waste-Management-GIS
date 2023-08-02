@@ -7,50 +7,71 @@ include collection_point.pug
 // Treatment Sites Nav
 include treatment_sites.pug
 
+// Transportation Routes Nav
+include transportation_routes.pug
+
+// Waste Containers Nav
+include waste_containers.pug
+
 // Communes Nav
 include  communes.pug
 
-// Iris Nav
-include iris.pug
+//- // Iris Nav
+//- include iris.pug
 
 // Buildings Nav
 include building.pug
 
-// Indicators Nav
-include indicators.pug
-
-
-nav-item
-  a.nav-link.collapsed(href="/collection_schedule")
-    i.bi.bi-clock-history
-    span Collection Schedule
-
-nav-item
-  a.nav-link.collapsed(href="/api/wasterecords/data")
-    i.bi.bi-card-checklist
-    span Waste Records 
-
-nav-item
+li.nav-item
   a.nav-link.collapsed(href="#")
+    i.bi.bi-people
+    span Population
+
+nav-item
+  a.nav-link.collapsed(href="/api/wastetypes")
     i.bi.bi-record2-fill
     span Waste Types
 
-nav-item
-  a.nav-link.collapsed(href="#")
-    i.bi.bi-archive
-    span Waste Containers
+//- // Indicators Nav
+//- include indicators.pug
 
-nav-item
-  a.nav-link.collapsed(href="#")
-    i.bi.bi-truck
-    span Transportation Vechicles
+// Add Data Nav
+include addData.pug
 
-nav-item
-  a.nav-link.collapsed(href="#")
-    i.bi.bi-sign-intersection-y
-    span Transportstion Routes
+// Download Data Nav
+include downloadData.pug
 
-nav-item
+li.nav-item
   a.nav-link.collapsed(href="#")
-    i.bi.bi-recycle
-    span Treatment Technologies
+    i.bi.bi-play-circle
+    span Perform Simulation
+
+
+
+
+//- nav-item
+//-   a.nav-link.collapsed(href="/api/wasterecords")
+//-     i.bi.bi-card-checklist
+//-     span Waste Records 
+
+
+
+//- nav-item
+//-   a.nav-link.collapsed(href="/api/wastecontainers")
+//-     i.bi.bi-archive
+//-     span Waste Containers
+
+//- nav-item
+//-   a.nav-link.collapsed(href="/api/transportationvehicles")
+//-     i.bi.bi-truck
+//-     span Transportation Vechicles
+
+//- nav-item
+//-   a.nav-link.collapsed(href="/api/routes")
+//-     i.bi.bi-sign-intersection-y
+//-     span Transportation Routes
+
+//- nav-item
+//-   a.nav-link.collapsed(href="#")
+//-     i.bi.bi-recycle
+//-     span Treatment Technologies

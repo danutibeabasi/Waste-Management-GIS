@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Simple Line Chart</title>
+
+  <!-- Include Chart.js library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    .chart-container {
+      width: 80%;
+      height: 80%;
+      margin: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="chart-container">
+    <canvas id="myChart"></canvas>
+  </div>
+
+  <script>
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        datasets: [{
+          label: 'Sales',
+          data: [10, 20, 30, 20, 15, 30, 45, 40, 35, 50, 55, 60],
+          borderColor: 'rgba(75, 192, 192, 1)',
+          fill: false,
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: {
+            display: true,
+            title: {
+              display: true,
+              text: 'Month'
+            }
+          },
+          y: {
+            display: true,
+            title: {
+              display: true,
+              text: 'Sales (in USD)'
+            }
+          }
+        }
+      }
+    });
+  </script>
+
+</body>
+
+</html>

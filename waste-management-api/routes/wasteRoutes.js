@@ -3,7 +3,7 @@ const wasteRoutes = express.Router();
 
 // Import the routes from the other files
 const collectionPointsRoutes = require('./collectionPointsRoutes');
-const communesRoutes = require('./communesRoutes');
+const citiesRoutes = require('./citiesRoutes'); // change this line
 const wasteTypeRoutes = require('./wasteTypeRoutes');
 const wasteContainerRoutes = require('./wasteContainerRoutes');
 const assignedWasteContainerRoutes = require('./assignedWasteContainerRoutes');
@@ -18,10 +18,12 @@ const treatmentRecordRoutes = require('./treatmentRecordRoutes');
 const buildingsRoutes = require('./buildingsRoutes');
 const TreatmentSiteTechnologyRoutes = require('./treatmentSiteTechnologyRoutes');
 const TreatmentSiteRoutes = require('./treatmentSitesRoutes');
+const IrisRoutes = require('./irisRoutes');
+const RoutesCollectionPointsRoutes = require('./routesCollectionPointsRoutes');
 
 // Use the imported routes as middleware
 wasteRoutes.use('/collectionpoints', collectionPointsRoutes);
-wasteRoutes.use('/communes', communesRoutes);
+wasteRoutes.use('/cities', citiesRoutes); // change this line
 wasteRoutes.use('/wastetypes', wasteTypeRoutes);
 wasteRoutes.use('/wastecontainers', wasteContainerRoutes);
 wasteRoutes.use('/assignedwastecontainers', assignedWasteContainerRoutes);
@@ -29,13 +31,15 @@ wasteRoutes.use('/collectionschedules', collectionScheduleRoutes);
 wasteRoutes.use('/wasterecords', wasteRecordRoutes);
 wasteRoutes.use('/populations', populationRoutes);
 wasteRoutes.use('/transportationvehicles', transportationVehiclesRoutes);
-wasteRoutes.use('/transportations', transportationRoutes);
+wasteRoutes.use('/routes', transportationRoutes);
 wasteRoutes.use('/transportationtechnologies', transportationTechnologyRoutes);
 wasteRoutes.use('/treatmenttechnologies', treatmentTechnologyRoutes);
 wasteRoutes.use('/treatmentrecords', treatmentRecordRoutes);
 wasteRoutes.use('/buildings', buildingsRoutes);
 wasteRoutes.use('/treatmentsitetechnologies', TreatmentSiteTechnologyRoutes);
 wasteRoutes.use('/treatmentsite', TreatmentSiteRoutes);
+wasteRoutes.use('/iris', IrisRoutes);
+wasteRoutes.use('/routescollectionpoints', RoutesCollectionPointsRoutes);
 
 
 // You can add other routes and middlewares here as needed

@@ -4,11 +4,12 @@ const db = require('../db.js');
 // Create a new transportation route
 exports.createTransportationRoute = async (req, res) => {
   try {
-    const { collection_point_id, treatment_site_id, vehicle_id, distance, duration } = req.body;
+    const { treatment_site_id, vehicle_id, total_distance, total_duration, timestamp } = req.body;
+
     const result = await db.oneOrNone(
-      `INSERT INTO "transportation_routes" ("collection_point_id", "treatment_site_id", "vehicle_id", "distance", "duration")
+      `INSERT INTO "transportation_routes" ("treatment_site_id", "vehicle_id", "total_distance", "total_duration", "timestamp")
        VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [collection_point_id, treatment_site_id, vehicle_id, distance, duration]
+      [treatment_site_id, vehicle_id, total_distance, total_duration, timestamp]
     );
 
     if (result) {
@@ -17,6 +18,7 @@ exports.createTransportationRoute = async (req, res) => {
       res.status(500).json({ error: "Error inserting new transportation route." });
     }
   } catch (err) {
+    console.error("DB Error: ", err);
     res.status(500).json({ error: err.message });
   }
 };
@@ -24,16 +26,10 @@ exports.createTransportationRoute = async (req, res) => {
 // Get all transportation routes
 exports.getAllTransportationRoutes = async (req, res) => {
   try {
-    const result = await db.manyOrNone(
-      'SELECT * FROM "transportation_routes"'
-    );
-
-    if (result) {
-      res.status(200).json(result);
-    } else {
-      res.status(404).json({ error: "No transportation routes found." });
-    }
+    const result = await db.manyOrNone('SELECT * FROM "transportation_routes"');
+    res.status(200).json(result);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: err.message });
   }
 };
@@ -42,6 +38,7 @@ exports.getAllTransportationRoutes = async (req, res) => {
 exports.getTransportationRouteById = async (req, res) => {
   try {
     const { id } = req.params;
+
     const result = await db.oneOrNone(
       'SELECT * FROM "transportation_routes" WHERE "id" = $1',
       [id]
@@ -53,6 +50,7 @@ exports.getTransportationRouteById = async (req, res) => {
       res.status(404).json({ error: "Transportation route not found." });
     }
   } catch (err) {
+    console.error("DB Error: ", err);
     res.status(500).json({ error: err.message });
   }
 };
@@ -60,12 +58,14 @@ exports.getTransportationRouteById = async (req, res) => {
 // Update a transportation route
 exports.updateTransportationRoute = async (req, res) => {
   try {
-    const { id, collection_point_id, treatment_site_id, vehicle_id, distance, duration } = req.body;
+    const { id } = req.params;
+    const { treatment_site_id, vehicle_id, total_distance, total_duration, timestamp } = req.body;
+
     const result = await db.result(
       `UPDATE "transportation_routes"
-       SET "collection_point_id" = $2, "treatment_site_id" = $3, "vehicle_id" = $4, "distance" = $5, "duration" = $6
+       SET "treatment_site_id" = $2, "vehicle_id" = $3, "total_distance" = $4, "total_duration" = $5, "timestamp" = $6
        WHERE "id" = $1`,
-      [id, collection_point_id, treatment_site_id, vehicle_id, distance, duration]
+      [id, treatment_site_id, vehicle_id, total_distance, total_duration, timestamp]
     );
 
     if (result.rowCount === 1) {
@@ -74,6 +74,7 @@ exports.updateTransportationRoute = async (req, res) => {
       res.status(404).json({ error: "Transportation route not found." });
     }
   } catch (err) {
+    console.error("DB Error: ", err);
     res.status(500).json({ error: err.message });
   }
 };
@@ -82,6 +83,7 @@ exports.updateTransportationRoute = async (req, res) => {
 exports.deleteTransportationRoute = async (req, res) => {
   try {
     const { id } = req.params;
+
     const result = await db.result(
       `DELETE FROM "transportation_routes" WHERE "id" = $1`,
       [id]
@@ -92,9 +94,8 @@ exports.deleteTransportationRoute = async (req, res) => {
     } else {
       res.status(404).json({ error: "Transportation route not found." });
     }
-    } catch (err) {
+  } catch (err) {
+    console.error("DB Error: ", err);
     res.status(500).json({ error: err.message });
-    }
+  }
 };
-
-

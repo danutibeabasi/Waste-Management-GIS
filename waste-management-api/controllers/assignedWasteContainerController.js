@@ -4,11 +4,11 @@ const db = require('../db.js');
 // Create a new assigned waste container in the database
 exports.createAssignedWasteContainer = async (req, res) => {
   try {
-    const { waste_container_id, collection_point_id, waste_type_id } = req.body;
+    const { waste_container_id, collection_point_id, waste_type_id, data_source_id } = req.body;
     const result = await db.oneOrNone(
-      `INSERT INTO "assigned_waste_container" ("waste_container_id", "collection_point_id", "waste_type_id")
-       VALUES ($1, $2, $3) RETURNING *`,
-      [waste_container_id, collection_point_id, waste_type_id]
+      `INSERT INTO "assigned_waste_container" ("waste_container_id", "collection_point_id", "waste_type_id", "data_source_id")
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [waste_container_id, collection_point_id, waste_type_id, data_source_id]
     );
 
     if (result) {
@@ -25,12 +25,13 @@ exports.createAssignedWasteContainer = async (req, res) => {
 exports.getAllAssignedWasteContainers = async (req, res) => {
   try {
     const result = await db.manyOrNone(
-      'SELECT "id", "waste_container_id", "collection_point_id", "waste_type_id" FROM "assigned_waste_container"'
+      'SELECT "id", "waste_container_id", "collection_point_id", "waste_type_id", "data_source_id" FROM "assigned_waste_container"'
     );
 
-    res.status(200).json(result);
+    return result;
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error(err);  // log error for debugging
+    throw err;
   }
 };
 
@@ -39,7 +40,7 @@ exports.getAssignedWasteContainerById = async (req, res) => {
   try {
     const { id } = req.params;
     const result = await db.oneOrNone(
-      'SELECT "id", "waste_container_id", "collection_point_id", "waste_type_id" FROM "assigned_waste_container" WHERE "id" = $1',
+      'SELECT "id", "waste_container_id", "collection_point_id", "waste_type_id", "data_source_id" FROM "assigned_waste_container" WHERE "id" = $1',
       [id]
     );
 
@@ -56,13 +57,14 @@ exports.getAssignedWasteContainerById = async (req, res) => {
 // Update an existing assigned waste container in the database
 exports.updateAssignedWasteContainer = async (req, res) => {
   try {
-    const { id, waste_container_id, collection_point_id, waste_type_id } = req.body;
+    const { waste_container_id, collection_point_id, waste_type_id, data_source_id } = req.body;
+    const { id } = req.params;  // Assume id is a URL parameter
 
     const result = await db.result(
       `UPDATE "assigned_waste_container"
-       SET "waste_container_id" = $2, "collection_point_id" = $3, "waste_type_id" = $4
-       WHERE "id" = $1`,
-      [id, waste_container_id, collection_point_id, waste_type_id]
+       SET "waste_container_id" = $1, "collection_point_id" = $2, "waste_type_id" = $3, "data_source_id" = $4
+       WHERE "id" = $5`,
+      [waste_container_id, collection_point_id, waste_type_id, data_source_id, id]
     );
 
     if (result.rowCount === 1) {
@@ -94,4 +96,3 @@ exports.deleteAssignedWasteContainer = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-

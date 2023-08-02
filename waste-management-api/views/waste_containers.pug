@@ -1,0 +1,393 @@
+li.nav-item
+  a.nav-link.collapsed(href='#', data-bs-toggle='collapse', data-bs-target='#waste-nav')
+    i.bi.bi-trash
+    span Waste Containers
+    i.bi.bi-chevron-down.ms-auto
+  ul#waste-nav.nav-content.collapse(data-bs-parent='#sidebar-nav')
+    li
+      a(href="#")
+        i.bi.bi-circle
+        span View Waste Containers
+        
+    li 
+      a(href="/api/waste_container/assign")
+        i.bi.bi-circle
+        span Assign Waste Container
+
+    li 
+      a(href="#")
+        i.bi.bi-circle
+        span Collection Schedule
+
+
+
+
+
+
+
+
+
+
+//- extends layout
+
+//- block content
+//-   div.modal.fade#assignModal(tabindex="-1")
+//-     div.modal-dialog.modal-lg
+//-       div.modal-content
+//-         div.modal-header
+//-           h5.modal-title#assignModalTitle Assign New Container
+//-           button.btn-close(type="button", data-bs-dismiss="modal", aria-label="Close")
+//-         div.modal-body
+//-           form#assignContainerForm(method="POST")
+//-               div.form-group
+//-                   label(for="wasteContainerID") Waste Container
+//-                   select.form-select#wasteContainerID(name="waste_container_id")
+//-                       each container in containerList
+//-                           option(value=container.id) #{container.description}
+//-               div.form-group
+//-                   label(for="collectionPoint") Collection Point
+//-                   select.form-select#collectionPoint(name="collection_point_id")
+//-                       each collectionPoint in collectionPoints
+//-                           option(value=collectionPoint.id) #{collectionPoint.name}
+//-               div.form-group
+//-                   label(for="wasteType") Waste Type
+//-                   select.form-select#wasteType(name="waste_type_id")
+//-                       each wasteType in wasteTypes
+//-                           option(value=wasteType.id) #{wasteType.name}
+//-         div.modal-footer
+//-           button.btn.btn-secondary(type="button", data-bs-dismiss="modal") Close
+//-           button#assignFormSubmitBtn.btn.btn-primary(type="submit") Submit
+
+//-   div.modal.fade#largeModal(tabindex="-1")
+//-     div.modal-dialog.modal-lg
+//-       div.modal-content
+//-         div.modal-header
+//-           h5.modal-title#modalTitle Add New Container
+//-           button.btn-close(type="button", data-bs-dismiss="modal", aria-label="Close")
+//-         div.modal-body
+//-           form#containerForm(method="POST")
+//-             div.form-group
+//-               label(for="capacity") Capacity
+//-               input#capacity.form-control(type="number" name="capacity" placeholder="Enter Capacity" required)
+//-             div.form-group
+//-               label(for='weight') Weight
+//-               input#weight.form-control(name='weight', type='number' placeholder='Enter Weight' required)
+//-             div.form-group
+//-               label(for="description") Description
+//-               textarea#description.form-control(name="description", placeholder="Enter Description", required)
+//-         div.modal-footer
+//-           button.btn.btn-secondary(type="button", data-bs-dismiss="modal") Close
+//-           button#submitFormBtn.btn.btn-primary(type="submit") Submit
+
+//-   div.grid-container
+//-     div.grid-item-1
+//-       div.card
+//-         div.card-body
+//-           h5.card-title Waste Containers Management
+//-           ul.nav.nav-tabs.nav-tabs-bordered(id="borderedTab", role="tablist")
+//-             li.nav-item(role="presentation")
+//-               button.nav-link.active(id="home-tab", data-bs-toggle="tab", data-bs-target="#bordered-home", type="button", role="tab", aria-controls="home", aria-selected="true") Create
+//-             li.nav-item(role="presentation")
+//-               button.nav-link(id="profile-tab", data-bs-toggle="tab", data-bs-target="#bordered-profile", type="button", role="tab", aria-controls="profile", aria-selected="false") Assign
+//-           #borderedTabContent.tab-content.pt-2
+//-             #bordered-home.tab-pane.fade.show.active(role="tabpanel", aria-labelledby="home-tab")
+//-               section.section
+//-                 div.row
+//-                   div.col-lg-12
+//-                     div
+//-                       button#addNewContainerBtn.btn.btn-primary(type="button") Add New
+//-                     // Table with stripped rows
+//-                     table.table.datatable-paginated
+//-                       thead
+//-                         tr
+//-                           th(scope="col") #
+//-                           th(scope="col") Capacity
+//-                           th(scope="col") Weight
+//-                           th(scope="col") Description
+//-                           th(scope="col") Edit
+//-                           th(scope="col") Delete
+//-                       tbody
+//-                         each container, i in containerList
+//-                           tr(data-container=JSON.stringify(container))
+//-                             th(scope="row")= i+1
+//-                             td= container.capacity
+//-                             td= container.weight
+//-                             td= container.description
+//-                             td
+//-                               a.edit-container-btn(href="")
+//-                                 i.bi.bi-pencil-square
+//-                             td
+//-                               i.bi.bi-trash(onclick=`deleteContainer(${container.id})`)
+//-             #bordered-profile.tab-pane.fade(role="tabpanel", aria-labelledby="profile-tab")
+//-               section.section
+//-                 div.row
+//-                   div.col-lg-12
+//-                     div.d-flex
+//-                       button#assignNewContainerBtn.btn.btn-primary(type="button") Assign Container
+
+//-                     // Table with stripped rows
+//-                     table.table.datatable-paginated
+//-                       thead
+//-                         tr
+//-                           th(scope="col") #
+//-                           th(scope="col") Waste Container ID
+//-                           th(scope="col") Collection Point
+//-                           th(scope="col") Waste Type
+//-                           th(scope="col") Edit
+//-                           th(scope="col") Delete
+//-                       tbody
+//-                         each assignedContainer, i in assignedContainers
+//-                           tr(data-container=JSON.stringify(assignedContainer))
+//-                             th(scope="row")= i+1
+//-                             td= assignedContainer.waste_container_id
+//-                             td= assignedContainer.collection_point_id
+//-                             td= assignedContainer.waste_type_id
+//-                             td
+//-                               a.edit-assignedcontainer-btn(href="")
+//-                                 i.bi.bi-pencil-square
+//-                             td
+//-                               i.bi.bi-trash(onclick=`deleteContainerAssignment(${assignedContainer.id})`)
+
+
+//-   script.
+//-     $(document).ready(function() {
+//-       $('.datatable-paginated').DataTable();
+
+//-       // Waste container editing
+//-       $(document).on("click", ".edit-container-btn", function(e) {
+//-         e.preventDefault(); 
+
+//-         const container = $(this).parents('tr').data('container');
+
+//-         $('#capacity').val(container.capacity);
+//-         $('#weight').val(container.weight);
+//-         $('#description').val(container.description);
+
+//-         $('#containerForm').attr('action', `/api/wastecontainers/${container.id}`);
+//-         $('#modalTitle').text('Edit Waste Container');
+//-         $('#largeModal').modal('show');
+//-       });
+
+//-       // New waste container creation
+//-       $("#addNewContainerBtn").click(function() {
+//-         $('#capacity').val("");
+//-         $('#weight').val("");
+//-         $('#description').val("");
+
+//-         $('#containerForm').attr('action', `/api/wastecontainers`);
+//-         $('#modalTitle').text('Add New Container');
+//-         $('#largeModal').modal('show');
+//-       });
+
+//-       // Add event listener for the "Submit" button for container form
+//-       $("#submitFormBtn").click(function(e) {
+//-         e.preventDefault();
+//-         // Trigger the form submit event
+//-         $("#containerForm").submit();
+//-         // Hide the modal
+//-         $('#largeModal').modal('hide');
+//-       });
+
+//-       // Container form submission
+//-       $('#containerForm').on('submit', function(e) {
+//-         e.preventDefault();
+
+//-         const url = $(this).attr('action');
+//-         const formData = $(this).serialize();
+//-         const httpMethod = url.includes('wastecontainers/') ? 'PUT' : 'POST';
+
+//-         $.ajax({
+//-             url: url,
+//-             type: httpMethod,
+//-             data: formData,
+//-             success: function() {
+//-                 swal("Good job!", "You have successfully updated the container!", "success").then(function() {
+//-                     location.reload();
+//-                 });
+//-                 $('#capacity').val("");
+//-                 $('#weight').val("");
+//-                 $('#description').val("");
+//-                 $('#largeModal').modal('hide');
+//-             },
+//-             error: function() {
+//-                 swal("Oops!", "Failed to create/update the container.", "error");
+//-             }
+//-         });
+//-       });
+
+//-       // Assign container editing
+//-       $(document).on("click", ".edit-assignedcontainer-btn", function(e) {
+//-         e.preventDefault();
+
+//-         const assignedContainer = $(this).parents('tr').data('container');
+
+//-         $('#wasteContainerID').val(assignedContainer.waste_container_id);
+//-         $('#collectionPoint').val(assignedContainer.collection_point_id);
+//-         $('#wasteType').val(assignedContainer.waste_type_id);
+
+//-         $('#assignContainerForm').attr('action', `/api/assignedwastecontainers/${assignedContainer.id}`);
+//-         $('#assignModalTitle').text('Edit Assigned Container');
+//-         $('#assignModal').modal('show');
+//-       });
+
+//-       // New container assignment creation
+//-       $("#assignNewContainerBtn").click(function() {
+//-         $('#wasteContainerID').val($("#wasteContainerID option:first").val());
+//-         $('#collectionPoint').val($("#collectionPoint option:first").val());
+//-         $('#wasteType').val($("#wasteType option:first").val());
+
+//-         $('#assignContainerForm').attr('action', `/api/assignedwastecontainers`);
+//-         $('#assignModalTitle').text('Assign New Container');
+//-         $('#assignModal').modal('show');
+//-       });
+
+//-       // Add event listener for the "Submit" button for assigned container form
+//-       $("#assignFormSubmitBtn").click(function(e) {
+//-         e.preventDefault();
+//-         // Trigger the form submit event
+//-         $("#assignContainerForm").submit();
+//-         // Hide the modal
+//-         $('#assignModal').modal('hide');
+//-       });
+
+//-       // Assign container form submission
+//-       $('#assignContainerForm').on('submit', function(e) {
+//-         e.preventDefault();
+
+//-         const url = $(this).attr('action');
+//-         const formData = $(this).serialize();
+//-         const httpMethod = url.includes('assignedwastecontainers/') ? 'PUT' : 'POST';
+
+//-         $.ajax({
+//-           url: url,
+//-           type: httpMethod,
+//-           data: formData,
+//-           success: function() {
+//-             swal("Good job!", "You have successfully updated the assigned container!", "success").then(function() {
+//-                 location.reload();
+//-             });
+//-             $('#assignModal').modal('hide');
+//-           },
+//-           error: function(jqXHR, textStatus, errorThrown) {
+//-             console.log("Error: ", jqXHR.responseText);  // Log server error message
+//-             swal("Oops!", "Failed to create/update the assigned container.", "error");
+//-           }
+//-         });
+//-       });
+
+//-       // When a tab is shown, save its id in localStorage
+//-       $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function(e) {
+//-         localStorage.setItem('activeTab', $(e.target).attr('id'));
+//-       });
+
+//-       // On page load, check if a tab is stored in localStorage and show it
+//-       let activeTab = localStorage.getItem('activeTab');
+//-       if (activeTab) {
+//-         $('#' + activeTab).tab('show');
+//-       }
+//-     });
+
+//-     // Deleting an assigned container
+//-     function deleteContainerAssignment(id) {
+//-       swal({
+//-         title: "Are you sure?",
+//-         text: "Once deleted, you will not be able to recover this assignment!",
+//-         icon: "warning",
+//-         buttons: true,
+//-         dangerMode: true,
+//-       })
+//-       .then((willDelete) => {
+//-         if (willDelete) {
+//-           $.ajax({
+//-             url: `/api/assignedwastecontainers/${id}`,
+//-             type: 'DELETE',
+//-             success: function() {
+//-                 swal("Deleted!", "Your assignment has been deleted.", "success").then(function() {
+//-                     location.reload();
+//-                 });
+//-             },
+//-             error: function() {
+//-                 swal("Oops!", "Failed to delete the assigned container.", "error");
+//-             }
+//-           });
+//-         }
+//-       });
+//-     }
+
+//-     // Deleting a container
+//-     function deleteContainer(id) {
+//-       swal({
+//-         title: "Are you sure?",
+//-         text: "Once deleted, you will not be able to recover this container!",
+//-         icon: "warning",
+//-         buttons: true,
+//-         dangerMode: true,
+//-       })
+//-       .then((willDelete) => {
+//-         if (willDelete) {
+//-           $.ajax({
+//-             url: `/api/wastecontainers/${id}`,
+//-             type: 'DELETE',
+//-             success: function() {
+//-                 swal("Deleted!", "Your container has been deleted.", "success").then(function() {
+//-                     location.reload();
+//-                 });
+//-             },
+//-             error: function() {
+//-                 swal("Oops!", "Failed to delete the container.", "error");
+//-             }
+//-           });
+//-         }
+//-       });
+//-     }
+
+
+
+//-   style.
+//-     .form-group {
+//-       margin-bottom: 15px; 
+//-     }
+
+//-     .grid-container {
+//-       display: grid;
+//-       grid-template-columns: 1fr;
+//-       grid-template-rows:20px 2fr;
+//-       grid-gap: 50px;
+//-       padding: 10px;
+//-     }   
+
+//-     .datatable-paginated thead th {
+//-       font-size: 12px;  
+//-     }
+//-     .datatable-paginated tbody td {
+//-       font-size: 11px;  
+//-     }
+
+//-     .datatable-paginated th, .datatable-paginated td {
+//-       text-align: center;  
+//-     }
+
+//-     i.bi.bi-trash {
+//-       color: red;  
+//-       cursor: pointer;
+//-     }
+
+//-     #addNewContainerBtn, #assignNewContainerBtn {
+//-       margin: 10px;
+//-       margin-left: auto;
+//-       padding: 10px 20px;
+//-       background-color: #007bff;
+//-       border: none;
+//-       border-radius: 4px;
+//-       color: white;
+//-       font-size: 16px;
+//-       cursor: pointer;
+//-       transition: background-color 0.3s ease;
+//-     }
+
+//-     #addNewContainerBtn:hover, #assignNewContainerBtn:hover {
+//-       background-color: #0056b3;
+//-     }
+
+
+

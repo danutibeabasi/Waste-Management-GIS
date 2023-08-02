@@ -22,21 +22,37 @@ exports.createWasteType = async (req, res) => {
   }
 };
 
-
 // Get all waste types from the database
 exports.getAllWasteTypes = async (req, res) => {
   try {
     const result = await db.manyOrNone('SELECT * FROM "waste_types"');
 
-    if (result) {
+    // If the result is empty, return an empty array
+    if (!result || result.length === 0) {
+      if (res) {
+        res.status(404).json({ error: "No waste types found." });
+      } else {
+        return [];
+      }
+    }
+
+    // If the result is not empty, return the result
+    if (res) {
       res.status(200).json(result);
     } else {
-      res.status(404).json({ error: "No waste types found." });
+      return result;
     }
+
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    if (res) {
+      res.status(500).json({ error: err.message });
+    } else {
+      console.error(err);  // log error for debugging
+      throw err;  // throw the error to be caught in the route
+    }
   }
 };
+
 
 // Get waste type by id
 exports.getWasteTypeById = async (req, res) => {
@@ -57,13 +73,14 @@ exports.getWasteTypeById = async (req, res) => {
 // Update an existing waste type in the database
 exports.updateWasteType = async (req, res) => {
   try {
-    const { id, name, description } = req.body;
+    const { name, description } = req.body;
+    const { id } = req.params;  // Assume id is a URL parameter
 
     const result = await db.result(
       `UPDATE "waste_types"
-       SET "name" = $2, "description" = $3
-       WHERE "id" = $1`,
-      [id, name, description]
+       SET "name" = $1, "description" = $2
+       WHERE "id" = $3`,
+      [name, description, id]
     );
 
     if (result.rowCount === 1) {
@@ -75,6 +92,7 @@ exports.updateWasteType = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // Delete a waste type from the database
 exports.deleteWasteType = async (req, res) => {

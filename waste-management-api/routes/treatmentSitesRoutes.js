@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const treatmentSiteController = require('../controllers/treatmentSiteController');
-const communesController = require('../controllers/communesController');
+const communesController = require('../controllers/cityController');
 
 
 // Here is the route for creating a new collection point. Notice it's defined before the '/:id' route

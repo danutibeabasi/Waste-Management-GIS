@@ -2,7 +2,30 @@ const express = require('express');
 const router = express.Router();
 
 // Import controller
+const wasteContainerController = require('../controllers/wasteContainerController');
 const transportationVehiclesController = require('../controllers/transportationVehiclesController');
+const transportationTechnologyController = require('../controllers/transportationTechnologyController');
+
+
+router.get('/', async (req, res) => {
+  try {
+    const containerList = await wasteContainerController.getAllWasteContainers(req, res);
+    const techList = await transportationTechnologyController.getAllTransportationTechnology(req, res);
+    const vehicleList = await transportationVehiclesController.getAllTransportationVehicles(req, res);
+
+    res.render('transportation_vehicles', { 
+      containerList, 
+      techList, 
+      vehicleList
+    });
+  } catch (err) {
+    console.error(err);  // log error for debugging
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+
 
 /**
  * ************************** BEGINNING OF ROUTES FOR TRANSPORTATION VEHICLES **************************
@@ -10,7 +33,7 @@ const transportationVehiclesController = require('../controllers/transportationV
 
 /**
  * @swagger
- * /transportation-vehicles:
+ * /api/transportationvehicles:
  *   post:
  *     summary: Create a new transportation vehicle
  *     tags: [Transportation Vehicles]
@@ -28,11 +51,11 @@ const transportationVehiclesController = require('../controllers/transportationV
  *             schema:
  *               $ref: '#/components/schemas/TransportationVehicle'
  */
-router.post('/transportation-vehicles', transportationVehiclesController.createTransportationVehicle);
+router.post('/', transportationVehiclesController.createTransportationVehicle);
 
 /**
  * @swagger
- * /transportation-vehicles:
+ * /api/transportationvehicles:
  *   get:
  *     summary: Retrieve a list of transportation vehicles
  *     tags: [Transportation Vehicles]
@@ -46,11 +69,11 @@ router.post('/transportation-vehicles', transportationVehiclesController.createT
  *               items:
  *                 $ref: '#/components/schemas/TransportationVehicle'
  */
-router.get('/transportation-vehicles', transportationVehiclesController.getAllTransportationVehicles);
+router.get('/', transportationVehiclesController.getAllTransportationVehicles);
 
 /**
  * @swagger
- * /transportation-vehicles/{id}:
+ * /api/transportationvehicles/{id}:
  *   get:
  *     summary: Retrieve a transportation vehicle by ID
  *     tags: [Transportation Vehicles]
@@ -69,11 +92,11 @@ router.get('/transportation-vehicles', transportationVehiclesController.getAllTr
  *             schema:
  *               $ref: '#/components/schemas/TransportationVehicle'
  */
-router.get('/transportation-vehicles/:id', transportationVehiclesController.getTransportationVehicleById);
+router.get('/:id', transportationVehiclesController.getTransportationVehicleById);
 
 /**
  * @swagger
- * /transportation-vehicles/{id}:
+ * /api/transportationvehicles/{id}:
  *   put:
  *     summary: Update a transportation vehicle by ID
  *     tags: [Transportation Vehicles]
@@ -100,11 +123,11 @@ router.get('/transportation-vehicles/:id', transportationVehiclesController.getT
  *       404:
  *         description: Transportation vehicle not found
  */
-router.put('/transportation-vehicles/:id', transportationVehiclesController.updateTransportationVehicle);
+router.put('/:id', transportationVehiclesController.updateTransportationVehicle);
 
 /**
  * @swagger
- * /transportation-vehicles/{id}:
+ * /api/transportationvehicles/{id}:
  *   delete:
  *     summary: Delete a transportation vehicle by ID
  *     tags: [Transportation Vehicles]
@@ -121,7 +144,7 @@ router.put('/transportation-vehicles/:id', transportationVehiclesController.upda
  *       404:
  *         description: Transportation vehicle not found
  */
-router.delete('/transportation-vehicles/:id', transportationVehiclesController.deleteTransportationVehicle);
+router.delete('/:id', transportationVehiclesController.deleteTransportationVehicle);
 
 /**
  * ************************** END OF ROUTES FOR TRANSPORTATION VEHICLES **************************

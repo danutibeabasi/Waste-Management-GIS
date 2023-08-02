@@ -38,7 +38,7 @@ specs.components = {
         average_bins: { type: 'number' },
       },
     },
-    Commune: {
+    Cities: {
       type: 'object',
       properties: {
         id: { type: 'integer' },
@@ -74,7 +74,7 @@ specs.components = {
         id: { type: 'integer' },
         capacity: { type: 'integer' },
         description: { type: 'string' },
-
+        weight: { type: 'number' },
       },  
     },
     AssignedWasteContainer: {
@@ -103,10 +103,9 @@ specs.components = {
         collection_point_id: { type: 'integer' },
         waste_type_id: { type: 'integer' },
         weight: { type: 'number' },
-        collection_date: { type: 'string' },
-        building_id: { type: 'integer' },
+        number_of_collections: { type: 'integer' }
       }
-    },
+    },    
     Population: {
       type: 'object',
       properties: {
@@ -121,13 +120,16 @@ specs.components = {
       TransportationVehicle: {
         type: 'object',
         properties: {
-        id: { type: 'integer' },
-        vehicle_type: { type: 'string' },
-        capacity: { type: 'integer' },
-        fuel_type: { type: 'string' },
-        technology_id: { type: 'integer' },
+          id: { type: 'integer' },
+          vehicle_type: { type: 'string' },
+          capacity: { type: 'integer' },
+          fuel_type: { type: 'string' },
+          technology_id: { type: 'integer' },
+          waste_container_id: { type: 'integer' },
+          container_capacity: { type: 'integer' },
+          weight_capacity: { type: 'number', format: 'float' }
         }
-      },
+      },      
       TransportationRoute: {
         type: 'object',
         properties: {

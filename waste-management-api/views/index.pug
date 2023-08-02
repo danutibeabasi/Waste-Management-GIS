@@ -4,28 +4,84 @@ extends layout.pug
   
 block content
 
+      mixin infoCard(title, subtitle, main, rate, rateDirection, icon)
+        .col-xxl-4.col-md-6
+          .card.info-card(class=`${title.toLowerCase().replace(' ', '-')}-card`)
+            .card-body
+              h5.card-title
+                | #{title}              
+              .d-flex.align-items-center
+                .card-icon.rounded-circle.d-flex.align-items-center.justify-content-center
+                  i(class=`bi ${icon}`)
+                .ps-3
+                  h6 #{main}
+                  span(class=`text-${rateDirection == "increase" ? "success" : "danger"} small pt-1 fw-bold`) #{rate}
+                  span.text-muted.small.pt-2.ps-1 #{rateDirection}
 
-      if message
-        .alert.alert-success.alert-dismissible.fade.show(role="alert")
-          h4.alert-heading Success Heading
-          p #{message}
-          
-            
-      #map(style='position: absolute; top: 0; bottom: 0; width: 100%;') 
+
+
+
+      #map(style='position: absolute; top: 0; bottom: 0; width: 100%;')
+
+      div#map-tooltip(style="position: absolute; background: white; padding: 5px; border: 1px solid black; display: none; margin:15px;")
 
       // Collection Point Popup element used to show feature details
       div#popup(style="z-index: 10; touch-action: none; max-height: 80vh; overflow-x: hidden; overflow-y: auto; box-sizing: border-box; padding: 0; margin: 0;")
-      
-      // Collection Point Card element used to show the donut chart for waste weight
-      div.card.card-bottom-center(style='display: none;')
+
+      div.card.card-bottom-right(style='position: fixed; width: 50%; height: 450px; bottom: 20px; right: 15px; display: none;')
         .card-body
-          h5.card-title-charts Waste Weight
-              #donutChart.echart(style='min-height: 190px; bottom: 10px;')
+          h5.card-title(id='cardTitle') Indicators
+          // Vertical Pills Tabs
+          .d-flex.align-items-start
+            .nav.flex-column.nav-pills.me-3.w-25(id='v-pills-tab', role='tablist', aria-orientation='vertical') 
+              button.nav-link.active(id='v-pills-home-tab', data-bs-toggle='pill', data-bs-target='#v-pills-home', type='button', role='tab', aria-controls='v-pills-home', aria-selected='true') Waste Per Capita
+              button.nav-link(id='v-pills-profile-tab', data-bs-toggle='pill', data-bs-target='#v-pills-profile', type='button', role='tab', aria-controls='v-pills-profile', aria-selected='false') Points Per Capita
+              button.nav-link(id='v-pills-messages-tab', data-bs-toggle='pill', data-bs-target='#v-pills-messages', type='button', role='tab', aria-controls='v-pills-messages', aria-selected='false') Waste Generated
+              button.nav-link(id='v-pills-tab4', data-bs-toggle='pill', data-bs-target='#v-pills-tabContent4', type='button', role='tab', aria-controls='v-pills-tabContent4', aria-selected='false') Collection Efficiency
+              button.nav-link(id='v-pills-tab5', data-bs-toggle='pill', data-bs-target='#v-pills-tabContent5', type='button', role='tab', aria-controls='v-pills-tabContent5', aria-selected='false') Waste Variability
+            .tab-content.w-75(id='v-pills-tabContent') 
+              .tab-pane.fade.show.active(id='v-pills-home', role='tabpanel', aria-labelledby='v-pills-home-tab')
+                canvas#showBarChart(style='min-height: 350px;')
+              .tab-pane.fade(id='v-pills-profile', role='tabpanel', aria-labelledby='v-pills-profile-tab')
+                canvas#showCPPerCapita(style='min-height: 350px;')
+              .tab-pane.fade(id='v-pills-messages', role='tabpanel', aria-labelledby='v-pills-messages-tab', style='display: flex; justify-content: center; align-items: center;')
+                canvas#showWastePerCityRealtime(style='max-height: 370px;')
+              .tab-pane.fade(id='v-pills-tabContent4', role='tabpanel', aria-labelledby='v-pills-tab4')
+                canvas#reportsChartTab4(style='min-height: 350px;')
+              .tab-pane.fade(id='v-pills-tabContent5', role='tabpanel', aria-labelledby='v-pills-tab5')
+                canvas#reportsChartTab5(style='min-height: 350px;')
+
+          // End Vertical Pills Tabs
+
+
+
       
       
       script.
-        // *** SOURCES AND LAYERS ***
-        // Create an empty source for the treatment sites layer      
+
+        // ===================================================================================
+        // === SOURCES AND LAYERS ===
+        // ===================================================================================
+
+        // === Create an empty source for the cities layer ===
+        const citiesSource = new ol.source.Vector();
+        const citiesLayer = new ol.layer.Vector({
+          title: 'cities',
+          source: citiesSource,
+          style: function (feature) {
+            return new ol.style.Style({
+              stroke: new ol.style.Stroke({
+                color: 'blue',
+                width: 3
+              }),
+              fill: new ol.style.Fill({
+                color: 'rgba(0, 0, 255, 0.1)'
+              })
+            });
+          },
+        });
+
+        // === Create an empty source for the treatment sites layer ===      
         const treatmentSitesSource = new ol.source.Vector();
         const treatmentSitesLayer = new ol.layer.Vector({
           title: 'treatment_sites',
@@ -45,7 +101,7 @@ block content
           },
         });
 
-        // Create an empty source for the collection points layer
+        // === Create an empty source for the collection points layer === 
         const collectionPointsSource = new ol.source.Vector();
         const collectionPointsLayer = new ol.layer.Vector({
           title: 'collection_points',
@@ -66,17 +122,70 @@ block content
           },
         });
 
-        // Create the base layer with OpenStreetMap tiles
+        // === Create the base layer with OpenStreetMap tiles ===
         const osmLayer = new ol.layer.Tile({
           title: 'OpenStreetMap',
           type: 'base',
           source: new ol.source.OSM(),
         });
+        
 
+        // ===================================================================================
+        // === STYLES ===
+        // ===================================================================================
+        // Define a style for the selected cities
+        const citiesSelectedStyle = new ol.style.Style({
+          stroke: new ol.style.Stroke({
+            color: 'red',
+            width: 5
+          }),
+          fill: new ol.style.Fill({
+            color: 'rgba(255, 0, 0, 0.3)'
+          })
+        });
 
+        // Define a style for the selected collection point
+        const collectionSelectedStyle = function (feature) {
+          const average_weight = feature.get('average_weight');
+          const radius = average_weight ? 4 + (average_weight / 100) * 10 : 10; // increased radius for selected point
+          return new ol.style.Style({
+            image: new ol.style.Circle({
+              radius: radius,
+              fill: new ol.style.Fill({ color: 'rgba(40, 54, 24, 1)' }), // red color for selected point
+              stroke: new ol.style.Stroke({
+                color: 'rgba(40, 54, 24, 1)',
+                width: 1,
+              }),
+            }),
+          });
+        };
 
-        // *** STYLES ***
-        // Define hover styles
+        // Define a style for the selected treatment site
+        const treatmentSelectedStyle = new ol.style.Style({
+          image: new ol.style.RegularShape({
+            points: 3,
+            radius: 25, // increased size for selected site
+            fill: new ol.style.Fill({ color: 'red' }), // red color for selected site
+            stroke: new ol.style.Stroke({
+              color: 'rgba(225, 225, 225, 1)',
+              width: 1,
+            }),
+          }),
+        });
+
+        // ================================
+        // === Define hover styles ===
+        // ================================ 
+        const citiesHoverStyle = new ol.style.Style({
+          stroke: new ol.style.Stroke({
+            color: 'blue',
+            width: 5
+          }),
+          fill: new ol.style.Fill({
+            color: 'rgba(0, 0, 225, 0.3)'
+          })
+        });
+        
         const treatmentHoverStyle = new ol.style.Style({
           image: new ol.style.RegularShape({
             points: 3,
@@ -109,38 +218,20 @@ block content
         // Define the initial view of the map
         const view = new ol.View({
           center: ol.proj.fromLonLat([4.3872, 45.4397]),
-          zoom: 13,
+          zoom: 12,
           projection: 'EPSG:3857',
         });
 
         // Create the map with the specified layers and view
         const map = new ol.Map({
           target: 'map',
-          layers: [osmLayer,  treatmentSitesLayer, collectionPointsLayer],
+          layers: [osmLayer,  treatmentSitesLayer, collectionPointsLayer, citiesLayer],
           view: view,
         });
 
-        // *** INTERACTIONS ***
-        // Add hover interactions
-        const treatmentHoverInteraction = new ol.interaction.Select({
-          condition: ol.events.condition.pointerMove,
-          layers: [treatmentSitesLayer],
-          style: treatmentHoverStyle,
-        });
+      
 
-        const collectionHoverInteraction = new ol.interaction.Select({
-          condition: ol.events.condition.pointerMove,
-          layers: [collectionPointsLayer],
-          style: collectionHoverStyle,
-        });
-
-        map.addInteraction(treatmentHoverInteraction);
-        map.addInteraction(collectionHoverInteraction);
-
-
-
-
-
+        
         // *** OVERLAYS ***
         // Create a popup overlay for the map
         const popup = new ol.Overlay({
@@ -152,306 +243,590 @@ block content
         });
         map.addOverlay(popup);
 
+       let lastHoveredFeature = null;
+
+       let isFeatureSelected = false;
+
+       let lastSelectedFeature = null;
 
 
-        // *** EVENT HANDLERS ***
-        // Add an event listener for single clicks
-        map.on('singleclick', function (evt) {
-          map.forEachFeatureAtPixel(evt.pixel, function (feature, layer) {
 
-            console.log(layer);
+        let tooltip = document.getElementById('map-tooltip');
 
-            if (feature) {
-              const coordinates = feature.getGeometry().getCoordinates();
+        map.on('pointermove', function(evt) {
+            if (!isFeatureSelected) {
+                let featureExists = false;
 
-              // Center the map on the clicked feature
-              const size = map.getSize();
-              const resolution = view.getResolution();
-              const newCenter = [
-                coordinates[0] + (-size[1] / 8) * resolution,
-                coordinates[1] + (-size[1] / 3.5) * resolution
-              ];
-              view.animate({ center: newCenter });
+                map.forEachFeatureAtPixel(evt.pixel, function(feature, layer) {
+                    if (layer === citiesLayer || layer === treatmentSitesLayer || layer === collectionPointsLayer) {
+                        // If another feature was previously hovered, reset its style
+                        if (lastHoveredFeature) {
+                            lastHoveredFeature.setStyle(null);
+                        }
+                        // Apply the appropriate hover style to the current feature
+                        if (layer === citiesLayer) {
+                            feature.setStyle(citiesHoverStyle);
+                        } else if (layer === treatmentSitesLayer) {
+                            feature.setStyle(treatmentHoverStyle);
+                        } else if (layer === collectionPointsLayer) {
+                            feature.setStyle(collectionHoverStyle(feature));
+                        }
+                        lastHoveredFeature = feature;
 
-              // Fetch the HTML content from the external file
-              let fetchUrl;
-              if (layer === treatmentSitesLayer) {
-                  fetchUrl = '/assets/treatment-sites-popup.html';  // Replace with your HTML file for treatment sites
-              } else if (layer === collectionPointsLayer) {
-                  fetchUrl = '/assets/collection-point-popup.html'; // Replace with your HTML file for collection points
-              }
+                        // Show the feature's name in the tooltip
+                        let name = feature.get('name');  // Replace 'name' with the appropriate property key
+                        tooltip.innerHTML = name;
+                        tooltip.style.display = 'block';
 
+                        // Position the tooltip
+                        let coordinate = evt.coordinate;
+                        let pixel = map.getPixelFromCoordinate(coordinate);
+                        tooltip.style.left = pixel[0] + 'px';
+                        tooltip.style.top = (pixel[1] - 15) + 'px';  // The tooltip is positioned 15px above the cursor
 
-              fetch(fetchUrl)
-                .then(response => response.text())
-                .then(html => {
-                  // Replace placeholders in the HTML content with feature properties
-                  let content = html
-                                  .replace(/{{id}}/g, feature.get('id'))
-                                  .replace(/{{code}}/g, feature.get('code'))
-                                  .replace(/{{name}}/g, feature.get('name'))
-                                  .replace(/{{address_1}}/g, feature.get('address_1'))
-                                  .replace(/{{postal_code}}/g, feature.get('postal_code'))
-                                  .replace(/{{city}}/g, feature.get('city'))
-                                  .replace(/{{total_bins}}/g, feature.get('total_bins'))
-                                  .replace(/{{total_weight}}/g, feature.get('total_weight'))
-                                  .replace(/{{service_status}}/g, feature.get('service_status'))
-                                  .replace(/{{opening_date}}/g, feature.get('opening_date'))
-                                  .replace(/{{closing_date}}/g, feature.get('closing_date'))
-                                  .replace(/{{service_type_description}}/g, feature.get('service_type_description'))
-                                  .replace(/{{longitude}}/g, feature.get('longitude'))
-                                  .replace(/{{latitude}}/g, feature.get('latitude'));
+                        featureExists = true;
+                    }
+                });
 
-                          const popupElement = popup.getElement();
-                          popupElement.dataset.featureId = feature.get('id').toString();
-                          popupElement.innerHTML = content;
-
-                          popup.setPosition(coordinates);
-
-                          // Show the card and update the donut chart
-                          showCardWithDonutChart(feature);
-
-                          // Make the popup draggable
-                          $( function() {
-                            $( "#popup" ).draggable();
-                          } );
-
-                          // Close button logic
-                          document.querySelector('.btn-close').addEventListener('click', function() {
-                            popup.setPosition(undefined);
-                            document.querySelector(".card.card-bottom-center").style.display = "none";
-                          });
-
-                          // Add event listener for the edit form submission
-                          document.getElementById('edit-form').addEventListener('submit', function(e) {
-                            e.preventDefault();
-
-                            const id = document.getElementById('edit-id').value;
-
-
-                            let apiEndpoint;
-                            if (layer === collectionPointsLayer) {
-                              apiEndpoint = `/api/collectionpoints/${id}`;
-                            } else if (layer === treatmentSitesLayer) {
-                              apiEndpoint = `/api/treatmentsite/${id}`;  // Replace with your API endpoint for treatment sites
-                            }
-
-                            fetch(apiEndpoint, {
-                              method: 'PUT',
-                              headers: {
-                                'Content-Type': 'application/json',
-                              },
-                              body: JSON.stringify({
-                                // Include the values from the form here
-                                id: document.getElementById('edit-id').value,
-                                code: document.getElementById('edit-code').value,
-                                name: document.getElementById('edit-name').value,
-                                address: document.getElementById('edit-address').value,
-                                postal_code: document.getElementById('edit-postal-code').value,
-                                city: document.getElementById('edit-city').value,
-                                service_status: document.getElementById('edit-service-status').value,
-                                opening_date: document.getElementById('edit-opening-date').value,
-                                closing_date: document.getElementById('edit-closing-date').value,
-                                service_type_desc: document.getElementById('edit-service-type-description').value,
-                                longitude: document.getElementById('edit-longitude').value,
-                                latitude: document.getElementById('edit-latitude').value,
-                                }),
-                              })
-                              .then(response => response.json())
-                              .then(data => {
-                                  console.log(data);
-                                  // Show the alert message
-                                  const alert = document.getElementById('success-alert');
-                                alert.style.display = 'block';
-                                // Hide the alert message after 5 seconds
-                                  setTimeout(() => {
-                                  alert.style.opacity = '0';
-                                  setTimeout(() => {
-                                    alert.style.display = 'none';
-                                  }, 500);  // This should be the same as the duration of the CSS transition
-                                }, 1000);  // This should be the same as the duration of the CSS transition + 500ms
-
-                              })
-                              .catch((error) => {
-                                  console.error('Error:', error);
-                              });
-                            });
-
-                          // Add event listener for the delete form submission
-                          document.getElementById('delete-form').addEventListener('submit', function(e) {
-                            e.preventDefault();
-
-                            // Check if the checkbox is ticked
-                            if (!document.getElementById('confirm-delete').checked) {
-                              alert('You must confirm the deletion before proceeding.');
-                              return;
-                            }
-
-                            const id = document.getElementById('edit-id').value;
-
-                            let apiEndpoint;
-                            if (layer === collectionPointsLayer) {
-                              apiEndpoint = `/api/collectionpoints/${id}`;
-                            } else if (layer === treatmentSitesLayer) {
-                              apiEndpoint = `/api/treatmentsite/${id}`;  // Replace with your API endpoint for treatment sites
-                            }
-
-                            fetch(apiEndpoint, {
-                              method: 'DELETE',
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                              console.log(data);
-                              // Set the alert message
-                              const alert = document.getElementById('success-alert');
-                              alert.textContent = data.message;
-                              alert.style.display = 'block';
-                              // Hide the alert message after 5 seconds
-                              setTimeout(() => {
-                                alert.style.display = 'none';
-                              }, 5000);
-                              // Redirect to the index page
-                              window.location.href = "/";
-                            })
-                            .catch((error) => {
-                              console.error('Error:', error);
-                            });
-                          });
-                        });
-            } else {
-              popup.setPosition(undefined);
-              // Hide the card
-              const cardElement = document.querySelector(".card.card-bottom-center");
-              cardElement.style.display = "none";
+                // If there is no feature under the cursor, hide the tooltip
+                if (!featureExists) {
+                    tooltip.style.display = 'none';
+                }
             }
-          })
         });
 
+
+
+        let cityId; 
+        // *** EVENT HANDLERS ***
+        // Add an event listener for single clicks
+        map.on('singleclick', function(evt) {
+
+            document.getElementById('map-tooltip').style.display = 'none';
+
+            map.forEachFeatureAtPixel(evt.pixel, function(feature, layer) {
+                
+                // Reset the style of the last hovered feature
+                if (lastHoveredFeature) {
+                    lastHoveredFeature.setStyle(null);
+                }
+                // Reset the style of the last selected feature
+                if (lastSelectedFeature) {
+                    lastSelectedFeature.setStyle(null);
+                }
+                // Apply the appropriate selected style to the clicked feature
+                if (layer === citiesLayer) {
+                    feature.setStyle(citiesSelectedStyle);
+                } else if (layer === treatmentSitesLayer) {
+                    feature.setStyle(treatmentSelectedStyle);
+                } else if (layer === collectionPointsLayer) {
+                    feature.setStyle(collectionSelectedStyle(feature));
+                }
+                selectedFeature = feature;
+                lastSelectedFeature = feature;  // Store the current selected feature
+                isFeatureSelected = true;
+
+                if (feature) {
+                    const coordinates = feature.getGeometry().getCoordinates();
+
+                    if (layer === treatmentSitesLayer || layer === collectionPointsLayer) {
+                        const size = map.getSize();
+                        const resolution = view.getResolution();
+                        const newCenter = [
+                            coordinates[0] + (-size[1] / 8) * resolution,
+                            coordinates[1] + (-size[1] / 3.5) * resolution
+                        ];
+                        view.animate({
+                            center: newCenter
+                        });
+                    }
+
+                    let fetchUrl;
+                    if (layer === treatmentSitesLayer) {
+                        fetchUrl = '/assets/treatment-sites-popup.html';
+                    } else if (layer === collectionPointsLayer) {
+                        fetchUrl = '/assets/collection-point-popup.html';
+                    } else if (layer === citiesLayer) {
+                        fetchUrl = '/assets/cities-popup.html';
+                        showBarChart(feature.get('id'));
+                        showCPPerCapita(feature.get('id'));
+                        showWastePerCityRealtime(feature.get('id'));                    }
+
+                    // Function to fetch data from multiple API endpoints and merge the responses
+                    async function fetchDataFromEndpoints(endpoints) {
+                        const results = await Promise.all(endpoints.map(endpoint => fetch(endpoint).then(res => res.json())));
+                        return Object.assign({}, ...results);
+                    }
+
+                    fetch(fetchUrl)
+                        .then(response => response.text())
+                        .then(html => {
+                            // Get the feature ID
+                            const featureId = feature.get('id');
+
+                            // Build the API endpoints
+                            let dataApiEndpoints = [];
+                            if (layer === treatmentSitesLayer) {
+                                dataApiEndpoints.push(`/api/wasterecords/${featureId}`);
+                            } else if (layer === collectionPointsLayer) {
+                                dataApiEndpoints.push(`/api/collectionpoints/${featureId}`);
+                                dataApiEndpoints.push(`/api/wasterecords/${featureId}`);
+                                dataApiEndpoints.push(`/api/wasterecords/statistics/${featureId}`);
+
+                            } else if (layer === citiesLayer) {
+                                dataApiEndpoints.push(`/api/cities/${featureId}`);
+                                dataApiEndpoints.push(`/api/cities/${featureId}/statistics`);
+                            }
+
+                            // Fetch the data for this feature
+                            return fetchDataFromEndpoints(dataApiEndpoints)
+                                .then(data => {
+                                    // 'data' now contains the data from your API, you can use it to replace the placeholders
+                                    // Modify the below code to match the properties in your data
+
+                                    let content = html
+                                      .replace(/{{id}}/g, feature.get('id'))
+                                      .replace(/{{name}}/g, feature.get('name'))
+                                      .replace(/{{address_1}}/g, feature.get('address_1'))
+                                      .replace(/{{postal_code}}/g, feature.get('postal_code'))
+                                      .replace(/{{service_status}}/g, feature.get('service_status'))
+                                      .replace(/{{opening_date}}/g, feature.get('opening_date'))
+                                      .replace(/{{closing_date}}/g, feature.get('closing_date'))
+                                      .replace(/{{service_type_description}}/g, feature.get('service_type_description'))
+                                      .replace(/{{longitude}}/g, feature.get('longitude'))
+                                      .replace(/{{latitude}}/g, feature.get('latitude'))
+
+                                      .replace(/{{city_id}}/g, data.city_id || 'No data')
+                                      .replace(/{{iris_id}}/g, data.iris_id || 'No data')
+                                      .replace(/{{waste_types_id}}/g, data.waste_types_id || 'No data')
+
+
+                                      .replace(/{{collection_frequency}}/g, data.collection_frequency || 'N/A')
+                                      .replace(/{{total_weight_collected}}/g, data.total_weight_collected || 'N/A')
+                                      .replace(/{{average_weight_collected}}/g, data.average_weight_collected || 'N/A')
+                                      .replace(/{{min_weight_collected}}/g, data.min_weight_collected || 'N/A')
+                                      .replace(/{{max_weight_collected}}/g, data.max_weight_collected || 'N/A')
+                                      .replace(/{{total_bins_collected}}/g, data.total_bins_collected || 'N/A')
+                                      .replace(/{{total_collections_so_far}}/g, data.total_collections_so_far || 'N/A');
+                                      
+
+
+                                    if (layer === citiesLayer) {
+                                        content = content
+                                        .replace(/{{insee_code}}/g, data.insee_code ? data.insee_code : 'No data')
+                                        .replace(/{{status}}/g, data.status ? data.status : 'No data')
+                                        .replace(/{{city_codeid}}/g, data.city_codeid ? data.city_codeid : 'No data')
+                                        .replace(/{{total_collection_point}}/g, data.total_collection_points ? data.total_collection_points : 'No data')
+                                        .replace(/{{data_source_id}}/g, data.data_source_id ? data.data_source_id : 'No data')
+                                        .replace(/{{max_weight_per_city}}/g, data.max_weight_per_city ? data.max_weight_per_city.toFixed(2) : 'No data')
+                                        .replace(/{{min_weight_per_city}}/g, data.min_weight_per_city ? data.min_weight_per_city.toFixed(2) : 'No data')
+                                        .replace(/{{total_bins_per_city}}/g, data.total_bins_per_city ? data.total_bins_per_city : 'No data')
+                                        .replace(/{{average_weight_per_city}}/g, data.average_weight_per_city ? data.average_weight_per_city.toFixed(2) : 'No data')
+                                        .replace(/{{total_weight_per_city}}/g, data.total_weight_per_city ? data.total_weight_per_city.toFixed(2) : 'No data')
+                                        .replace(/{{population}}/g, data.population ? data.population : 'No data');
+
       
+                                    } else {
+                                        content = content
+                                            .replace(/{{code}}/g, feature.get('code'))
+                        
+                                    }
+
+                                    const popupElement = popup.getElement();
+                                    popupElement.dataset.featureId = feature.get('id').toString();
+                                    popupElement.innerHTML = content;
+
+                                    if (layer === citiesLayer) {
+                                        popup.setPosition(evt.coordinate);
+                                    } else {
+                                        popup.setPosition(coordinates);
+                                    }
+
+                                    //- // Show the card and update the report chart
+                                    //- showBarChart();
+
+
+                                    // Make the popup draggable
+                                    $(function() {
+                                        $("#popup").draggable();
+                                    });
+
+                                    // Close button logic
+                                    document.querySelector('.btn-close').addEventListener('click', function() {
+                                        // Reset the style of the last selected feature
+                                        if (lastSelectedFeature) {
+                                            lastSelectedFeature.setStyle(null);
+                                            lastSelectedFeature = null;
+                                            isFeatureSelected = false;  // Reset feature selection indicator
+                                        }
+                                        popup.setPosition(undefined);
+                                        document.querySelector(".card.card-bottom-right").style.display = "none";
+                                    });
+
+                                    // Add event listener for the edit form submission
+                                    const editForm = document.getElementById('edit-form');
+                                    if (editForm) {
+                                        editForm.addEventListener('submit', function(e) {
+                                            e.preventDefault();
+
+                                            const id = document.getElementById('edit-id').value;
+
+
+                                            let apiEndpoint;
+                                            if (layer === collectionPointsLayer) {
+                                                apiEndpoint = `/api/collectionpoints/${id}`;
+                                            } else if (layer === treatmentSitesLayer) {
+                                                apiEndpoint = `/api/treatmentsite/${id}`; // Replace with your API endpoint for treatment sites
+                                            }
+
+                                            fetch(apiEndpoint, {
+                                                    method: 'PUT',
+                                                    headers: {
+                                                        'Content-Type': 'application/json',
+                                                    },
+                                                    body: JSON.stringify({
+                                                        // Include the values from the form here
+                                                        id: document.getElementById('edit-id').value,
+                                                        code: document.getElementById('edit-code').value,
+                                                        name: document.getElementById('edit-name').value,
+                                                        address: document.getElementById('edit-address').value,
+                                                        postal_code: document.getElementById('edit-postal-code').value,
+                                                        city: document.getElementById('edit-city').value,
+                                                        service_status: document.getElementById('edit-service-status').value,
+                                                        opening_date: document.getElementById('edit-opening-date').value,
+                                                        closing_date: document.getElementById('edit-closing-date').value,
+                                                        service_type_desc: document.getElementById('edit-service-type-description').value,
+                                                        longitude: document.getElementById('edit-longitude').value,
+                                                        latitude: document.getElementById('edit-latitude').value,
+                                                    }),
+                                                })
+                                                .then(response => response.json())
+                                                .then(data => {
+                                                    console.log(data);
+                                                    // Show the alert message
+                                                    const alert = document.getElementById('success-alert');
+                                                    alert.style.display = 'block';
+                                                    // Hide the alert message after 5 seconds
+                                                    setTimeout(() => {
+                                                        alert.style.opacity = '0';
+                                                        setTimeout(() => {
+                                                            alert.style.display = 'none';
+                                                        }, 500); // This should be the same as the duration of the CSS transition
+                                                    }, 1000); // This should be the same as the duration of the CSS transition + 500ms
+
+                                                })
+                                                .catch((error) => {
+                                                    console.error('Error:', error);
+                                                });
+                                        });
+
+                                    }
+
+                                    // Add event listener for the delete form submission
+                                    const deleteForm = document.getElementById('delete-form');
+                                    if (deleteForm) {
+                                        deleteForm.addEventListener('submit', function(e) {
+                                            e.preventDefault();
+
+                                            // Check if the checkbox is ticked
+                                            if (!document.getElementById('confirm-delete').checked) {
+                                                alert('You must confirm the deletion before proceeding.');
+                                                return;
+                                            }
+
+                                            const id = document.getElementById('edit-id').value;
+
+                                            let apiEndpoint;
+                                            if (layer === collectionPointsLayer) {
+                                                apiEndpoint = `/api/collectionpoints/${id}`;
+                                            } else if (layer === treatmentSitesLayer) {
+                                                apiEndpoint = `/api/treatmentsite/${id}`; // Replace with your API endpoint for treatment sites
+                                            }
+
+                                            fetch(apiEndpoint, {
+                                                    method: 'DELETE',
+                                                })
+                                                .then(response => response.json())
+                                                .then(data => {
+                                                    console.log(data);
+                                                    // Set the alert message
+                                                    const alert = document.getElementById('success-alert');
+                                                    alert.textContent = data.message;
+                                                    alert.style.display = 'block';
+                                                    // Hide the alert message after 5 seconds
+                                                    setTimeout(() => {
+                                                        alert.style.display = 'none';
+                                                    }, 5000);
+                                                    // Redirect to the index page
+                                                    window.location.href = "/";
+                                                })
+                                                .catch((error) => {
+                                                    console.error('Error:', error);
+                                                });
+                                        });
+
+                                    }
+                                });
+                        });
+                } else {
+                    popup.setPosition(evt.coordinate);
+                    const cardElement = document.querySelector(".card.card-bottom-center");
+                    cardElement.style.display = "none";
+                }
+            });
+
+        });
+            
+
+
+
+       
+  
+        // *** FUNCTIONS. INDICATORS AND CHARTS ***
+        let barChart;  // Global variable to store the bar chart instance
+
+        function showBarChart(cityId) {
+            // Fetch all data needed for the chart
+            fetch('/api/cities/average-waste-per-capita')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    } else {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    // Get the selected city and its average waste
+                    const selectedCity = data.find(item => Number(item.id) === Number(cityId));
+
+                    // Remove the selected city from data
+                    data = data.filter(item => Number(item.id) !== Number(cityId));
+
+                    // Sort data by absolute difference with the selected city's average waste
+                    data.sort((a, b) => Math.abs(a.average_waste_per_capita - selectedCity.average_waste_per_capita)
+                        - Math.abs(b.average_waste_per_capita - selectedCity.average_waste_per_capita));
+
+                    // Ensure selected city is in the top 10 closest cities
+                    let closestCities = data.slice(0, 10);
+                    closestCities.push(selectedCity);
+
+                    closestCities.sort((a, b) => Math.abs(a.average_waste_per_capita - selectedCity.average_waste_per_capita)
+                        - Math.abs(b.average_waste_per_capita - selectedCity.average_waste_per_capita));
+
+                    const labels = closestCities.map(item => 'City ' + item.id);
+                    const values = closestCities.map(item => item.average_waste_per_capita);
+
+                    // Find the index of the selected city in the closest cities array
+                    const selectedIndex = closestCities.findIndex(item => Number(item.id) === Number(cityId));
+
+                    // Generate color arrays
+                    const backgroundColors = labels.map((_, index) =>
+                        index === selectedIndex ? 'rgba(255, 99, 132, 0.2)' : 'rgba(75, 192, 192, 0.2)'
+                    );
+                    const borderColors = labels.map((_, index) =>
+                        index === selectedIndex ? 'rgb(255, 99, 132)' : 'rgb(75, 192, 192)'
+                    );
+
+                    const cardElement = document.querySelector(".card.card-bottom-right");
+                    cardElement.style.display = "block";  // Make the card visible
+
+                    // Destroy the previous chart if it exists
+                    if (barChart) {
+                        barChart.destroy();
+                    }
+
+                    // Create a new chart
+                    barChart = new Chart(document.querySelector('#showBarChart'), {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: '(' + 'City ' + cityId + ')', // update label to include the city name
+                                data: values,
+                                backgroundColor: backgroundColors,
+                                borderColor: borderColors,
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+
+                    document.getElementById('cardTitle').innerText = 'Average Waste Per Capita';
+                });
+        }
+
+
+
+
+        let cpPerCapitaChart;  // Global variable to store the collection points per capita chart instance
+
+        function showCPPerCapita(cityId, title) {
+            fetch('/api/cities/collection-points-per-capita')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    } else {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    const selectedCity = data.find(item => Number(item.id) === Number(cityId));
+                    data = data.filter(item => Number(item.id) !== Number(cityId));
+
+                    data.sort((a, b) => Math.abs(a.collection_points_per_capita - selectedCity.collection_points_per_capita)
+                    - Math.abs(b.collection_points_per_capita - selectedCity.collection_points_per_capita));
+
+                    let closestCities = data.slice(0, 10);
+                    closestCities.push(selectedCity);
+
+                    closestCities.sort((a, b) => Math.abs(a.collection_points_per_capita - selectedCity.collection_points_per_capita)
+                    - Math.abs(b.collection_points_per_capita - selectedCity.collection_points_per_capita));
+
+                    const labels = closestCities.map(item => 'City ' + item.id);
+                    const values = closestCities.map(item => item.collection_points_per_capita);
+
+                    // Find the index of the selected city in the closest cities array
+                    const selectedIndex = closestCities.findIndex(item => Number(item.id) === Number(cityId));
+
+                    // Generate color arrays
+                    const backgroundColors = labels.map((_, index) =>
+                        index === selectedIndex ? 'rgba(255, 99, 132, 0.2)' : 'rgba(75, 192, 192, 0.2)'
+                    );
+                    const borderColors = labels.map((_, index) =>
+                        index === selectedIndex ? 'rgb(255, 99, 132)' : 'rgb(75, 192, 192)'
+                    );
+
+                    // Destroy the previous chart if it exists
+                    if (cpPerCapitaChart) {
+                        cpPerCapitaChart.destroy();
+                    }
+
+                    // Create a new chart
+                    cpPerCapitaChart = new Chart(document.querySelector('#showCPPerCapita'), {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Collection Points Per Capita (' + 'City ' + cityId + ')', // update label to include the city name
+                                data: values,
+                                backgroundColor: backgroundColors,
+                                borderColor: borderColors,
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                   //document.getElementById('cardTitle').innerText = 'Collection Points Per Capita';
+                });
+        }
+
+
+        let wastePerCityChart;  // Global variable to store the waste per city chart instance
+
+        function showWastePerCityRealtime(cityId) {
+            fetch('/api/cities/total-waste-generated-realtime')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    } else {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log('Raw data from API:', data);  // Log raw data
+
+                    const selectedCity = data.find(item => Number(item.id) === Number(cityId));
+                    data = data.filter(item => Number(item.id) !== Number(cityId));
+
+                    data.sort((a, b) => Math.abs(a.total_waste - selectedCity.total_waste)
+                        - Math.abs(b.total_waste - selectedCity.total_waste));
+
+                    let closestCities = data.slice(0, 4);
+                    closestCities.push(selectedCity);
+
+                    console.log('Closest cities:', closestCities);  // Log closest cities
+
+                    const labels = closestCities.map(item => 'City ' + item.id);
+                    const values = closestCities.map(item => item.total_waste_generated);
+
+                    console.log('Labels:', labels);  // Log labels
+                    console.log('Values:', values);  // Log values
+
+                    if (wastePerCityChart) {
+                        wastePerCityChart.destroy();
+                    }
+
+                    wastePerCityChart = new Chart(document.querySelector('#showWastePerCityRealtime'), {
+                        type: 'pie',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Total Waste Generated (' + 'City ' + cityId + ')', 
+                                data: values,
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(153, 102, 255, 0.2)',
+                                ],
+                                borderColor: [
+                                    'rgb(255, 99, 132)',
+                                    'rgb(75, 192, 192)',
+                                    'rgb(255, 206, 86)',
+                                    'rgb(54, 162, 235)',
+                                    'rgb(153, 102, 255)',
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                    });
+                })
+                .catch(error => {
+                    console.error('Failed to fetch data from API:', error);  // Log any errors during fetching
+                });
+        }
 
 
 
         
-        // *** FUNCTIONS. INDICATORS AND CHARTS ***
-        // Function to display the donut chart in the card
-        function showCardWithDonutChart(feature) {
-          const cardElement = document.querySelector(".card.card-bottom-center");
-          cardElement.style.display = "block";  // Make the card visible
 
-          // Get the waste data from the feature properties
-          const totalWeight = feature.get('total_weight');
-          const averageWeight = feature.get('average_weight');
-          const minWeight = feature.get('min_weight');
-          const maxWeight = feature.get('max_weight');
+        document.addEventListener('DOMContentLoaded', (event) => {
+            // DOM is fully loaded here, it's safe to attach event listeners to the elements
 
-          // Initialize the chart with the data
-          const donutChartElement = document.querySelector("#donutChart");
-          const donutChart = echarts.init(donutChartElement);
-          donutChart.setOption({
-            color: ['#123456', '#789abc', '#def012', '#345678'],
-            tooltip: { trigger: 'item' },
-            legend: {
-              top: '5%',
-              bottom: '3%',
-              left: 'center',
-              itemWidth: 6,
-              itemHeight: 6,
-              textStyle: { rich: { fontSize: 7 } }
-            },
-            series: [{
-              type: 'pie',
-              radius: ['40%', '70%'],
-              avoidLabelOverlap: false,
-              label: {
-                show: false,
-                position: 'center'
-              },
-              emphasis: {
-                label: {
-                  show: true,
-                  fontSize: '11',
-                  fontWeight: 'bold'
+            document.getElementById('v-pills-home-tab').addEventListener('shown.bs.tab', function (event) {
+                if (cityId) {  // Only call the function if cityId has been set
+                    showBarChart(cityId);
                 }
-              },
-              labelLine: {
-                show: false
-              },
-              data: [
-                { value: totalWeight, name: 'Total' },
-                { value: averageWeight, name: 'Average' },
-                { value: minWeight, name: 'Minimum' },
-                { value: maxWeight, name: 'Maximum' }
-              ]
-            }]
-          });
-        }
+                document.getElementById('cardTitle').innerText = 'Average Waste Per Capita';
+            })
 
+            document.getElementById('v-pills-profile-tab').addEventListener('shown.bs.tab', function (event) {
+                if (cityId) {  // Only call the function if cityId has been set
+                    showCPPerCapita(cityId);
+                }
+                document.getElementById('cardTitle').innerText = 'Collection Points Per Capita';
+            })
 
-      
-
-
-
-
+            document.getElementById('v-pills-messages-tab').addEventListener('shown.bs.tab', function (event) {
+                if (cityId) {  // Only call the function if cityId has been set
+                    showWastePerCityRealtime(cityId);
+                }
+                document.getElementById('cardTitle').innerText = 'Total Waste Generated Per City';
+            })
+        });
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-        //- // Add event listeners for pointer movement and pointer out events
-        //- let selected = null;
-
-        //- // Change style of the feature under the pointer
-        //- map.on('pointermove', function (e) {
-        //-     if (selected !== null) {
-        //-         selected.setStyle(undefined);
-        //-         selected = null;
-        //-     }
-
-        //-     map.forEachFeatureAtPixel(e.pixel, function (f) {
-        //-         selected = f;
-        //-         let style;
-        //-         if (f.get('layer') === 'collection_points') {
-        //-             style = collectionPointHoverStyle;
-        //-         } else if (f.get('layer') === 'treatment_sites') {
-        //-             style = treatmentSiteHoverStyle;
-        //-         } else {
-        //-             return;
-        //-         }
-        //-         f.setStyle(style);
-        //-         return true;
-        //-     });
-        //- });
-
-        //- // Reset style when pointer moves out of a feature
-        //- map.on('pointerout', function () {
-        //-     if (selected !== null) {
-        //-         selected.setStyle(undefined);
-        //-         selected = null;
-        //-     }
-        //- });
-
-        // Define hover styles for collection points and treatment sites
-        //- const collectionPointHoverStyle = new ol.style.Style({
-        //-     image: new ol.style.Circle({
-        //-         radius: 23,
-        //-         fill: new ol.style.Fill({ color: 'rgba(120, 0, 0, 1)' }),
-        //-     }),
-        //- });
-
-        //- const treatmentSiteHoverStyle = new ol.style.Style({
-        //-     image: new ol.style.Circle({
-        //-         radius: 23,
-        //-         fill: new ol.style.Fill({ color: 'rgba(0, 120, 0, 1)' }),
-        //-     }),
-        //- });

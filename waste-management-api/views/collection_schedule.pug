@@ -1,7 +1,203 @@
 extends layout
 
 block content
-  .card(style='width: 20%; margin: 0 auto; margin-top: 5%')
-    .card-body
-      h5.card-title Create Waste Collection Point
-      
+  div.modal.fade#collectionScheduleModal(tabindex="-1")
+    div.modal-dialog.modal-lg
+      div.modal-content
+        div.modal-header
+          h5.modal-title#modalTitle Add New Schedule
+          button.btn-close(type="button", data-bs-dismiss="modal", aria-label="Close")
+        div.modal-body
+          form#collectionScheduleForm(method="POST")
+            div.form-group
+              label.form-label(for='inputCollectionPointId') Collection Point
+              select.form-select#inputCollectionPointId(name='collection_point_id')
+                each collectionPoint in collectionPoints
+                  option(value=collectionPoint.id) #{collectionPoint.name}
+            div.form-group
+              label.form-label(for='inputWasteTypeId') Waste Type
+              select.form-select#inputWasteTypeId(name='waste_type_id')
+                each wasteType in wasteTypes
+                  option(value=wasteType.id) #{wasteType.name}
+            div.form-group
+              label(for="collection_frequency") Collection Frequency
+              input#collection_frequency.form-control(type="number" name="collection_frequency" placeholder="Enter Collection Frequency" required)
+            div.form-group
+              label(for="collection_day_of_week") Day of Week
+              input#collection_day_of_week.form-control(type="number" name="collection_day_of_week" placeholder="Enter Day of Week" required)
+        div.modal-footer
+          button.btn.btn-secondary(type="button", data-bs-dismiss="modal") Close
+          button#submitScheduleBtn.btn.btn-primary(type="submit") Submit
+
+  div.grid-container
+    div.grid-item-1
+      section.section
+      div.row
+        div.col-lg-12
+          div.card
+            div.card-body
+              div.d-flex.justify-content-between
+                h5.card-title Collection Points Schedule Records 
+                button#addNewCollectionScheduleBtn.btn.btn-primary(type="button") Add New Schedule
+              
+              // Table with stripped rows
+              table.table.datatable-paginated
+                thead
+                  tr
+                    th(scope="col") #
+                    th(scope="col") Collection Point ID
+                    th(scope="col") Waste Type
+                    th(scope="col") Collection Frequency
+                    th(scope="col") Day of Week
+                    th(scope="col") Edit
+                    th(scope="col") Delete
+                tbody
+                  each schedule, i in schedules 
+                    tr(data-schedule=JSON.stringify(schedule)) 
+                      th(scope="row")= i+1
+                      td= schedule.collection_point_id
+                      td= schedule.waste_type_name
+                      td= schedule.collection_frequency
+                      td= schedule.collection_day_of_week
+                      td
+                        a.edit-schedule-btn
+                          i.bi.bi-pencil-square
+                      td
+                        i.bi.bi-trash(onclick=`deleteRecord(${schedule.id})`) 
+
+  script.
+    $(document).ready(function() {
+      $('.datatable-paginated').DataTable();
+
+      $(document).on("click", ".edit-schedule-btn", function(e) {
+        e.preventDefault(); 
+
+        const schedule = $(this).parents('tr').data('schedule');
+
+        $('#inputCollectionPointId').val(schedule.collection_point_id);
+        $('#inputWasteTypeId').val(schedule.waste_type_id);
+        $('#collection_frequency').val(schedule.collection_frequency);
+        $('#collection_day_of_week').val(schedule.collection_day_of_week);
+
+        $('#collectionScheduleForm').attr('action', `/api/collectionschedules/${schedule.id}`);
+        $('#modalTitle').text('Edit Collection Schedule');
+        $('#collectionScheduleModal').modal('show');
+      });
+
+      $("#addNewCollectionScheduleBtn").click(function() {
+        $('#inputCollectionPointId').val($("#inputCollectionPointId option:first").val());
+        $('#inputWasteTypeId').val($("#inputWasteTypeId option:first").val());
+        $('#collection_frequency').val("");
+        $('#collection_day_of_week').val("");
+
+        $('#collectionScheduleForm').attr('action', `/api/collectionschedules`);
+        $('#modalTitle').text('Add Collection Schedule');
+        $('#collectionScheduleModal').modal('show');
+      });
+
+      // Add event listener for the "Submit" button
+      $("#submitScheduleBtn").click(function(e) {
+        e.preventDefault();
+        // Trigger the form submit event
+        $("#collectionScheduleForm").submit();
+        // Hide the modal
+        $('#collectionScheduleModal').modal('hide');
+      });
+
+      $('#collectionScheduleForm').on('submit', function(e) {
+        e.preventDefault();
+
+        const url = $(this).attr('action');
+        const formData = $(this).serialize();
+        const httpMethod = url.includes('collectionschedules/') ? 'PUT' : 'POST';
+
+        $.ajax({
+            url: url,
+            type: httpMethod,
+            data: formData,
+            success: function() {
+                swal("Good job!", "You have successfully updated the schedule!", "success")
+                .then(() => {
+                    location.reload();
+                });
+            },
+            error: function() {
+                swal("Oops!", "Failed to create/update the schedule.", "error")
+                .then(() => {
+                    location.reload();
+                });
+            }
+        });
+      });
+    });
+
+    function deleteRecord(id) {
+      swal({
+        title: "Are you sure?",
+        text: "Once deleted, you will not be able to recover this schedule!",
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+      })
+      .then((willDelete) => {
+        if (willDelete) {
+          fetch(`/api/collectionschedules/${id}`, {
+            method: 'DELETE'
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.message) {
+                swal("Deleted!", "Your schedule has been deleted.", "success")
+                .then(() => {
+                    location.reload();
+                });
+            } else {
+                swal("Oops!", "Failed to delete schedule.", "error")
+                .then(() => {
+                    location.reload();
+                });
+            }
+          });
+        }
+      });
+    }
+
+
+
+  style.
+    .form-group {
+      margin-bottom: 15px; 
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows:20px 2fr;
+      grid-gap: 10px;
+      padding: 10px;
+    }
+
+    .grid-item-1 {
+      grid-column: 1 / span 3;
+      grid-row: 2;
+      text-align: center;
+    }
+
+    .d-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .datatable-paginated thead th {
+      font-size: 12px;  
+    }
+    .datatable-paginated tbody td {
+      font-size: 11px;  
+    }
+
+    i.bi.bi-trash {
+      color: red;  
+      cursor: pointer;
+    }
+
