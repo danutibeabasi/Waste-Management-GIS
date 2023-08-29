@@ -4,22 +4,6 @@ extends layout.pug
   
 block content
 
-      mixin infoCard(title, subtitle, main, rate, rateDirection, icon)
-        .col-xxl-4.col-md-6
-          .card.info-card(class=`${title.toLowerCase().replace(' ', '-')}-card`)
-            .card-body
-              h5.card-title
-                | #{title}              
-              .d-flex.align-items-center
-                .card-icon.rounded-circle.d-flex.align-items-center.justify-content-center
-                  i(class=`bi ${icon}`)
-                .ps-3
-                  h6 #{main}
-                  span(class=`text-${rateDirection == "increase" ? "success" : "danger"} small pt-1 fw-bold`) #{rate}
-                  span.text-muted.small.pt-2.ps-1 #{rateDirection}
-
-
-
 
       #map(style='position: absolute; top: 0; bottom: 0; width: 100%;')
 
@@ -46,7 +30,7 @@ block content
                 canvas#showWastePerCityRealtime(style='max-height: 370px;')
 
 
-          // End Vertical Pills Tabs
+          
 
 
 
@@ -316,7 +300,7 @@ block content
                         lastHoveredFeature = feature;
 
                         // Show the feature's name in the tooltip
-                        let name = feature.get('name');  // Replace 'name' with the appropriate property key
+                        let name = feature.get('name');  
                         tooltip.innerHTML = name;
                         tooltip.style.display = 'block';
 
@@ -435,8 +419,7 @@ block content
                             // Fetch the data for this feature
                             return fetchDataFromEndpoints(dataApiEndpoints)
                                 .then(data => {
-                                    // 'data' now contains the data from your API, you can use it to replace the placeholders
-                                    // Modify the below code to match the properties in your data
+                                    // 'data' now contains the data from your API, you can use it to replace the placeholders in the popup HTML
                                     const DATA_NOT_PROVIDED = 'Data not provided';
 
                                     let content = html
@@ -490,17 +473,17 @@ block content
 
                                     if (layer === citiesLayer) {
                                         content = content
-                                        .replace(/{{insee_code}}/g, data.insee_code ? data.insee_code : 'No data')
-                                        .replace(/{{status}}/g, data.status ? data.status : 'No data')
-                                        .replace(/{{city_codeid}}/g, data.city_codeid ? data.city_codeid : 'No data')
-                                        .replace(/{{total_collection_point}}/g, data.total_collection_points ? data.total_collection_points : 'No data')
-                                        .replace(/{{data_source_id}}/g, data.data_source_id ? data.data_source_id : 'No data')
-                                        .replace(/{{max_weight_per_city}}/g, data.max_weight_per_city ? data.max_weight_per_city.toFixed(2) : 'No data')
-                                        .replace(/{{min_weight_per_city}}/g, data.min_weight_per_city ? data.min_weight_per_city.toFixed(2) : 'No data')
-                                        .replace(/{{total_bins_per_city}}/g, data.total_bins_per_city ? data.total_bins_per_city : 'No data')
-                                        .replace(/{{average_weight_per_city}}/g, data.average_weight_per_city ? data.average_weight_per_city.toFixed(2) : 'No data')
-                                        .replace(/{{total_weight_per_city}}/g, data.total_weight_per_city ? data.total_weight_per_city.toFixed(2) : 'No data')
-                                        .replace(/{{population}}/g, data.population ? data.population : 'No data');
+                                        .replace(/{{insee_code}}/g, data.insee_code ? data.insee_code : DATA_NOT_PROVIDED)
+                                        .replace(/{{status}}/g, data.status ? data.status : DATA_NOT_PROVIDED)
+                                        .replace(/{{city_codeid}}/g, data.city_codeid ? data.city_codeid : DATA_NOT_PROVIDED)
+                                        .replace(/{{total_collection_point}}/g, data.total_collection_points ? data.total_collection_points : DATA_NOT_PROVIDED)
+                                        .replace(/{{data_source_id}}/g, data.data_source_id ? data.data_source_id : DATA_NOT_PROVIDED)
+                                        .replace(/{{max_weight_per_city}}/g, data.max_weight_per_city ? data.max_weight_per_city.toFixed(2) : DATA_NOT_PROVIDED)
+                                        .replace(/{{min_weight_per_city}}/g, data.min_weight_per_city ? data.min_weight_per_city.toFixed(2) : DATA_NOT_PROVIDED)
+                                        .replace(/{{total_bins_per_city}}/g, data.total_bins_per_city ? data.total_bins_per_city : DATA_NOT_PROVIDED)
+                                        .replace(/{{average_weight_per_city}}/g, data.average_weight_per_city ? data.average_weight_per_city.toFixed(2) : DATA_NOT_PROVIDED)
+                                        .replace(/{{total_weight_per_city}}/g, data.total_weight_per_city ? data.total_weight_per_city.toFixed(2) : DATA_NOT_PROVIDED)
+                                        .replace(/{{population}}/g, data.population ? data.population : DATA_NOT_PROVIDED);
 
       
                                     } else {
@@ -518,9 +501,6 @@ block content
                                     } else {
                                         popup.setPosition(coordinates);
                                     }
-
-                                    //- // Show the card and update the report chart
-                                    //- showBarChart();
 
 
                                     // Make the popup draggable
@@ -617,7 +597,7 @@ block content
                                             if (layer === collectionPointsLayer) {
                                                 apiEndpoint = `/api/collectionpoints/${id}`;
                                             } else if (layer === treatmentSitesLayer) {
-                                                apiEndpoint = `/api/treatmentsite/${id}`; // Replace with your API endpoint for treatment sites
+                                                apiEndpoint = `/api/treatmentsite/${id}`; 
                                             }
 
                                             fetch(apiEndpoint, {

@@ -5,59 +5,7 @@ const math = require('mathjs');
 
 
 
-exports.getWasteCollectionEfficiency = async (req, res) => {
-  try {
-    const result = await db.manyOrNone(
-      `SELECT 
-        c.id,
-        (SUM(wrs.total_collections_so_far) / COUNT(distinct wr.collection_point_id)) AS collection_efficiency
-       FROM 
-        city c
-       JOIN 
-        collection_points cp ON c.id = cp.city_id
-       JOIN
-        waste_records wr ON cp.id = wr.collection_point_id
-       JOIN
-        waste_records_statistics wrs ON wrs.collection_point_id = wr.collection_point_id
-       GROUP BY
-        c.id`
-    );
-    if (result.length > 0) {
-      res.status(200).json(result);
-    } else {
-      res.status(404).json({ error: "No data found for the cities." });
-    }
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
 
-exports.getWasteVariability = async (req, res) => {
-  try {
-    const result = await db.manyOrNone(
-      `SELECT 
-        c.id,
-        STDDEV_POP(wrs.total_weight_collected) AS waste_variability
-       FROM 
-        city c
-       JOIN 
-        collection_points cp ON c.id = cp.city_id
-       JOIN
-        waste_records wr ON cp.id = wr.collection_point_id
-       JOIN
-        waste_records_statistics wrs ON wrs.collection_point_id = wr.collection_point_id
-       GROUP BY
-        c.id`
-    );
-    if (result.length > 0) {
-      res.status(200).json(result);
-    } else {
-      res.status(404).json({ error: "No data found for the cities." });
-    }
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
 
 
 // Create a new city in the database
@@ -155,6 +103,63 @@ exports.deleteCity = async (req, res) => {
       res.status(200).json({ message: "City deleted successfully." });
     } else {
       res.status(404).json({ error: "City not found." });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+// get waste  collection efficiency for all cities
+exports.getWasteCollectionEfficiency = async (req, res) => {
+  try {
+    const result = await db.manyOrNone(
+      `SELECT 
+        c.id,
+        (SUM(wrs.total_collections_so_far) / COUNT(distinct wr.collection_point_id)) AS collection_efficiency
+       FROM 
+        city c
+       JOIN 
+        collection_points cp ON c.id = cp.city_id
+       JOIN
+        waste_records wr ON cp.id = wr.collection_point_id
+       JOIN
+        waste_records_statistics wrs ON wrs.collection_point_id = wr.collection_point_id
+       GROUP BY
+        c.id`
+    );
+    if (result.length > 0) {
+      res.status(200).json(result);
+    } else {
+      res.status(404).json({ error: "No data found for the cities." });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+//get waste variability for all cities
+exports.getWasteVariability = async (req, res) => {
+  try {
+    const result = await db.manyOrNone(
+      `SELECT 
+        c.id,
+        STDDEV_POP(wrs.total_weight_collected) AS waste_variability
+       FROM 
+        city c
+       JOIN 
+        collection_points cp ON c.id = cp.city_id
+       JOIN
+        waste_records wr ON cp.id = wr.collection_point_id
+       JOIN
+        waste_records_statistics wrs ON wrs.collection_point_id = wr.collection_point_id
+       GROUP BY
+        c.id`
+    );
+    if (result.length > 0) {
+      res.status(200).json(result);
+    } else {
+      res.status(404).json({ error: "No data found for the cities." });
     }
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -273,6 +278,7 @@ exports.getCityStatisticsForMonth = async (req, res) => {
 };
 
 
+// get total waste for all cities
 exports.getTotalWasteForAllCities = async (req, res) => {
   try {
     const result = await db.manyOrNone(
@@ -297,6 +303,7 @@ exports.getTotalWasteForAllCities = async (req, res) => {
   }
 };
 
+// get average waste per capita for all cities
 exports.getAvgWastePerCapitaAllCities = async (req, res) => {
   try {
     const result = await db.manyOrNone(
@@ -323,6 +330,7 @@ exports.getAvgWastePerCapitaAllCities = async (req, res) => {
 
 
 
+// get waste type statistics for all  cities
 exports.getWasteTypeStatisticsForAllCities = async (req, res) => {
   try {
     const { waste_type_id } = req.params;
