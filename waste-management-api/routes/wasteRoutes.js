@@ -20,6 +20,8 @@ const TreatmentSiteTechnologyRoutes = require('./treatmentSiteTechnologyRoutes')
 const TreatmentSiteRoutes = require('./treatmentSitesRoutes');
 const IrisRoutes = require('./irisRoutes');
 const RoutesCollectionPointsRoutes = require('./routesCollectionPointsRoutes');
+const uploadRoutes = require('./uploadRoutes');
+
 
 // Use the imported routes as middleware
 wasteRoutes.use('/collectionpoints', collectionPointsRoutes);
@@ -40,7 +42,7 @@ wasteRoutes.use('/treatmentsitetechnologies', TreatmentSiteTechnologyRoutes);
 wasteRoutes.use('/treatmentsite', TreatmentSiteRoutes);
 wasteRoutes.use('/iris', IrisRoutes);
 wasteRoutes.use('/routescollectionpoints', RoutesCollectionPointsRoutes);
-
+wasteRoutes.use('/upload', uploadRoutes);
 
 // You can add other routes and middlewares here as needed
 module.exports = wasteRoutes;

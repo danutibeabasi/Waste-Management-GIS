@@ -4,16 +4,18 @@ const router = express.Router();
 // Import controller
 const wasteTypeController = require('../controllers/wasteTypeController');
 
-router.get('/', async (req, res) => {
-  try {
-    const types = await wasteTypeController.getAllWasteTypes(req);
-    res.render('waste_types', { types });
-  } catch (err) {
-    console.error(err);
-    // render the template with an empty types array in case of an error
-    res.render('waste_types', { types: [] });
-  }
-});
+
+
+// router.get('/', async (req, res) => {
+//   try {
+//     const types = await wasteTypeController.getAllWasteTypes(req);
+//     res.render('waste_types', { types });
+//   } catch (err) {
+//     console.error(err);
+//     // render the template with an empty types array in case of an error
+//     res.render('waste_types', { types: [] });
+//   }
+// });
 
 
 

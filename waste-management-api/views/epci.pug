@@ -1,0 +1,54 @@
+li.nav-item
+  a.nav-link.collapsed(href='#', data-bs-toggle='collapse', data-bs-target='#epci-nav')
+    i.bi.bi-globe
+    span EPCI
+    i.bi.bi-chevron-down.ms-auto
+  ul#epci-nav.nav-content.collapse(data-bs-parent='#sidebar-nav')
+    li
+      a(href="/?layer=epci")
+        i.bi.bi-circle
+        span View EPCI 
+    li 
+      a(href="#")
+        i.bi.bi-circle
+        span Filter EPCI
+    li 
+      div.form-filter
+        form.ml-5(id="epciFilterForm")
+          .row
+            .col-md-12
+              .input-group.mt-2.form-option
+                .col-md-4
+                  select#epciFilterFormOptions.form-control(name="filterType")
+                    option(value="id") ID
+                    option(value="name") Name
+                    //- add other options as required
+                .col-md-5
+                  input.form-control(type="text", id="epciFilterFormValue", aria-describedby="inputGroupPrepend2", required)
+                .col-md-3  
+                  button.btn.btn-primary(type="submit")
+                    i.bi.bi-check-circle
+
+script(src="./assets/js/utils.js")
+script.
+  document.addEventListener('DOMContentLoaded', (event) => {
+    let urlParams = new URLSearchParams(window.location.search);
+    const layer = urlParams.get('layer');
+
+    if (window.location.href.includes('epci')) {
+      window.fetchData(layer, null, null)
+      .then(nestedFeatures => [].concat(...nestedFeatures))
+      .then(features => {
+        for (let feature of features) {
+          feature.set('layer', 'epci');
+        }
+        epciSource.clear();
+        epciSource.addFeatures(features);
+      });
+
+      window.handleFilterForm('epciFilterForm', 'epci', epciSource);
+    }
+
+    // Always handle treatment filter form, regardless of the current page
+    window.handleFilterForm('treatmentFilterForm', 'treatment_sites', treatmentSitesSource);
+  });

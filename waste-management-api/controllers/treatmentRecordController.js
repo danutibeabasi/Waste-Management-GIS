@@ -4,11 +4,12 @@ const db = require('../db.js');
 // Create a new treatment record
 exports.createTreatmentRecord = async (req, res) => {
   try {
-    const { treatment_site_id, wastetype_id, treatment_technology_id, weight, treatment_date } = req.body;
+    const { treatment_site_technology_id, waste_record_id, waste_type_id, treated_weight, treatment_date, energy_consumed, data_source_id } = req.body;
+    
     const result = await db.one(
-      `INSERT INTO treatment_records (treatment_site_id, wastetype_id, treatment_technology_id, weight, treatment_date)
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [treatment_site_id, wastetype_id, treatment_technology_id, weight, treatment_date]
+      `INSERT INTO treatment_records (treatment_site_technology_id, waste_record_id, waste_type_id, treated_weight, treatment_date, energy_consumed, data_source_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [treatment_site_technology_id, waste_record_id, waste_type_id, treated_weight, treatment_date, energy_consumed, data_source_id]
     );
 
     res.status(201).json(result);
@@ -46,13 +47,13 @@ exports.getTreatmentRecordById = async (req, res) => {
 // Update a treatment record by ID
 exports.updateTreatmentRecord = async (req, res) => {
   try {
-    const { id, treatment_site_id, wastetype_id, treatment_technology_id, weight, treatment_date } = req.body;
+    const { id, treatment_site_technology_id, waste_record_id, waste_type_id, treated_weight, treatment_date, energy_consumed, data_source_id } = req.body;
 
     const result = await db.result(
       `UPDATE treatment_records
-       SET treatment_site_id = $2, wastetype_id = $3, treatment_technology_id = $4, weight = $5, treatment_date = $6
+       SET treatment_site_technology_id = $2, waste_record_id = $3, waste_type_id = $4, treated_weight = $5, treatment_date = $6, energy_consumed = $7, data_source_id = $8
        WHERE id = $1`,
-      [id, treatment_site_id, wastetype_id, treatment_technology_id, weight, treatment_date]
+      [id, treatment_site_technology_id, waste_record_id, waste_type_id, treated_weight, treatment_date, energy_consumed, data_source_id]
     );
 
     if (result.rowCount === 1) {
@@ -75,6 +76,29 @@ exports.deleteTreatmentRecord = async (req, res) => {
       res.status(200).json({ message: 'Treatment record deleted successfully.' });
     } else {
       res.status(404).json({ error: 'Treatment record not found.' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+// Get treatment records by treatment site ID
+exports.getTreatmentRecordsBySiteId = async (req, res) => {
+  try {
+    const { treatment_site_id } = req.params;
+    const query = `
+      SELECT tr.*
+      FROM treatment_records AS tr
+      JOIN treatment_site_technologies AS tst
+      ON tr.treatment_site_technology_id = tst.id
+      WHERE tst.treatment_site_id = $1;
+    `;
+
+    const results = await db.manyOrNone(query, [treatment_site_id]);
+
+    if (results.length) {
+      res.status(200).json(results);
+    } else {
+      res.status(404).json({ error: 'No treatment records found for the given treatment site ID.' });
     }
   } catch (err) {
     res.status(500).json({ error: err.message });

@@ -6,7 +6,7 @@ const treatmentRecordController = require('../controllers/treatmentRecordControl
 
 /**
  * @swagger
- * /treatment-records:
+ * /api/treatmentrecords:
  *   post:
  *     summary: Create a new treatment record
  *     tags: [Treatment Records]
@@ -24,11 +24,11 @@ const treatmentRecordController = require('../controllers/treatmentRecordControl
  *             schema:
  *               $ref: '#/components/schemas/TreatmentRecord'
  */
-router.post('/treatment-records', treatmentRecordController.createTreatmentRecord);
+router.post('/', treatmentRecordController.createTreatmentRecord);
 
 /**
  * @swagger
- * /treatment-records:
+ * /api/treatmentrecords:
  *   get:
  *     summary: Retrieve a list of treatment records
  *     tags: [Treatment Records]
@@ -42,11 +42,11 @@ router.post('/treatment-records', treatmentRecordController.createTreatmentRecor
  *               items:
  *                 $ref: '#/components/schemas/TreatmentRecord'
  */
-router.get('/treatment-records', treatmentRecordController.getAllTreatmentRecords);
+router.get('/', treatmentRecordController.getAllTreatmentRecords);
 
 /**
  * @swagger
- * /treatment-records/{id}:
+ * /api/treatmentrecords/{id}:
  *   get:
  *     summary: Retrieve a treatment record by ID
  *     tags: [Treatment Records]
@@ -65,11 +65,11 @@ router.get('/treatment-records', treatmentRecordController.getAllTreatmentRecord
  *             schema:
  *               $ref: '#/components/schemas/TreatmentRecord'
  */
-router.get('/treatment-records/:id', treatmentRecordController.getTreatmentRecordById);
+router.get('/:id', treatmentRecordController.getTreatmentRecordById);
 
 /**
  * @swagger
- * /treatment-records/{id}:
+ * /api/treatmentrecords/{id}:
  *   put:
  *     summary: Update a treatment record by ID
  *     tags: [Treatment Records]
@@ -96,11 +96,11 @@ router.get('/treatment-records/:id', treatmentRecordController.getTreatmentRecor
  *       404:
  *         description: Treatment record not found
  */
-router.put('/treatment-records/:id', treatmentRecordController.updateTreatmentRecord);
+router.put('/:id', treatmentRecordController.updateTreatmentRecord);
 
 /**
  * @swagger
- * /treatment-records/{id}:
+ * /api/treatmentrecords/{id}:
  *   delete:
  *     summary: Delete a treatment record by ID
  *     tags: [Treatment Records]
@@ -117,6 +117,36 @@ router.put('/treatment-records/:id', treatmentRecordController.updateTreatmentRe
  *       404:
  *         description: Treatment record not found
  */
-router.delete('/treatment-records/:id', treatmentRecordController.deleteTreatmentRecord);
+router.delete('/:id', treatmentRecordController.deleteTreatmentRecord);
+
+
+/**
+ * @swagger
+ * /api/treatmentrecords/{treatment_site_id}:
+ *   get:
+ *     summary: Get all treatment records by treatment site ID
+ *     tags: [Treatment Records]
+ *     parameters:
+ *       - in: path
+ *         name: treatment_site_id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The treatment site ID
+ *     responses:
+ *       200:
+ *         description: List of treatment records for the given treatment site ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/TreatmentRecord'
+ *       404:
+ *         description: No treatment records found for the given treatment site ID
+ */
+router.get('/:treatment_site_id', treatmentRecordController.getTreatmentRecordsBySiteId);
+
+
 
 module.exports = router;

@@ -34,22 +34,17 @@ block content
           // Vertical Pills Tabs
           .d-flex.align-items-start
             .nav.flex-column.nav-pills.me-3.w-25(id='v-pills-tab', role='tablist', aria-orientation='vertical') 
-              button.nav-link.active(id='v-pills-home-tab', data-bs-toggle='pill', data-bs-target='#v-pills-home', type='button', role='tab', aria-controls='v-pills-home', aria-selected='true') Waste Per Capita
-              button.nav-link(id='v-pills-profile-tab', data-bs-toggle='pill', data-bs-target='#v-pills-profile', type='button', role='tab', aria-controls='v-pills-profile', aria-selected='false') Points Per Capita
-              button.nav-link(id='v-pills-messages-tab', data-bs-toggle='pill', data-bs-target='#v-pills-messages', type='button', role='tab', aria-controls='v-pills-messages', aria-selected='false') Waste Generated
-              button.nav-link(id='v-pills-tab4', data-bs-toggle='pill', data-bs-target='#v-pills-tabContent4', type='button', role='tab', aria-controls='v-pills-tabContent4', aria-selected='false') Collection Efficiency
-              button.nav-link(id='v-pills-tab5', data-bs-toggle='pill', data-bs-target='#v-pills-tabContent5', type='button', role='tab', aria-controls='v-pills-tabContent5', aria-selected='false') Waste Variability
+              button.nav-link.active(id='wastePerCapita-tab', data-bs-toggle='pill', data-bs-target='#wastePerCapita', type='button', role='tab', aria-controls='wastePerCapita', aria-selected='true') Waste Per Capita
+              button.nav-link(id='pointsPerCapita-tab', data-bs-toggle='pill', data-bs-target='#pointsPerCapita', type='button', role='tab', aria-controls='pointsPerCapita', aria-selected='false') Points Per Capita
+              button.nav-link(id='wasteGenerated-tab', data-bs-toggle='pill', data-bs-target='#wasteGenerated', type='button', role='tab', aria-controls='wasteGenerated', aria-selected='false') Waste Generated
             .tab-content.w-75(id='v-pills-tabContent') 
-              .tab-pane.fade.show.active(id='v-pills-home', role='tabpanel', aria-labelledby='v-pills-home-tab')
+              .tab-pane.fade.show.active(id='wastePerCapita', role='tabpanel', aria-labelledby='wastePerCapita-tab')
                 canvas#showBarChart(style='min-height: 350px;')
-              .tab-pane.fade(id='v-pills-profile', role='tabpanel', aria-labelledby='v-pills-profile-tab')
+              .tab-pane.fade(id='pointsPerCapita', role='tabpanel', aria-labelledby='pointsPerCapita-tab')
                 canvas#showCPPerCapita(style='min-height: 350px;')
-              .tab-pane.fade(id='v-pills-messages', role='tabpanel', aria-labelledby='v-pills-messages-tab', style='display: flex; justify-content: center; align-items: center;')
+              .tab-pane.fade(id='wasteGenerated', role='tabpanel', aria-labelledby='wasteGenerated-tab', style='display: flex; justify-content: center; align-items: center;')
                 canvas#showWastePerCityRealtime(style='max-height: 370px;')
-              .tab-pane.fade(id='v-pills-tabContent4', role='tabpanel', aria-labelledby='v-pills-tab4')
-                canvas#reportsChartTab4(style='min-height: 350px;')
-              .tab-pane.fade(id='v-pills-tabContent5', role='tabpanel', aria-labelledby='v-pills-tab5')
-                canvas#reportsChartTab5(style='min-height: 350px;')
+
 
           // End Vertical Pills Tabs
 
@@ -62,6 +57,23 @@ block content
         // ===================================================================================
         // === SOURCES AND LAYERS ===
         // ===================================================================================
+        // === Create an empty source for the epci layer ===
+        const epciSource = new ol.source.Vector();
+        const epciLayer = new ol.layer.Vector({
+          title: 'epci',
+          source: epciSource,
+          style: function (feature) {
+            return new ol.style.Style({
+              stroke: new ol.style.Stroke({
+                color: '#457B9D',  // Bright Orange
+                width: 3
+              }),
+              fill: new ol.style.Fill({
+                color: 'rgba(29, 53, 87, 0.2)'  // Semi-transparent Bright Orange
+              })
+            });
+          }
+        });
 
         // === Create an empty source for the cities layer ===
         const citiesSource = new ol.source.Vector();
@@ -133,6 +145,17 @@ block content
         // ===================================================================================
         // === STYLES ===
         // ===================================================================================
+        // Selected Style for epci
+        const epciSelectedStyle = new ol.style.Style({
+          stroke: new ol.style.Stroke({
+            color: '#00FF00',  // Bright Green
+            width: 5
+          }),
+          fill: new ol.style.Fill({
+            color: 'rgba(0, 255, 0, 0.3)'  // Semi-transparent Bright Green
+          })
+        });
+        
         // Define a style for the selected cities
         const citiesSelectedStyle = new ol.style.Style({
           stroke: new ol.style.Stroke({
@@ -176,6 +199,17 @@ block content
         // ================================
         // === Define hover styles ===
         // ================================ 
+        // Hover Style for epci
+        const epciHoverStyle = new ol.style.Style({
+          stroke: new ol.style.Stroke({
+            color: '#FFFF00',  // Yellow
+            width: 4.5
+          }),
+          fill: new ol.style.Fill({
+            color: 'rgba(255, 255, 0, 0.3)'  // Semi-transparent Yellow
+          })
+        });
+        
         const citiesHoverStyle = new ol.style.Style({
           stroke: new ol.style.Stroke({
             color: 'blue',
@@ -214,7 +248,10 @@ block content
         };
 
 
-        // *** MAP AND VIEW ***
+        // ===================================================================================
+        // === MAP AND VIEW ===
+        // ===================================================================================
+
         // Define the initial view of the map
         const view = new ol.View({
           center: ol.proj.fromLonLat([4.3872, 45.4397]),
@@ -225,14 +262,17 @@ block content
         // Create the map with the specified layers and view
         const map = new ol.Map({
           target: 'map',
-          layers: [osmLayer,  treatmentSitesLayer, collectionPointsLayer, citiesLayer],
+          layers: [osmLayer,  treatmentSitesLayer, collectionPointsLayer, citiesLayer, epciLayer],
           view: view,
         });
 
       
 
         
-        // *** OVERLAYS ***
+        // ===================================================================================
+        // === POPUP ===
+        // ===================================================================================
+
         // Create a popup overlay for the map
         const popup = new ol.Overlay({
           element: document.getElementById('popup'),
@@ -258,7 +298,7 @@ block content
                 let featureExists = false;
 
                 map.forEachFeatureAtPixel(evt.pixel, function(feature, layer) {
-                    if (layer === citiesLayer || layer === treatmentSitesLayer || layer === collectionPointsLayer) {
+                    if (layer === citiesLayer || layer === treatmentSitesLayer || layer === collectionPointsLayer || layer === epciLayer) {
                         // If another feature was previously hovered, reset its style
                         if (lastHoveredFeature) {
                             lastHoveredFeature.setStyle(null);
@@ -268,6 +308,8 @@ block content
                             feature.setStyle(citiesHoverStyle);
                         } else if (layer === treatmentSitesLayer) {
                             feature.setStyle(treatmentHoverStyle);
+                        } else if (layer === epciLayer) {
+                            feature.setStyle(epciHoverStyle);
                         } else if (layer === collectionPointsLayer) {
                             feature.setStyle(collectionHoverStyle(feature));
                         }
@@ -298,7 +340,11 @@ block content
 
 
         let cityId; 
-        // *** EVENT HANDLERS ***
+
+        // ===================================================================================
+        // === EVENT LISTENERS ===
+        // ===================================================================================
+
         // Add an event listener for single clicks
         map.on('singleclick', function(evt) {
 
@@ -319,6 +365,8 @@ block content
                     feature.setStyle(citiesSelectedStyle);
                 } else if (layer === treatmentSitesLayer) {
                     feature.setStyle(treatmentSelectedStyle);
+                } else if (layer === epciLayer) {
+                    feature.setStyle(epciSelectedStyle);
                 } else if (layer === collectionPointsLayer) {
                     feature.setStyle(collectionSelectedStyle(feature));
                 }
@@ -368,10 +416,16 @@ block content
                             let dataApiEndpoints = [];
                             if (layer === treatmentSitesLayer) {
                                 dataApiEndpoints.push(`/api/wasterecords/${featureId}`);
+                                dataApiEndpoints.push(`/api/treatmentsitetechnologies/${featureId}`);
+                                dataApiEndpoints.push(`/api/treatmentrecords/${featureId}`);   
+
                             } else if (layer === collectionPointsLayer) {
                                 dataApiEndpoints.push(`/api/collectionpoints/${featureId}`);
                                 dataApiEndpoints.push(`/api/wasterecords/${featureId}`);
                                 dataApiEndpoints.push(`/api/wasterecords/statistics/${featureId}`);
+                                dataApiEndpoints.push(`/api/collectionschedules/${featureId}`);
+                                
+
 
                             } else if (layer === citiesLayer) {
                                 dataApiEndpoints.push(`/api/cities/${featureId}`);
@@ -383,6 +437,7 @@ block content
                                 .then(data => {
                                     // 'data' now contains the data from your API, you can use it to replace the placeholders
                                     // Modify the below code to match the properties in your data
+                                    const DATA_NOT_PROVIDED = 'Data not provided';
 
                                     let content = html
                                       .replace(/{{id}}/g, feature.get('id'))
@@ -392,22 +447,44 @@ block content
                                       .replace(/{{service_status}}/g, feature.get('service_status'))
                                       .replace(/{{opening_date}}/g, feature.get('opening_date'))
                                       .replace(/{{closing_date}}/g, feature.get('closing_date'))
+                                      .replace(/{{city}}/g, feature.get('city'))
                                       .replace(/{{service_type_description}}/g, feature.get('service_type_description'))
                                       .replace(/{{longitude}}/g, feature.get('longitude'))
                                       .replace(/{{latitude}}/g, feature.get('latitude'))
 
-                                      .replace(/{{city_id}}/g, data.city_id || 'No data')
-                                      .replace(/{{iris_id}}/g, data.iris_id || 'No data')
-                                      .replace(/{{waste_types_id}}/g, data.waste_types_id || 'No data')
+                                      .replace(/{{city_id}}/g, data.city_id || DATA_NOT_PROVIDED)
+                                      .replace(/{{iris_id}}/g, data.iris_id || DATA_NOT_PROVIDED)
+                                      .replace(/{{waste_types_id}}/g, data.waste_types_id || DATA_NOT_PROVIDED)
+                                      .replace(/{{collection_day_of_week}}/g, data.collection_day_of_week || DATA_NOT_PROVIDED)
+
+                                      .replace(/{{transportation_route_id}}/g, data.transportation_route_id || DATA_NOT_PROVIDED )
+                                      .replace(/{{treatment_site_id}}/g, data.treatment_site_id || DATA_NOT_PROVIDED )
+                                      .replace(/{{collection_order}}/g, data.collection_order || DATA_NOT_PROVIDED )
+                                      .replace(/{{vehicle_id}}/g, data.vehicle_id || DATA_NOT_PROVIDED )
+                                      .replace(/{{distance}}/g, data.distance || DATA_NOT_PROVIDED )
+                                      .replace(/{{duration}}/g, data.duration || DATA_NOT_PROVIDED )
+                                      .replace(/{{technology_name}}/g, data.technology_name || DATA_NOT_PROVIDED)
 
 
-                                      .replace(/{{collection_frequency}}/g, data.collection_frequency || 'N/A')
-                                      .replace(/{{total_weight_collected}}/g, data.total_weight_collected || 'N/A')
-                                      .replace(/{{average_weight_collected}}/g, data.average_weight_collected || 'N/A')
-                                      .replace(/{{min_weight_collected}}/g, data.min_weight_collected || 'N/A')
-                                      .replace(/{{max_weight_collected}}/g, data.max_weight_collected || 'N/A')
-                                      .replace(/{{total_bins_collected}}/g, data.total_bins_collected || 'N/A')
-                                      .replace(/{{total_collections_so_far}}/g, data.total_collections_so_far || 'N/A');
+
+                                      .replace(/{{waste_type_id}}/g, data.waste_type_id || DATA_NOT_PROVIDED )
+                                      .replace(/{{treated_weight}}/g, data.treated_weight || DATA_NOT_PROVIDED )
+                                      .replace(/{{energy_consumed}}/g, data.energy_consumed || DATA_NOT_PROVIDED )
+                                      .replace(/{{transportation_routes_id}}/g, data.transportation_routes_id || DATA_NOT_PROVIDED )
+                                      .replace(/{{total_duration}}/g, data.total_duration || DATA_NOT_PROVIDED )
+                                      .replace(/{{total_distance}}/g, data.total_distance || DATA_NOT_PROVIDED )
+
+
+
+
+
+                                      .replace(/{{collection_frequency}}/g, data.collection_frequency ? data.collection_frequency.toFixed(2) : DATA_NOT_PROVIDED)
+                                      .replace(/{{total_weight_collected}}/g, data.total_weight_collected ? data.total_weight_collected.toFixed(2) : DATA_NOT_PROVIDED)
+                                      .replace(/{{average_weight_collected}}/g, data.average_weight_collected ? data.average_weight_collected.toFixed(2) : DATA_NOT_PROVIDED)
+                                      .replace(/{{min_weight_collected}}/g, data.min_weight_collected ? data.min_weight_collected.toFixed(2) : DATA_NOT_PROVIDED)
+                                      .replace(/{{max_weight_collected}}/g, data.max_weight_collected ? data.max_weight_collected.toFixed(2) : DATA_NOT_PROVIDED)
+                                      .replace(/{{total_bins_collected}}/g, data.total_bins_collected || DATA_NOT_PROVIDED)
+                                      .replace(/{{total_collections_so_far}}/g, data.total_collections_so_far || DATA_NOT_PROVIDED);
                                       
 
 
@@ -582,7 +659,18 @@ block content
 
        
   
-        // *** FUNCTIONS. INDICATORS AND CHARTS ***
+        // ===================================================================================
+        // === FUNCTIONS, INDICATORS, AND CHARTS ===
+        // ===================================================================================
+
+        
+  
+
+        // ================================
+        // === AVERAGE WASTE PER CAPITA ===
+        // ================================
+
+         
         let barChart;  // Global variable to store the bar chart instance
 
         function showBarChart(cityId) {
@@ -613,7 +701,7 @@ block content
                     closestCities.sort((a, b) => Math.abs(a.average_waste_per_capita - selectedCity.average_waste_per_capita)
                         - Math.abs(b.average_waste_per_capita - selectedCity.average_waste_per_capita));
 
-                    const labels = closestCities.map(item => 'City ' + item.id);
+                    const labels = closestCities.map(item => item.name);
                     const values = closestCities.map(item => item.average_waste_per_capita);
 
                     // Find the index of the selected city in the closest cities array
@@ -641,7 +729,7 @@ block content
                         data: {
                             labels: labels,
                             datasets: [{
-                                label: '(' + 'City ' + cityId + ')', // update label to include the city name
+                                label: '(' + selectedCity.name + ')', // update label to include the city name
                                 data: values,
                                 backgroundColor: backgroundColors,
                                 borderColor: borderColors,
@@ -662,6 +750,9 @@ block content
         }
 
 
+        // ================================
+        // === COLLECTION POINTS PER CAPITA ===
+        // ================================
 
 
         let cpPerCapitaChart;  // Global variable to store the collection points per capita chart instance
@@ -688,7 +779,7 @@ block content
                     closestCities.sort((a, b) => Math.abs(a.collection_points_per_capita - selectedCity.collection_points_per_capita)
                     - Math.abs(b.collection_points_per_capita - selectedCity.collection_points_per_capita));
 
-                    const labels = closestCities.map(item => 'City ' + item.id);
+                    const labels = closestCities.map(item => item.name);
                     const values = closestCities.map(item => item.collection_points_per_capita);
 
                     // Find the index of the selected city in the closest cities array
@@ -713,7 +804,7 @@ block content
                         data: {
                             labels: labels,
                             datasets: [{
-                                label: 'Collection Points Per Capita (' + 'City ' + cityId + ')', // update label to include the city name
+                                label: '(' + selectedCity.name + ')', // update label to include the city name
                                 data: values,
                                 backgroundColor: backgroundColors,
                                 borderColor: borderColors,
@@ -731,6 +822,12 @@ block content
                    //document.getElementById('cardTitle').innerText = 'Collection Points Per Capita';
                 });
         }
+
+
+
+        // ================================
+        // === TOTAL WASTE GENERATED    ===
+        // ================================
 
 
         let wastePerCityChart;  // Global variable to store the waste per city chart instance
@@ -758,7 +855,7 @@ block content
 
                     console.log('Closest cities:', closestCities);  // Log closest cities
 
-                    const labels = closestCities.map(item => 'City ' + item.id);
+                    const labels = closestCities.map(item => item.name);
                     const values = closestCities.map(item => item.total_waste_generated);
 
                     console.log('Labels:', labels);  // Log labels

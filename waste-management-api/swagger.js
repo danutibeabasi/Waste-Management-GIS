@@ -153,14 +153,16 @@ specs.components = {
       TreatmentRecord: {
         type: 'object',
         properties: {
-        id: { type: 'integer' },
-        treatment_site_id: { type: 'integer' },
-        waste_type_id: { type: 'integer' },
-        treatment_technology_id: { type: 'integer' },
-        weight: { type: 'number' },
-        treatment_date: { type: 'string' },
+            id: { type: 'integer' },
+            treatment_site_technology_id: { type: 'integer' },
+            waste_record_id: { type: 'integer' },
+            waste_type_id: { type: 'integer' },
+            treated_weight: { type: 'number' },
+            treatment_date: { type: 'string' },
+            energy_consumed: { type: 'number' },
+            data_source_id: { type: 'integer' }
         }
-      },
+    },    
       Building: {
         type: 'object',
         properties: {

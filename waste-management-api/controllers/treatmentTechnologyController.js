@@ -29,8 +29,8 @@ exports.getTreatmentTechnologyById = async (req, res) => {
 // Create a new treatment technology
 exports.createTreatmentTechnology = async (req, res) => {
   try {
-    const { name, description, Treatment_type, Data_source_id } = req.body;
-    const results = await db.one('INSERT INTO treatment_technologies (name, description, Treatment_type, Data_source_id) VALUES ($1, $2, $3, $4) RETURNING *', [name, description, Treatment_type, Data_source_id]);
+    const { name, description, treatment_type, Data_source_id } = req.body;
+    const results = await db.one('INSERT INTO treatment_technologies (name, description, treatment_type, Data_source_id) VALUES ($1, $2, $3, $4) RETURNING *', [name, description, treatment_type, Data_source_id]);
     res.status(201).json(results);
   } catch (err) {
     res.status(500).json({ error: err.message });

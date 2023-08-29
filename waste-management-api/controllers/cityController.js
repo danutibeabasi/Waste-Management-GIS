@@ -3,6 +3,8 @@ const db = require('/home/dan/wastemanagement-project/waste-management-api/db.js
 const math = require('mathjs');
 
 
+
+
 exports.getWasteCollectionEfficiency = async (req, res) => {
   try {
     const result = await db.manyOrNone(
@@ -300,13 +302,14 @@ exports.getAvgWastePerCapitaAllCities = async (req, res) => {
     const result = await db.manyOrNone(
       `SELECT 
         c.id, 
+        c.name, 
         SUM(cs.total_weight_per_city) / c.population AS average_waste_per_capita
        FROM 
         city_statistics cs 
        JOIN 
         city c ON cs.city_id = c.id
        GROUP BY
-        c.id, c.population`
+        c.id, c.name, c.population`
     );
     if (result.length > 0) {
       res.status(200).json(result);
@@ -405,13 +408,14 @@ exports.getNumCollectionPointsPerCapita = async (req, res) => {
     const result = await db.manyOrNone(
       `SELECT 
         c.id, 
+        c.name, 
         CAST(cs.total_collection_point AS FLOAT) / c.population AS collection_points_per_capita
        FROM 
         city_statistics cs 
        JOIN 
         city c ON cs.city_id = c.id
        GROUP BY
-        c.id, c.population, cs.total_collection_point`
+        c.id, c.name, c.population, cs.total_collection_point`
     );
     if (result.length > 0) {
       res.status(200).json(result);
@@ -422,6 +426,7 @@ exports.getNumCollectionPointsPerCapita = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 exports.getTotalWastePerCityRealtime = async (req, res) => {
   try {

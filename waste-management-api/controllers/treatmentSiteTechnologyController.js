@@ -3,18 +3,35 @@ const db = require('../db.js');
 // Get all treatment site technologies
 exports.getAllTreatmentSiteTechnologies = async (req, res) => {
   try {
-    const results = await db.manyOrNone('SELECT * FROM treatment_site_technologies');
+    const query = `
+      SELECT tt.id as technology_id, tt.name, tst.treatment_site_id 
+      FROM treatment_technologies AS tt
+      JOIN treatment_site_technologies AS tst
+      ON tt.id = tst.treatment_technology_id;
+    `;
+
+    const results = await db.manyOrNone(query);
     res.status(200).json(results);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
+
+
 // Get a treatment site technology by ID
 exports.getTreatmentSiteTechnologyById = async (req, res) => {
   try {
     const { id } = req.params;
-    const results = await db.oneOrNone('SELECT * FROM treatment_site_technologies WHERE id = $1', [id]);
+    const query = `
+      SELECT tt.id as technology_id, tt.name as technology_name, tst.treatment_site_id 
+      FROM treatment_technologies AS tt
+      JOIN treatment_site_technologies AS tst
+      ON tt.id = tst.treatment_technology_id
+      WHERE tst.id = $1;
+    `;
+
+    const results = await db.oneOrNone(query, [id]);
     if (results) {
       res.status(200).json(results);
     } else {

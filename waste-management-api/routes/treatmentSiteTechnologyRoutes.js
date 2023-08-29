@@ -6,7 +6,7 @@ const treatmentSiteTechnologiesController = require('../controllers/treatmentSit
 
 /**
  * @swagger
- * /treatment-site-technologies:
+ * /api/treatmentsitetechnologies:
  *   post:
  *     summary: Create a new treatment site technology
  *     tags: [Treatment Site Technologies]
@@ -24,11 +24,11 @@ const treatmentSiteTechnologiesController = require('../controllers/treatmentSit
  *             schema:
  *               $ref: '#/components/schemas/TreatmentSiteTechnology'
  */
-router.post('/treatment-site-technologies', treatmentSiteTechnologiesController.createTreatmentSiteTechnology);
+router.post('/', treatmentSiteTechnologiesController.createTreatmentSiteTechnology);
 
 /**
  * @swagger
- * /treatment-site-technologies:
+ * /api/treatmentsitetechnologies:
  *   get:
  *     summary: Retrieve a list of treatment site technologies
  *     tags: [Treatment Site Technologies]
@@ -42,11 +42,11 @@ router.post('/treatment-site-technologies', treatmentSiteTechnologiesController.
  *               items:
  *                 $ref: '#/components/schemas/TreatmentSiteTechnology'
  */
-router.get('/treatment-site-technologies', treatmentSiteTechnologiesController.getAllTreatmentSiteTechnologies);
+router.get('/', treatmentSiteTechnologiesController.getAllTreatmentSiteTechnologies);
 
 /**
  * @swagger
- * /treatment-site-technologies/{id}:
+ * /api/treatmentsitetechnologies/{id}:
  *   get:
  *     summary: Retrieve a treatment site technology by ID
  *     tags: [Treatment Site Technologies]
@@ -65,11 +65,11 @@ router.get('/treatment-site-technologies', treatmentSiteTechnologiesController.g
  *             schema:
  *               $ref: '#/components/schemas/TreatmentSiteTechnology'
  */
-router.get('/treatment-site-technologies/:id', treatmentSiteTechnologiesController.getTreatmentSiteTechnologyById);
+router.get('/:id', treatmentSiteTechnologiesController.getTreatmentSiteTechnologyById);
 
 /**
  * @swagger
- * /treatment-site-technologies/{id}:
+ * /api/treatmentsitetechnologies/{id}:
  *   put:
  *     summary: Update a treatment site technology by ID
  *     tags: [Treatment Site Technologies]
@@ -96,11 +96,11 @@ router.get('/treatment-site-technologies/:id', treatmentSiteTechnologiesControll
  *       404:
  *         description: Treatment site technology not found
  */
-router.put('/treatment-site-technologies/:id', treatmentSiteTechnologiesController.updateTreatmentSiteTechnology);
+router.put('/:id', treatmentSiteTechnologiesController.updateTreatmentSiteTechnology);
 
 /**
  * @swagger
- * /treatment-site-technologies/{id}:
+ * /api/treatmentsitetechnologies/{id}:
  *   delete:
  *     summary: Delete a treatment site technology by ID
  *     tags: [Treatment Site Technologies]
@@ -125,6 +125,6 @@ router.put('/treatment-site-technologies/:id', treatmentSiteTechnologiesControll
  *       404:
  *         description: Treatment site technology not found
  */
-router.delete('/treatment-site-technologies/:id', treatmentSiteTechnologiesController.deleteTreatmentSiteTechnology);
+router.delete('/:id', treatmentSiteTechnologiesController.deleteTreatmentSiteTechnology);
 
 module.exports = router;

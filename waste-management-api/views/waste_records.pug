@@ -1,83 +1,76 @@
 extends layout
 
 block content
+
+  div.grid-container
+    div.grid-item-1
+        section.section
+            div.row.card
+                div.card-body.d-flex.justify-content-between
+                    #dropArea.drop-area(data-controller="wasteRecord")
+                        p Drag & Drop your CSV/XLSX file here with the following columns:
+                        input#fileElem(type="file" accept=".csv, .xlsx" multiple)
+
+  script(src="./assets/js/uploadutils.js")
+
+  style.
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: 20px 2fr;
+      grid-gap: 10px;
+      padding: 10px;
+    }
+
+    .grid-item-1 {
+      grid-column: 2 / span 2;
+      grid-row: 2;
+      text-align: center;
+    }
+
+    .d-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .drop-area {
+      border: 4px dashed #d9d9d9;
+      padding: 20px;
+      width: 400px;
+      height: 300px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    #fileElem {
+      display: none;
+    }
+
+           
   
-  //- div.modal.fade#largeModal(tabindex="-1")
-  //-   div.modal-dialog.modal-lg
-  //-     div.modal-content
-  //-       div.modal-header
-  //-         h5.modal-title#modalTitle Add New Schedule
-  //-         button.btn-close(type="button", data-bs-dismiss="modal", aria-label="Close")
-  //-       div.modal-body
-  //-         form#recordForm(method="POST")
-  //-           div.form-group
-  //-             label.form-label(for='inputCollectionPointId') Collection Point
-  //-             select.form-select#inputCollectionPointId(name='collection_point_id')
-  //-               each collectionPoint in collectionPoints
-  //-                 option(value=collectionPoint.id) #{collectionPoint.name}
-  //-           div.form-group
-  //-             label.form-label(for='inputWasteTypeId') Waste Type
-  //-             select.form-select#inputWasteTypeId(name='waste_type_id')
-  //-               each wasteType in wasteTypes
-  //-                 option(value=wasteType.id) #{wasteType.name}
-  //-           div.form-group
-  //-             label(for="weight") Weight
-  //-             input#weight.form-control(type="number" name="weight" placeholder="Enter Weight" required)
-  //-           div.form-group
-  //-             label(for="number_of_collections") Number of Collections
-  //-             input#number_of_collections.form-control(type="number" name="number_of_collections" placeholder="Enter Number of Collections" required)
-  //-       div.modal-footer
-  //-         button.btn.btn-secondary(type="button", data-bs-dismiss="modal") Close
-  //-         button#submitFormBtn.btn.btn-primary(type="submit") Submit
 
-  //- div.grid-container
-  //-   div.grid-item-1
-  //-     section.section
-  //-     div.row
-  //-       div.col-lg-12
-  //-         div.card
-  //-           div.card-body
-  //-             div.d-flex.justify-content-between
-  //-               h5.card-title Waste Records 
-  //-               button#addNewRecordBtn.btn.btn-primary(type="button") Add New Record
-              
-  //-             // Table with stripped rows
-  //-             table.table.datatable-paginated
-  //-               thead
-  //-                 tr
-  //-                   th(scope="col") #
-  //-                   th(scope="col") Collection Point ID
-  //-                   th(scope="col") Waste Type
-  //-                   th(scope="col") Weight
-  //-                   th(scope="col") Total Weight
-  //-                   th(scope="col") Average Weight 
-  //-                   th(scope="col") Min Weight 
-  //-                   th(scope="col") Max Weight 
-  //-                   th(scope="col") Total Bins 
-  //-                   th(scope="col") Number of Collections
-  //-                   th(scope="col") Edit
-  //-                   th(scope="col") Delete
-  //-               tbody
-  //-                 each record, i in records
-  //-                   tr(data-record=JSON.stringify(record))
-  //-                     th(scope="row")= i+1
-  //-                     td= record.collection_point_id
-  //-                     td= record.waste_type_name
-  //-                     td= record.weight
-  //-                     td= record.total_weight
-  //-                     td= record.average_weight
-  //-                     td= record.min_weight 
-  //-                     td= record.max_weight 
-  //-                     td= record.total_bins 
-  //-                     td= record.number_of_collections
-  //-                     td
-  //-                       a.edit-record-btn
-  //-                         i.bi.bi-pencil-square
 
-  //-                     td
-  //-                       i.bi.bi-trash(onclick=`deleteRecord(${record.id})`)
 
-  //- script.
+
+
+
+
+
+
+
+
+
+
+
+//- script.
   //-   $(document).ready(function() {
   //-     $('.datatable-paginated').DataTable();
 
@@ -170,42 +163,3 @@ block content
   //-       }
   //-     });
   //-   }
-
-
-
-  style.
-    .form-group {
-      margin-bottom: 15px; 
-    }
-
-    .grid-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      grid-template-rows:20px 2fr;
-      grid-gap: 10px;
-      padding: 10px;
-    }
-
-    .grid-item-1 {
-      grid-column: 1 / span 3;
-      grid-row: 2;
-      text-align: center;
-    }
-
-    .d-flex {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .datatable-paginated thead th {
-      font-size: 12px;  
-    }
-    .datatable-paginated tbody td {
-      font-size: 11px;  
-    }
-
-    i.bi.bi-trash {
-      color: red;  
-      cursor: pointer;
-    }
